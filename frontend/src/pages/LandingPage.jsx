@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Zap, Shield, Brain, TrendingUp, CheckCircle } from 'lucide-react'
+import Logo from '../components/common/Logo'
 
 const STEPS = [
   { icon: '📁', step: '01', title: 'Connect', desc: 'Upload CSV, Excel, or connect Snowflake, BigQuery, S3' },
@@ -21,13 +22,8 @@ export default function LandingPage() {
       {/* ---- Navbar ---- */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-ah">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Logo: icon + wordmark */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex items-center justify-center text-lg shadow-[0_0_12px_rgba(0,122,255,0.2)] group-hover:shadow-[0_0_18px_rgba(0,122,255,0.35)] transition-shadow">
-              📊
-            </div>
-            <span className="font-headline text-lg font-bold text-ah-text tracking-tight">Analytics Hub</span>
-          </Link>
+          {/* Logo: RefineIQ */}
+          <Logo size="default" to="/" />
           <div className="flex items-center gap-5">
             <Link to="/pricing" className="text-ah-muted hover:text-ah-text text-sm transition-colors outline-none focus:underline">Pricing</Link>
             <Link to="/auth"    className="text-ah-muted hover:text-ah-text text-sm transition-colors outline-none focus:underline">Login</Link>
@@ -160,10 +156,10 @@ export default function LandingPage() {
 
       {/* ---- Footer ---- */}
       <footer className="py-8 px-6 border-t border-ah text-center text-ah-subtle text-sm">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <img src="/assets/logo.png" alt="" className="w-5 h-5 opacity-50" />
-          <span>Analytics Hub © 2026</span>
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Logo size="sm" to="/" />
         </div>
+        <div className="mb-2 text-xs text-ah-muted">RefineIQ © 2026. All rights reserved.</div>
         <p>
           Built with ❤️ for the data science community ·{' '}
           <Link to="/auth" className="hover:text-ah-text transition-colors">Login</Link> ·{' '}

@@ -176,7 +176,7 @@ export default function SettingsPage() {
             {activeTab === 'appearance' && (
               <div className="bg-ah-surface border border-ah rounded-2xl p-6 shadow-ah-card space-y-5">
                 <h3 className="font-headline font-bold text-base">Interface Theme</h3>
-                <p className="text-xs text-ah-muted">Analytics Hub supports Dark Mode by default to reduce visual fatigue, with Light Mode available.</p>
+                <p className="text-xs text-ah-muted">RefineIQ supports Dark Mode by default to reduce visual fatigue, with Light Mode available.</p>
 
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <button
@@ -241,7 +241,7 @@ export default function SettingsPage() {
                   <h3 className="font-headline font-bold text-base text-ah-text">Privacy Shield Policy</h3>
                 </div>
                 <p className="text-xs text-ah-muted leading-relaxed">
-                  Analytics Hub runs an strict privacy architecture. Microsoft Presidio inspects ingested data locally before it leaves your workspace. PII tokens are salted and hashed.
+                  RefineIQ runs a strict privacy architecture. Microsoft Presidio inspects ingested data locally before it leaves your workspace. PII tokens are salted and hashed.
                 </p>
                 <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-300">
                   ✓ Presidio Analyzer engine active<br />

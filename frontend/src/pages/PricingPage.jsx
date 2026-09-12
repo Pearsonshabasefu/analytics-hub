@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, ArrowRight, Zap, Shield, Sparkles, ChevronLeft } from 'lucide-react'
+import Logo from '../components/common/Logo'
 
 export default function PricingPage() {
   const navigate = useNavigate()
@@ -57,10 +58,7 @@ export default function PricingPage() {
     <div className="min-h-screen bg-ah-bg text-ah-text">
       {/* Top Navbar */}
       <nav className="glass border-b border-ah sticky top-0 z-30 px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <img src="/assets/logo.png" alt="Analytics Hub" className="w-8 h-8" />
-          <span className="font-headline text-lg font-bold">Analytics Hub</span>
-        </Link>
+        <Logo size="default" to="/" />
         <div className="flex items-center gap-4">
           <Link to="/auth" className="text-sm text-ah-muted hover:text-ah-text">Sign In</Link>
           <Link

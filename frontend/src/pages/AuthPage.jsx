@@ -6,6 +6,7 @@ import {
   Loader2, Mail, ArrowRight, Lock, Sparkles,
   AlertCircle, Eye, EyeOff, ChevronRight,
 } from 'lucide-react'
+import Logo from '../components/common/Logo'
 
 // ── Social Brand Icons ──────────────────────────────────────────────
 function GoogleIcon() {
@@ -195,14 +196,9 @@ export default function AuthPage() {
 
       <div className="w-full max-w-md relative">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex flex-col items-center gap-2">
-            <div className="w-14 h-14 rounded-2xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(0,122,255,0.2)]">
-              📊
-            </div>
-            <span className="text-xl font-bold text-[#F4F4F5]" style={{ fontFamily: 'Manrope, system-ui, sans-serif' }}>Analytics Hub</span>
-          </Link>
-          <p className="text-[#52525B] mt-1.5 text-xs font-mono">The Intelligence in Your Data, Unleashed</p>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <Logo size="lg" to="/" />
+          <p className="text-[#71717A] mt-2 text-xs font-mono">The Intelligence in Your Data, Unleashed</p>
         </div>
 
         {/* Card */}

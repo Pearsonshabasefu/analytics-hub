@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Shield, FileText, Scale, Lock, Cpu, AlertTriangle } from 'lucide-react'
+import Logo from '../components/common/Logo'
 
 export default function TermsPage() {
   return (
@@ -7,10 +8,7 @@ export default function TermsPage() {
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-ah">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <img src="/assets/logo.png" alt="Analytics Hub" className="w-8 h-8" />
-            <span className="font-headline text-lg font-bold text-ah-text">Analytics Hub</span>
-          </Link>
+          <Logo size="default" to="/" />
           <div className="flex items-center gap-4">
             <Link
               to="/"
@@ -70,7 +68,7 @@ export default function TermsPage() {
           <section>
             <h2 className="font-headline text-xl font-bold text-ah-text mb-3">1. Description of Service & Business Model</h2>
             <p>
-              Analytics Hub provides a B2B automated machine learning (AutoML) and data science workspace. The Service enables authorized customers to connect tabular data (CSV, Excel, SQL, Cloud Warehouses), automate data hygiene, strip personally identifiable information, train parallel algorithms (including XGBoost and Random Forest), deploy low-latency prediction endpoints, and track inference drift.
+              RefineIQ provides a B2B automated machine learning (AutoML) and data science workspace. The Service enables authorized customers to connect tabular data (CSV, Excel, SQL, Cloud Warehouses), automate data hygiene, strip personally identifiable information, train parallel algorithms (including XGBoost and Random Forest), deploy low-latency prediction endpoints, and track inference drift.
             </p>
           </section>
 
@@ -80,7 +78,7 @@ export default function TermsPage() {
               Access is provisioned through secure passwordless magic link email or single sign-on (SSO). You are strictly responsible for maintaining control of your authentication tokens and API secret keys (<code className="text-xs text-ah-primary bg-ah-surface2 px-1.5 py-0.5 rounded font-mono">ah_live_*</code>).
             </p>
             <p>
-              You agree to notify Analytics Hub immediately if you suspect any unauthorized access or compromise of your credentials.
+              You agree to notify RefineIQ immediately if you suspect any unauthorized access or compromise of your credentials.
             </p>
           </section>
 
@@ -100,10 +98,10 @@ export default function TermsPage() {
           <section>
             <h2 className="font-headline text-xl font-bold text-ah-text mb-3">4. Customer Data Ownership & Intellectual Property</h2>
             <div className="bg-ah-surface2 border border-ah rounded-xl p-4 text-xs mb-3 text-ah-text">
-              <strong>Core Guarantee:</strong> You retain 100% exclusive intellectual property ownership of all customer datasets, uploaded files, and derivative trained model weights. Analytics Hub claims zero ownership over your data.
+              <strong>Core Guarantee:</strong> You retain 100% exclusive intellectual property ownership of all customer datasets, uploaded files, and derivative trained model weights. RefineIQ claims zero ownership over your data.
             </div>
             <p>
-              You grant Analytics Hub only the limited, revocable license necessary to ingest, compute, and host your models on your behalf. Analytics Hub retains all proprietary rights to its platform code, algorithms, visual components, and system software.
+              You grant RefineIQ only the limited, revocable license necessary to ingest, compute, and host your models on your behalf. RefineIQ retains all proprietary rights to its platform code, algorithms, visual components, and system software.
             </p>
           </section>
 
@@ -113,7 +111,7 @@ export default function TermsPage() {
               Our automated Privacy Shield integrates Microsoft Presidio algorithms to identify, flag, and hash customer personal data (such as emails, telephone numbers, and residential addresses).
             </p>
             <p>
-              You certify that your collection of input data satisfies applicable privacy statutes (GDPR, CCPA, NDPR). Analytics Hub enforces architectural guardrails preventing raw user rows from being transmitted to third-party public foundation model APIs.
+              You certify that your collection of input data satisfies applicable privacy statutes (GDPR, CCPA, NDPR). RefineIQ enforces architectural guardrails preventing raw user rows from being transmitted to third-party public foundation model APIs.
             </p>
           </section>
 
@@ -124,7 +122,7 @@ export default function TermsPage() {
                 <h3 className="font-headline text-sm uppercase tracking-wide">6. AI Output & Model Accuracy Disclaimer</h3>
               </div>
               <p className="text-xs text-yellow-200/90 leading-relaxed">
-                Machine learning models and statistical recommendations generated by the platform are probabilistic in nature. Analytics Hub does not warrant that model forecasts or classifications will achieve specific financial, operational, or business outcomes. You are solely responsible for verifying and testing models prior to deployment in high-consequence environments.
+                Machine learning models and statistical recommendations generated by the platform are probabilistic in nature. RefineIQ does not warrant that model forecasts or classifications will achieve specific financial, operational, or business outcomes. You are solely responsible for verifying and testing models prior to deployment in high-consequence environments.
               </p>
             </div>
           </section>
@@ -139,7 +137,7 @@ export default function TermsPage() {
           <section>
             <h2 className="font-headline text-xl font-bold text-ah-text mb-3">8. Limitation of Liability</h2>
             <p className="uppercase text-xs text-ah-subtle font-mono leading-normal">
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, ANALYTICS HUB SHALL NOT BE LIABLE FOR INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS OR DEFECTIVE PREDICTIONS. OUR AGGREGATE LIABILITY FOR ANY CLAIM SHALL NOT EXCEED THE TOTAL FEES PAID BY YOU DURING THE PRIOR TWELVE (12) MONTHS.
+              TO THE MAXIMUM EXTENT PERMITTED BY LAW, REFINEIQ SHALL NOT BE LIABLE FOR INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS OR DEFECTIVE PREDICTIONS. OUR AGGREGATE LIABILITY FOR ANY CLAIM SHALL NOT EXCEED THE TOTAL FEES PAID BY YOU DURING THE PRIOR TWELVE (12) MONTHS.
             </p>
           </section>
 
@@ -154,8 +152,8 @@ export default function TermsPage() {
             <h2 className="font-headline text-base font-bold text-ah-text mb-2">10. Contact & Inquiries</h2>
             <p className="text-xs">
               For questions regarding these Terms, contact our legal desk at{' '}
-              <a href="mailto:legal@analyticshub.ai" className="text-ah-primary hover:underline">
-                legal@analyticshub.ai
+              <a href="mailto:legal@refineiq.ai" className="text-ah-primary hover:underline">
+                legal@refineiq.ai
               </a>{' '}
               or report directly through the in-app Magic Ear 👂 feedback tool.
             </p>
@@ -167,7 +165,7 @@ export default function TermsPage() {
       <footer className="py-8 px-6 border-t border-ah text-center text-ah-subtle text-xs">
         <div className="flex items-center justify-center gap-2 mb-2">
           <img src="/assets/logo.png" alt="" className="w-4 h-4 opacity-50" />
-          <span>Analytics Hub © 2026. All rights reserved.</span>
+          <span>RefineIQ © 2026. All rights reserved.</span>
         </div>
         <p>
           <Link to="/" className="hover:text-ah-text transition-colors">Home</Link> •{' '}

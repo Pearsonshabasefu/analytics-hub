@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useAuthStore } from '../store/authStore'
 import { useThemeStore } from '../store/themeStore'
 import NamingModal from '../components/features/launcher/NamingModal'
+import Logo from '../components/common/Logo'
 
 // Fetch projects from backend
 const fetchProjects = () => apiClient.get('/api/projects/').then(r => r.data)
@@ -129,10 +130,7 @@ export default function DashboardPage() {
       {/* Top bar */}
       <header className="sticky top-0 z-40 glass border-b border-ah">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/assets/logo.png" alt="Analytics Hub" className="w-7 h-7" />
-            <span className="font-headline font-bold text-ah-text">Analytics Hub</span>
-          </div>
+          <Logo size="default" to="/dashboard" />
           <div className="flex items-center gap-3">
             {/* Theme toggle */}
             <button

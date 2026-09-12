@@ -77,7 +77,7 @@ export default function MagicEarWidget() {
             <div className="py-8 text-center">
               <CheckCircle size={36} className="text-green-400 mx-auto mb-2" />
               <h4 className="font-headline font-bold text-sm text-ah-text">Received!</h4>
-              <p className="text-xs text-ah-muted mt-1">Thank you for helping us shape Analytics Hub.</p>
+              <p className="text-xs text-ah-muted mt-1">Thank you for helping us shape RefineIQ.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">

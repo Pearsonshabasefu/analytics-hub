@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="refineGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F2FE" />
+      <stop offset="60%" stop-color="#007AFF" />
+      <stop offset="100%" stop-color="#34D399" />
+    </linearGradient>
+    <filter id="neonBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- Outer Neural Ring -->
+  <circle cx="50" cy="46" r="34" stroke="url(#refineGlow)" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="145 35" filter="url(#neonBlur)" opacity="0.95"/>
+  <circle cx="50" cy="46" r="23" stroke="#007AFF" stroke-width="2" stroke-dasharray="8 6" opacity="0.6"/>
+
+  <!-- Neural Nodes -->
+  <circle cx="26" cy="30" r="3.5" fill="#00F2FE" />
+  <circle cx="74" cy="30" r="3.5" fill="#00F2FE" />
+  <circle cx="19" cy="46" r="4" fill="#007AFF" />
+  <circle cx="81" cy="46" r="4" fill="#007AFF" />
+  <circle cx="28" cy="62" r="3.5" fill="#007AFF" />
+
+  <!-- Node Connection Web -->
+  <path d="M26 30 L50 20 L74 30 M19 46 L35 46 M74 30 L65 46" stroke="#00F2FE" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
+
+  <!-- Dynamic Ascending Q-Pulse Arrow -->
+  <path d="M42 66 L78 22 M78 22 L62 23 M78 22 L77 38" stroke="url(#refineGlow)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#neonBlur)"/>
+  
+  <!-- Central Spark -->
+  <circle cx="50" cy="46" r="5" fill="url(#refineGlow)" />
+  <circle cx="78" cy="22" r="3" fill="#FFFFFF" />
+</svg>
