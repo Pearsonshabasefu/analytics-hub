@@ -21,16 +21,19 @@ export default function LandingPage() {
       {/* ---- Navbar ---- */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-ah">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/assets/logo.png" alt="Analytics Hub" className="w-8 h-8" />
-            <span className="font-headline text-lg font-bold text-ah-text">Analytics Hub</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <Link to="/pricing" className="text-ah-muted hover:text-ah-text text-sm transition-colors">Pricing</Link>
-            <Link to="/auth" className="text-ah-muted hover:text-ah-text text-sm transition-colors">Login</Link>
+          {/* Logo: icon + wordmark */}
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 rounded-xl bg-[#007AFF]/15 border border-[#007AFF]/30 flex items-center justify-center text-lg shadow-[0_0_12px_rgba(0,122,255,0.2)] group-hover:shadow-[0_0_18px_rgba(0,122,255,0.35)] transition-shadow">
+              📊
+            </div>
+            <span className="font-headline text-lg font-bold text-ah-text tracking-tight">Analytics Hub</span>
+          </Link>
+          <div className="flex items-center gap-5">
+            <Link to="/pricing" className="text-ah-muted hover:text-ah-text text-sm transition-colors outline-none focus:underline">Pricing</Link>
+            <Link to="/auth"    className="text-ah-muted hover:text-ah-text text-sm transition-colors outline-none focus:underline">Login</Link>
             <Link
               to="/auth"
-              className="bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+              className="bg-[#007AFF] hover:bg-[#0062CC] active:bg-[#0051A8] active:scale-95 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-[0_0_16px_rgba(0,122,255,0.25)] hover:shadow-[0_0_24px_rgba(0,122,255,0.4)] outline-none focus:ring-2 focus:ring-[#007AFF]/50"
             >
               Get Started Free
             </Link>
@@ -64,13 +67,13 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/auth"
-              className="inline-flex items-center gap-2 bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all shadow-ah-glow hover:shadow-ah-float"
+              className="inline-flex items-center gap-2 bg-[#007AFF] hover:bg-[#0062CC] active:bg-[#0051A8] active:scale-95 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all shadow-[0_0_24px_rgba(0,122,255,0.3)] hover:shadow-[0_0_36px_rgba(0,122,255,0.5)] outline-none focus:ring-2 focus:ring-[#007AFF]/50"
             >
               Start for Free <ArrowRight size={20} />
             </Link>
             <Link
               to="/pricing"
-              className="inline-flex items-center gap-2 bg-ah-surface border border-ah hover:border-ah-primary text-ah-text px-8 py-4 rounded-xl text-lg font-semibold transition-all"
+              className="inline-flex items-center gap-2 bg-[#111113] border border-[#27272A] hover:border-[#007AFF] active:bg-[#18181B] active:scale-95 text-[#F4F4F5] px-8 py-4 rounded-xl text-lg font-semibold transition-all outline-none focus:ring-2 focus:ring-[#007AFF]/30"
             >
               View Pricing
             </Link>
