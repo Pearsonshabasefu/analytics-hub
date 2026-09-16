@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   User, Moon, Sun, CreditCard, Shield, Key,
-  ChevronLeft, Check, Sparkles, ExternalLink, Zap, CheckCircle2
+  ChevronLeft, Check, Sparkles, ExternalLink, Zap, CheckCircle2,
+  Receipt, FileText, Download
 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { useThemeStore } from '../store/themeStore'
 import { useFlutterwaveCheckout } from '../hooks/useFlutterwaveCheckout'
+import PaymentReceiptModal from '../components/common/PaymentReceiptModal'
 
 // ── Per-package top-up button (hook must be called at component level) ────────
 function TopUpButton({ pkg, onSuccess }) {
@@ -40,6 +42,35 @@ export default function SettingsPage() {
   const [autoTopUp, setAutoTopUp]         = useState(false)
   const [maxModelSpend, setMaxModelSpend] = useState(20)
   const [successMsg, setSuccessMsg]       = useState(null)
+  const [activeReceipt, setActiveReceipt] = useState(null)
+
+  const [transactions, setTransactions]   = useState(() => {
+    try {
+      const saved = localStorage.getItem('refineiq_billing_txs')
+      if (saved) return JSON.parse(saved)
+    } catch (_) {}
+    return [
+      {
+        tx_ref: 'RIQ-INIT-FREE-TIER',
+        transaction_id: 'FLW-ONBOARDING',
+        amount: 0.00,
+        currency: 'USD',
+        ocus: 50,
+        packageLabel: 'Free Starter Allocation',
+        date: new Date().toLocaleDateString(),
+        customerEmail: user?.email || 'customer@refineiq.ai',
+        customerName: user?.user_metadata?.full_name || 'RefineIQ Member',
+        paymentMethod: 'Platform Onboarding Grant',
+        status: 'successful'
+      }
+    ]
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('refineiq_billing_txs', JSON.stringify(transactions))
+    } catch (_) {}
+  }, [transactions])
 
   const packages = [
     { id: 'starter',  ocus: 50,  price: '$5',  label: 'Starter Pack',  popular: false },
@@ -47,11 +78,29 @@ export default function SettingsPage() {
     { id: 'pro',      ocus: 500, price: '$35', label: 'Pro Scale',     popular: false },
   ]
 
-  const handlePaymentSuccess = (pkg) => {
+  const handlePaymentSuccess = (pkg, data) => {
     setOcuBalance(prev => prev + pkg.ocus)
-    setSuccessMsg(`${pkg.ocus} OCUs added to your balance!`)
+    setSuccessMsg(`Payment successful! ${pkg.ocus} OCUs added to your balance.`)
     setTimeout(() => setSuccessMsg(null), 6000)
+
+    const receiptObj = {
+      tx_ref: data?.tx_ref || `RIQ-TX-${Date.now()}`,
+      transaction_id: data?.transaction_id || `FLW-${Math.floor(100000000 + Math.random() * 900000000)}`,
+      amount: parseFloat(pkg.price.replace('$', '')),
+      currency: data?.currency || 'USD',
+      ocus: pkg.ocus,
+      packageLabel: pkg.label,
+      date: new Date().toLocaleString(),
+      customerEmail: user?.email || 'customer@refineiq.ai',
+      customerName: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'RefineIQ Member',
+      paymentMethod: data?.payment_type ? `Flutterwave (${data.payment_type.toUpperCase()})` : 'Flutterwave Checkout',
+      status: 'successful'
+    }
+
+    setTransactions(prev => [receiptObj, ...prev])
+    setActiveReceipt(receiptObj)
   }
+
 
   return (
     <div className="min-h-screen bg-ah-bg text-ah-text">
@@ -199,6 +248,52 @@ export default function SettingsPage() {
                     />
                   </div>
                 </div>
+
+                {/* Transaction & Receipt History */}
+                <div className="bg-ah-surface border border-ah rounded-2xl p-6 shadow-ah-card space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-headline font-bold text-base">Invoices & Payment Receipts</h3>
+                      <p className="text-xs text-ah-muted">View or print receipts for your compute top-ups and subscription payments.</p>
+                    </div>
+                    <Receipt size={20} className="text-ah-muted" />
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-ah text-ah-muted font-mono uppercase text-[10px] text-left">
+                          <th className="py-2.5">Date</th>
+                          <th className="py-2.5">Package</th>
+                          <th className="py-2.5 text-center">Compute</th>
+                          <th className="py-2.5 text-right">Amount</th>
+                          <th className="py-2.5 text-right">Invoice</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-ah/60 font-mono">
+                        {transactions.map((tx, idx) => (
+                          <tr key={idx} className="hover:bg-ah-surface2/50 transition-colors">
+                            <td className="py-3 text-ah-muted text-[11px] whitespace-nowrap">{tx.date}</td>
+                            <td className="py-3 text-ah-text font-sans font-medium">{tx.packageLabel}</td>
+                            <td className="py-3 text-center text-cyan-400 font-bold">+{tx.ocus} OCUs</td>
+                            <td className="py-3 text-right text-ah-text font-bold">
+                              ${parseFloat(tx.amount).toFixed(2)} {tx.currency}
+                            </td>
+                            <td className="py-3 text-right">
+                              <button
+                                onClick={() => setActiveReceipt(tx)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-ah-surface3 hover:bg-ah-primary hover:text-white text-ah-text text-[11px] font-sans font-semibold transition-all shadow-sm"
+                              >
+                                <FileText size={12} />
+                                View Receipt
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -295,6 +390,13 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Payment Confirmation & Tax Receipt Modal */}
+      <PaymentReceiptModal
+        receipt={activeReceipt}
+        onClose={() => setActiveReceipt(null)}
+      />
     </div>
   )
 }
+
