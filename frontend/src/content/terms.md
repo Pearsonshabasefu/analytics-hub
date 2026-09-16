@@ -3,7 +3,7 @@
 **Last Updated: September 10, 2026**  
 **Effective Date: September 10, 2026**
 
-Welcome to **Analytics Hub** ("Company", "we", "us", or "our"). These Terms and Conditions of Service ("Terms") govern your access to and use of the Analytics Hub platform, website, application programming interfaces (APIs), and related software services (collectively, the "Service").
+Welcome to **RefineIQ** ("Company", "we", "us", or "our"). These Terms and Conditions of Service ("Terms") govern your access to and use of the RefineIQ platform, website, application programming interfaces (APIs), and related software services (collectively, the "Service").
 
 By creating an account, accessing, or utilizing the Service, you ("Customer", "User", or "you") acknowledge that you have read, understood, and agree to be legally bound by these Terms. If you are accepting these Terms on behalf of an enterprise, company, or legal entity, you represent and warrant that you possess full legal authority to bind such entity.
 
@@ -11,7 +11,7 @@ By creating an account, accessing, or utilizing the Service, you ("Customer", "U
 
 ## 1. Description of Service
 
-Analytics Hub provides a cloud-native B2B data science automation and automated machine learning (AutoML) platform. The Service enables authorized users to ingest tabular datasets, execute autonomous data cleaning, mask personally identifiable information (PII), train and benchmark machine learning algorithms, deploy prediction micro-endpoints, and observe inference drift.
+RefineIQ provides a cloud-native B2B data science automation and automated machine learning (AutoML) platform. The Service enables authorized users to ingest tabular datasets, execute autonomous data cleaning, mask personally identifiable information (PII), train and benchmark machine learning algorithms, deploy prediction micro-endpoints, and observe inference drift.
 
 ---
 
@@ -21,7 +21,7 @@ Analytics Hub provides a cloud-native B2B data science automation and automated 
 
 2.2. **Account Security:** You access the Service through single sign-on (SSO) or passwordless Magic Link email authentication. You are exclusively responsible for maintaining the confidentiality of your credentials and API tokens (`ah_live_*`). You assume full liability for all activities conducted under your account credentials.
 
-2.3. **Unauthorized Access:** You agree to notify Analytics Hub immediately upon discovering any unauthorized use of your credentials or breach of security.
+2.3. **Unauthorized Access:** You agree to notify RefineIQ immediately upon discovering any unauthorized use of your credentials or breach of security.
 
 ---
 
@@ -29,7 +29,7 @@ Analytics Hub provides a cloud-native B2B data science automation and automated 
 
 3.1. **Pricing Structure:** The Service operates on a hybrid model comprising seat-based subscription tiers and usage-based **Operations Compute Units (OCUs)** consumed during automated data transformations, distributed model training runs, and inference serving.
 
-3.2. **Payment Processing:** All payments, subscriptions, and one-time OCU top-ups are processed securely through our authorized payment gateway partners, including **Flutterwave**. By initiating transactions, you authorize Analytics Hub and Flutterwave to charge your designated payment instrument in your selected currency.
+3.2. **Payment Processing:** All payments, subscriptions, and one-time OCU top-ups are processed securely through our authorized payment gateway partners, including **Flutterwave**. By initiating transactions, you authorize RefineIQ and Flutterwave to charge your designated payment instrument in your selected currency.
 
 3.3. **OCU Metering & Depletion:**
 - Each AutoML training cycle, data transformation job, and model deployment draws against your available OCU balance.
@@ -46,9 +46,9 @@ Analytics Hub provides a cloud-native B2B data science automation and automated 
 
 4.1. **Customer Ownership:** As between the parties, you retain 100% exclusive ownership, right, title, and interest in and to all raw datasets, files, database records, and proprietary business metrics that you upload or transmit to the Service ("Customer Data"), as well as the trained model weight artifacts derived specifically from your data.
 
-4.2. **License to Operate:** You grant Analytics Hub a limited, revocable, non-exclusive, worldwide license to process, parse, store, and compute upon your Customer Data solely to the extent necessary to deliver, maintain, and safeguard the Service for you.
+4.2. **License to Operate:** You grant RefineIQ a limited, revocable, non-exclusive, worldwide license to process, parse, store, and compute upon your Customer Data solely to the extent necessary to deliver, maintain, and safeguard the Service for you.
 
-4.3. **Platform Intellectual Property:** Analytics Hub and its licensors retain all intellectual property rights, trademarks, patents, proprietary algorithms, user interface designs, and documentation comprising the platform. You may not reverse engineer, decompile, or copy platform source code.
+4.3. **Platform Intellectual Property:** RefineIQ and its licensors retain all intellectual property rights, trademarks, patents, proprietary algorithms, user interface designs, and documentation comprising the platform. You may not reverse engineer, decompile, or copy platform source code.
 
 ---
 
@@ -58,17 +58,17 @@ Analytics Hub provides a cloud-native B2B data science automation and automated 
 
 5.2. **Customer Compliance Responsibility:** You represent and warrant that you possess all requisite legal consents, permissions, and lawful bases under applicable data protection legislation (including GDPR, CCPA, and regional equivalents) to upload Customer Data to the Service.
 
-5.3. **AI Architecture Guardrails:** Analytics Hub enforces an architectural boundary: raw customer data rows are processed within your isolated execution environment. Only abstracted metadata, column names, and aggregated statistical summaries are referenced for AI assistant briefings.
+5.3. **AI Architecture Guardrails:** RefineIQ enforces an architectural boundary: raw customer data rows are processed within your isolated execution environment. Only abstracted metadata, column names, and aggregated statistical summaries are referenced for AI assistant briefings.
 
 ---
 
 ## 6. AI Output Disclaimer & Model Reliability
 
-6.1. **Probabilistic Nature of AI:** You acknowledge that machine learning models, statistical algorithms, and automated recommendations generated by the Service are probabilistic in nature. Analytics Hub does not guarantee that model predictions, classifications, or forecasts will be error-free, uninterrupted, or predictive of real-world outcomes.
+6.1. **Probabilistic Nature of AI:** You acknowledge that machine learning models, statistical algorithms, and automated recommendations generated by the Service are probabilistic in nature. RefineIQ does not guarantee that model predictions, classifications, or forecasts will be error-free, uninterrupted, or predictive of real-world outcomes.
 
 6.2. **Human Oversight:** The Service is intended as an accelerator for data scientists and analysts. You are exclusively responsible for auditing, evaluating, validating, and testing model outputs and prediction endpoints prior to deploying them into production environments or relying on them for mission-critical business decisions.
 
-6.3. **No Professional Advisory:** Analytics Hub does not provide certified financial, medical, legal, or investment advice.
+6.3. **No Professional Advisory:** RefineIQ does not provide certified financial, medical, legal, or investment advice.
 
 ---
 
@@ -101,7 +101,7 @@ THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT WARRANTI
 
 10.1. **Termination by You:** You may terminate your account and cancel your subscription at any time via the workspace Settings panel.
 
-10.2. **Suspension by Analytics Hub:** We reserve the right to suspend or terminate your access immediately if you breach these Terms, fail to pay accrued fees, or engage in activity that threatens platform integrity.
+10.2. **Suspension by RefineIQ:** We reserve the right to suspend or terminate your access immediately if you breach these Terms, fail to pay accrued fees, or engage in activity that threatens platform integrity.
 
 10.3. **Inactivity on Free Tiers:** Projects operating under free infrastructure quotas may be automatically archived following extended periods of inactivity in accordance with cloud provider policies.
 
@@ -123,6 +123,6 @@ We reserve the right to update or modify these Terms periodically. We will provi
 
 If you have questions, inquiries, or notices regarding these Terms, please contact our legal and product team:
 
-- **Entity:** Analytics Hub
-- **Email:** legal@analyticshub.ai
+- **Entity:** RefineIQ
+- **Email:** legal@refineiq.ai
 - **Feedback & Compliance:** Via the in-app Magic Ear 👂 widget or workspace settings.
