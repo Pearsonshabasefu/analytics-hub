@@ -1,34 +1,101 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <linearGradient id="refineGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Vibrant RefineIQ Cyan-to-Blue Gradients -->
+    <linearGradient id="cubeGlow" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#00F2FE" />
-      <stop offset="60%" stop-color="#007AFF" />
-      <stop offset="100%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#007AFF" />
+      <stop offset="100%" stop-color="#38BDF8" />
     </linearGradient>
-    <filter id="neonBlur" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="2.5" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+
+    <linearGradient id="topFaceGlow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F2FE" />
+      <stop offset="100%" stop-color="#7DD3FC" />
+    </linearGradient>
+
+    <linearGradient id="sideFaceGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00F2FE" />
+      <stop offset="100%" stop-color="#0052CC" />
+    </linearGradient>
+
+    <filter id="neonRefine" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
   </defs>
+
+  <!-- Ambient Glow Background -->
+  <circle cx="50" cy="50" r="38" fill="url(#cubeGlow)" opacity="0.08" filter="url(#neonRefine)" />
+
+  <!-- ── 1. Cube Outer Isometric Perimeter ── -->
+  <path d="M50 14 L82 32.5 L82 69.5 L50 88 L18 69.5 L18 32.5 Z" 
+        stroke="url(#cubeGlow)" stroke-width="3" stroke-linejoin="round" filter="url(#neonRefine)" />
+
+  <!-- ── 2. Inner Y-Axes (3D Cube Depth) ── -->
+  <path d="M50 50 L50 88 M50 50 L18 32.5 M50 50 L82 32.5" 
+        stroke="url(#cubeGlow)" stroke-width="2.6" stroke-linejoin="round" filter="url(#neonRefine)" opacity="0.9" />
+
+  <!-- ── 3. TOP FACE: Circuitry & Neural Cluster ── -->
+  <!-- Top concentric tracks -->
+  <path d="M50 24 L70 35 L50 46 L30 35 Z" 
+        stroke="url(#topFaceGlow)" stroke-width="1.6" stroke-linejoin="round" opacity="0.75" />
+  <path d="M50 31 L61 37.5 L50 44 L39 37.5 Z" 
+        stroke="#00F2FE" stroke-width="1.2" stroke-linejoin="round" opacity="0.6" />
   
-  <!-- Outer Neural Ring -->
-  <circle cx="50" cy="46" r="34" stroke="url(#refineGlow)" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="145 35" filter="url(#neonBlur)" opacity="0.95"/>
-  <circle cx="50" cy="46" r="23" stroke="#007AFF" stroke-width="2" stroke-dasharray="8 6" opacity="0.6"/>
+  <!-- Top neural core nodes -->
+  <circle cx="50" cy="35" r="2.8" fill="#00F2FE" filter="url(#neonRefine)" />
+  <circle cx="41" cy="30" r="1.8" fill="#7DD3FC" />
+  <circle cx="59" cy="30" r="1.8" fill="#7DD3FC" />
+  <circle cx="50" cy="24" r="2" fill="#00F2FE" />
+  <circle cx="50" cy="46" r="2" fill="#00F2FE" />
+  <!-- Top connecting wires -->
+  <path d="M41 30 L50 35 L59 30 M50 24 L50 46" stroke="#00F2FE" stroke-width="1.3" stroke-linecap="round" opacity="0.8" />
 
-  <!-- Neural Nodes -->
-  <circle cx="26" cy="30" r="3.5" fill="#00F2FE" />
-  <circle cx="74" cy="30" r="3.5" fill="#00F2FE" />
-  <circle cx="19" cy="46" r="4" fill="#007AFF" />
-  <circle cx="81" cy="46" r="4" fill="#007AFF" />
-  <circle cx="28" cy="62" r="3.5" fill="#007AFF" />
+  <!-- ── 4. LEFT FACE: Neural Bus & Circuit Traces ── -->
+  <!-- Vertical and angled bus tracks -->
+  <path d="M26 37 L26 65 M34 41.5 L34 69.5 M42 46 L42 74" 
+        stroke="url(#sideFaceGlow)" stroke-width="1.6" stroke-linecap="round" opacity="0.8" />
+  <!-- Horizontal bus connectors -->
+  <path d="M26 48 L42 57 M26 58 L34 62.5" 
+        stroke="#00F2FE" stroke-width="1.3" stroke-linecap="round" opacity="0.7" />
+  <!-- Left face synaptic nodes -->
+  <circle cx="26" cy="48" r="2.2" fill="#00F2FE" filter="url(#neonRefine)" />
+  <circle cx="42" cy="57" r="2.2" fill="#00F2FE" filter="url(#neonRefine)" />
+  <circle cx="34" cy="69.5" r="2" fill="#007AFF" />
+  <circle cx="26" cy="65" r="2" fill="#007AFF" />
 
-  <!-- Node Connection Web -->
-  <path d="M26 30 L50 20 L74 30 M19 46 L35 46 M74 30 L65 46" stroke="#00F2FE" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
+  <!-- ── 5. RIGHT FACE: Neural Bus & Circuit Traces ── -->
+  <!-- Vertical and angled bus tracks -->
+  <path d="M74 37 L74 65 M66 41.5 L66 69.5 M58 46 L58 74" 
+        stroke="url(#sideFaceGlow)" stroke-width="1.6" stroke-linecap="round" opacity="0.8" />
+  <!-- Horizontal bus connectors -->
+  <path d="M58 57 L74 48 M66 62.5 L74 58" 
+        stroke="#00F2FE" stroke-width="1.3" stroke-linecap="round" opacity="0.7" />
+  <!-- Right face synaptic nodes -->
+  <circle cx="74" cy="48" r="2.2" fill="#00F2FE" filter="url(#neonRefine)" />
+  <circle cx="58" cy="57" r="2.2" fill="#00F2FE" filter="url(#neonRefine)" />
+  <circle cx="66" cy="69.5" r="2" fill="#007AFF" />
+  <circle cx="74" cy="65" r="2" fill="#007AFF" />
 
-  <!-- Dynamic Ascending Q-Pulse Arrow -->
-  <path d="M42 66 L78 22 M78 22 L62 23 M78 22 L77 38" stroke="url(#refineGlow)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#neonBlur)"/>
-  
-  <!-- Central Spark -->
-  <circle cx="50" cy="46" r="5" fill="url(#refineGlow)" />
-  <circle cx="78" cy="22" r="3" fill="#FFFFFF" />
+  <!-- ── 6. BREAKOUT DATA PINS (Radiating Dynamic Energy) ── -->
+  <!-- Top breakout pin -->
+  <path d="M50 14 L50 6" stroke="#00F2FE" stroke-width="2" stroke-linecap="round" filter="url(#neonRefine)" />
+  <circle cx="50" cy="5" r="2.6" fill="#00F2FE" filter="url(#neonRefine)" />
+
+  <!-- Left breakout pin -->
+  <path d="M18 45 L9 40" stroke="#00F2FE" stroke-width="2" stroke-linecap="round" filter="url(#neonRefine)" />
+  <circle cx="8" cy="39.5" r="2.6" fill="#00F2FE" filter="url(#neonRefine)" />
+
+  <!-- Right breakout pin -->
+  <path d="M82 45 L91 40" stroke="#00F2FE" stroke-width="2" stroke-linecap="round" filter="url(#neonRefine)" />
+  <circle cx="92" cy="39.5" r="2.6" fill="#00F2FE" filter="url(#neonRefine)" />
+
+  <!-- Bottom corner data ground pins -->
+  <path d="M18 69.5 L12 73" stroke="#007AFF" stroke-width="1.8" stroke-linecap="round" />
+  <circle cx="11" cy="73.5" r="2" fill="#007AFF" />
+
+  <path d="M82 69.5 L88 73" stroke="#007AFF" stroke-width="1.8" stroke-linecap="round" />
+  <circle cx="89" cy="73.5" r="2" fill="#007AFF" />
 </svg>
