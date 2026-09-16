@@ -107,9 +107,9 @@ async def initiate_topup(
                     "email": current_user["email"],
                 },
                 "customizations": {
-                    "title": "Analytics Hub — OCU Top-Up",
+                    "title": "RefineIQ — OCU Top-Up",
                     "description": package_info["label"],
-                    "logo": "https://analyticshub.ai/assets/logo.png",
+                    "logo": "https://analytics-hub-l7jy.vercel.app/assets/logo.svg",
                 },
             },
         )

@@ -2,29 +2,55 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   User, Moon, Sun, CreditCard, Shield, Key,
-  ChevronLeft, Check, Sparkles, ExternalLink, Zap
+  ChevronLeft, Check, Sparkles, ExternalLink, Zap, CheckCircle2
 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { useThemeStore } from '../store/themeStore'
+import { useFlutterwaveCheckout } from '../hooks/useFlutterwaveCheckout'
+
+// ── Per-package top-up button (hook must be called at component level) ────────
+function TopUpButton({ pkg, onSuccess }) {
+  const [loading, setLoading] = useState(false)
+
+  const openCheckout = useFlutterwaveCheckout(
+    { id: pkg.id, label: pkg.label, ocus: pkg.ocus, amount: parseFloat(pkg.price.replace('$', '')) },
+    (data) => { setLoading(false); onSuccess?.(pkg, data) },
+    () => setLoading(false)
+  )
+
+  return (
+    <button
+      onClick={() => { setLoading(true); openCheckout() }}
+      disabled={loading}
+      className="w-full py-2 rounded-xl bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah hover:border-ah-primary text-xs font-semibold transition-all mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
+    >
+      {loading ? 'Opening checkout…' : 'Top-Up Now'}
+    </button>
+  )
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const { theme, toggleTheme } = useThemeStore()
 
-  const [activeTab, setActiveTab] = useState('billing') // 'profile' | 'appearance' | 'billing' | 'privacy' | 'api'
-  const [ocuBalance] = useState(50)
-  const [autoTopUp, setAutoTopUp] = useState(false)
+  const [activeTab, setActiveTab]         = useState('billing')
+  const [ocuBalance, setOcuBalance]       = useState(50)
+  const [autoTopUp, setAutoTopUp]         = useState(false)
   const [maxModelSpend, setMaxModelSpend] = useState(20)
+  const [successMsg, setSuccessMsg]       = useState(null)
 
   const packages = [
-    { id: 'starter', ocus: 50, price: '$5', label: 'Starter Pack', popular: false },
-    { id: 'standard', ocus: 150, price: '$12', label: 'Standard Pack', popular: true },
-    { id: 'pro', ocus: 500, price: '$35', label: 'Pro Scale', popular: false },
+    { id: 'starter',  ocus: 50,  price: '$5',  label: 'Starter Pack',  popular: false },
+    { id: 'standard', ocus: 150, price: '$12', label: 'Standard Pack', popular: true  },
+    { id: 'pro',      ocus: 500, price: '$35', label: 'Pro Scale',     popular: false },
   ]
 
-  const handleFlutterwaveTopUp = (pkg) => {
-    alert(`Redirecting to Flutterwave checkout for ${pkg.label} (${pkg.price} for ${pkg.ocus} OCUs)...`)
+  const handlePaymentSuccess = (pkg) => {
+    setOcuBalance(prev => prev + pkg.ocus)
+    setSuccessMsg(`${pkg.ocus} OCUs added to your balance!`)
+    setTimeout(() => setSuccessMsg(null), 6000)
   }
 
   return (
@@ -97,6 +123,14 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
+                {/* Success Toast */}
+                {successMsg && (
+                  <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl text-sm font-semibold animate-pulse">
+                    <CheckCircle2 size={16} />
+                    {successMsg}
+                  </div>
+                )}
+
                 {/* Top-up Packages */}
                 <div>
                   <h3 className="font-headline font-bold text-base mb-3">Top-Up OCUs via Flutterwave</h3>
@@ -121,16 +155,12 @@ export default function SettingsPage() {
                           </div>
                         </div>
 
-                        <button
-                          onClick={() => handleFlutterwaveTopUp(pkg)}
-                          className="w-full py-2 rounded-xl bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah hover:border-ah-primary text-xs font-semibold transition-all mt-4"
-                        >
-                          Top-Up Now
-                        </button>
+                        <TopUpButton pkg={pkg} onSuccess={handlePaymentSuccess} />
                       </div>
                     ))}
                   </div>
                 </div>
+
 
                 {/* Spend Guardrails */}
                 <div className="bg-ah-surface border border-ah rounded-2xl p-6 shadow-ah-card space-y-4">
