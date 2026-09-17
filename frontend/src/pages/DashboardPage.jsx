@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Folder, Clock, ChevronRight, Zap, BarChart2, TrendingUp, LogOut, Settings, Moon, Sun } from 'lucide-react'
+import {
+  Plus, Folder, Clock, ChevronRight, Zap, BarChart2, TrendingUp,
+  LogOut, Settings, Moon, Sun, Sparkles, Activity, ShieldCheck, Play, Database
+} from 'lucide-react'
 import apiClient from '../lib/apiClient'
 import { supabase } from '../lib/supabaseClient'
 import { useAuthStore } from '../store/authStore'
@@ -9,9 +12,81 @@ import { useThemeStore } from '../store/themeStore'
 import NamingModal from '../components/features/launcher/NamingModal'
 import Logo from '../components/common/Logo'
 
-// Fetch projects from backend
-const fetchProjects = () => apiClient.get('/api/projects/').then(r => r.data)
-const createProject = (data) => apiClient.post('/api/projects/', data).then(r => r.data)
+// Sample demo projects for instant exploration and offline fallback
+const DEFAULT_DEMO_PROJECTS = [
+  {
+    id: 'demo-proj-churn',
+    name: 'Customer Churn Risk Analyzer',
+    template: 'churn_prediction',
+    status: 'deployed',
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    accuracy: '94.8%',
+    algo: 'XGBoost',
+    datasetSize: '1,000 records',
+  },
+  {
+    id: 'demo-proj-sales',
+    name: 'Q4 Revenue Forecast Model',
+    template: 'sales_forecasting',
+    status: 'modeling',
+    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    accuracy: '92.4%',
+    algo: 'LightGBM',
+    datasetSize: '4,500 records',
+  },
+  {
+    id: 'demo-proj-fraud',
+    name: 'E-Commerce Fraud Detection',
+    template: null,
+    status: 'cleaning',
+    created_at: new Date(Date.now() - 86400000 * 8).toISOString(),
+    accuracy: '98.1%',
+    algo: 'CatBoost',
+    datasetSize: '12,200 records',
+  },
+]
+
+// Fetch projects with robust fallback
+const fetchProjects = async () => {
+  try {
+    const res = await apiClient.get('/api/projects/')
+    if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+      return res.data
+    }
+  } catch (err) {
+    // Backend offline / demo mode fallback
+  }
+
+  const saved = localStorage.getItem('refineiq_user_projects')
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    } catch (_) {}
+  }
+  return DEFAULT_DEMO_PROJECTS
+}
+
+const createProject = async (data) => {
+  try {
+    const res = await apiClient.post('/api/projects/', data)
+    return res.data
+  } catch (err) {
+    const newProj = {
+      id: `proj-${Date.now()}`,
+      name: data.name || 'Untitled Project',
+      template: data.template || null,
+      status: 'created',
+      created_at: new Date().toISOString(),
+      accuracy: 'New',
+      algo: 'Pending',
+    }
+    const current = JSON.parse(localStorage.getItem('refineiq_user_projects') || '[]')
+    const updated = [newProj, ...(current.length ? current : DEFAULT_DEMO_PROJECTS)]
+    localStorage.setItem('refineiq_user_projects', JSON.stringify(updated))
+    return newProj
+  }
+}
 
 const STATUS_BADGE = {
   created:    { label: 'New',        class: 'badge-neutral' },
@@ -29,63 +104,99 @@ const TEMPLATES = [
   { id: null,                icon: '⚡', label: 'Blank Project',        desc: 'Start from scratch with your data' },
 ]
 
-function EmptyState({ onNew }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="w-20 h-20 bg-ah-primary-glow border border-[rgba(0,122,255,0.2)] rounded-2xl flex items-center justify-center mb-6">
-        <Folder size={32} className="text-ah-primary" />
-      </div>
-      <h2 className="font-headline text-2xl font-bold mb-2">No projects yet</h2>
-      <p className="text-ah-muted text-sm mb-8 max-w-xs">
-        Create your first project to start turning raw data into deployed ML models.
-      </p>
-      <button
-        onClick={onNew}
-        className="inline-flex items-center gap-2 bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-ah-glow"
-      >
-        <Plus size={18} /> New Project
-      </button>
-    </div>
-  )
-}
-
-function ProjectCard({ project, onClick }) {
+function ProjectCard({ project, onClick, onStageJump }) {
   const badge = STATUS_BADGE[project.status] || STATUS_BADGE.created
   const date = new Date(project.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
   return (
-    <button
-      onClick={onClick}
-      className="group bg-ah-surface border border-ah hover:border-ah-primary rounded-2xl p-5 text-left transition-all shadow-ah-card hover:shadow-ah-glow w-full"
-    >
-      <div className="flex items-start justify-between mb-4">
-        <div className="w-10 h-10 bg-ah-primary-glow rounded-xl flex items-center justify-center">
-          <BarChart2 size={18} className="text-ah-primary" />
+    <div className="group bg-ah-surface border border-ah hover:border-ah-primary/70 rounded-2xl p-5 text-left transition-all shadow-ah-card hover:shadow-ah-glow flex flex-col justify-between">
+      <div>
+        <div className="flex items-start justify-between mb-3">
+          <div className="w-10 h-10 bg-ah-primary-glow rounded-xl flex items-center justify-center">
+            <BarChart2 size={18} className="text-ah-primary" />
+          </div>
+          <span className={`text-xs font-mono px-2 py-1 rounded-md ${badge.class}`}>{badge.label}</span>
         </div>
-        <span className={`text-xs font-mono px-2 py-1 rounded-md ${badge.class}`}>{badge.label}</span>
+
+        <button onClick={onClick} className="text-left w-full">
+          <h3 className="font-headline font-bold text-base mb-1 group-hover:text-ah-primary transition-colors">
+            {project.name}
+          </h3>
+          <div className="flex items-center gap-2 mb-3">
+            {project.algo && (
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-ah-surface2 border border-ah text-ah-primary">
+                {project.algo}
+              </span>
+            )}
+            {project.accuracy && (
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-green-500/10 text-green-400">
+                {project.accuracy}
+              </span>
+            )}
+          </div>
+        </button>
       </div>
 
-      <h3 className="font-headline font-bold text-base mb-1 group-hover:text-ah-primary transition-colors">
-        {project.name}
-      </h3>
-      {project.template && (
-        <p className="text-ah-subtle text-xs mb-3 font-mono">
-          {project.template.replace('_', ' ')}
-        </p>
-      )}
-      <div className="flex items-center gap-1 text-ah-subtle text-xs">
-        <Clock size={11} />
-        <span>{date}</span>
-        <ChevronRight size={12} className="ml-auto opacity-0 group-hover:opacity-100 text-ah-primary transition-opacity" />
+      {/* Quick Stage Jump Links */}
+      <div className="pt-3 border-t border-ah/60 mt-3">
+        <p className="text-[10px] uppercase font-mono text-ah-subtle mb-2">Jump to pipeline stage:</p>
+        <div className="flex items-center gap-1.5 flex-wrap text-[11px] font-mono">
+          <button
+            onClick={() => onStageJump(project, 'ingest')}
+            className="px-2 py-1 rounded bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah transition-colors"
+            title="Data Ingestion"
+          >
+            01 Ingest
+          </button>
+          <button
+            onClick={() => onStageJump(project, 'refinery')}
+            className="px-2 py-1 rounded bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah transition-colors"
+            title="Data Refinery (Cleaning & PII)"
+          >
+            02 Refinery
+          </button>
+          <button
+            onClick={() => onStageJump(project, 'studio')}
+            className="px-2 py-1 rounded bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah transition-colors"
+            title="AutoML Model Studio"
+          >
+            03 Studio
+          </button>
+          <button
+            onClick={() => onStageJump(project, 'deploy')}
+            className="px-2 py-1 rounded bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah transition-colors"
+            title="Live API & Playground"
+          >
+            04 Deploy
+          </button>
+          <button
+            onClick={() => onStageJump(project, 'watchtower')}
+            className="px-2 py-1 rounded bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah transition-colors"
+            title="Live Watchtower Monitoring"
+          >
+            05 Watchtower
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1 text-ah-subtle text-xs mt-3 pt-2 border-t border-ah/40">
+          <Clock size={11} />
+          <span>{date}</span>
+          <button
+            onClick={onClick}
+            className="ml-auto text-ah-primary hover:underline text-xs font-semibold flex items-center gap-1"
+          >
+            Open Project <ChevronRight size={12} />
+          </button>
+        </div>
       </div>
-    </button>
+    </div>
   )
 }
 
 export default function DashboardPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { user } = useAuthStore()
+  const { user, setUser } = useAuthStore()
   const { theme, toggleTheme } = useThemeStore()
   const [showNaming, setShowNaming] = useState(false)
 
@@ -115,13 +226,19 @@ export default function DashboardPage() {
     navigate(`/project/${project.id}/${routes[project.status] || 'ingest'}`)
   }
 
+  const handleStageJump = (project, stage) => {
+    navigate(`/project/${project.id}/${stage}`)
+  }
+
   const handleCreateProject = ({ name, template }) => {
     mutation.mutate({ name, template })
     setShowNaming(false)
   }
 
   const handleSignOut = async () => {
+    localStorage.removeItem('refineiq_auth_user')
     await supabase.auth.signOut()
+    setUser(null)
     navigate('/')
   }
 
@@ -157,14 +274,46 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-10">
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Demo Mode Interactive Banner */}
+        <div className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-blue-900/30 via-purple-900/20 to-blue-900/30 border border-ah-primary/40 flex flex-wrap items-center justify-between gap-4 shadow-lg">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-ah-primary/20 flex items-center justify-center text-yellow-400">
+              <Sparkles size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm text-ah-text">Interactive Demo Environment Active</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-ah-primary/20 text-ah-primary border border-ah-primary/30">ZERO BACKEND REQUIRED</span>
+              </div>
+              <p className="text-xs text-ah-muted mt-0.5">Explore the full RefineIQ pipeline: clean raw data, train AutoML models, test real-time predictions, and monitor drift.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/project/demo-proj-churn/watchtower')}
+              className="text-xs px-3.5 py-2 rounded-xl bg-ah-surface border border-ah hover:border-ah-primary text-ah-text font-semibold transition-all flex items-center gap-1.5"
+            >
+              <Activity size={14} className="text-green-400" />
+              Watchtower Pulse
+            </button>
+            <button
+              onClick={() => navigate('/project/demo-proj-churn/deploy')}
+              className="text-xs px-3.5 py-2 rounded-xl bg-ah-primary text-white font-semibold hover:bg-ah-primary/80 transition-all shadow-ah-glow flex items-center gap-1.5"
+            >
+              <Zap size={14} />
+              Test Live Predictions
+            </button>
+          </div>
+        </div>
+
         {/* Welcome header */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-headline text-3xl font-bold mb-1">
               Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}! 👋
             </h1>
-            <p className="text-ah-muted text-sm">Your projects are ready. What are we building today?</p>
+            <p className="text-ah-muted text-sm">Your enterprise models and pipelines are ready. What are we building today?</p>
           </div>
           <button
             onClick={() => setShowNaming(true)}
@@ -177,12 +326,17 @@ export default function DashboardPage() {
         {/* Quick-start templates row */}
         <div className="mb-10">
           <p className="text-ah-subtle text-xs font-mono uppercase tracking-widest mb-4">Quick-Start Templates</p>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {TEMPLATES.map((t) => (
               <button
                 key={t.id ?? 'blank'}
-                onClick={() => setShowNaming(true)}
-                className="bg-ah-surface border border-ah hover:border-ah-primary rounded-xl px-4 py-3 text-left flex items-center gap-3 transition-all group"
+                onClick={() => {
+                  mutation.mutate({
+                    name: t.label,
+                    template: t.id,
+                  })
+                }}
+                className="bg-ah-surface border border-ah hover:border-ah-primary rounded-xl px-4 py-3.5 text-left flex items-center gap-3 transition-all group shadow-sm hover:shadow-md"
               >
                 <span className="text-2xl">{t.icon}</span>
                 <div>
@@ -196,25 +350,27 @@ export default function DashboardPage() {
 
         {/* Projects grid */}
         <div>
-          <p className="text-ah-subtle text-xs font-mono uppercase tracking-widest mb-4">
-            Your Projects ({projects.length})
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-ah-subtle text-xs font-mono uppercase tracking-widest">
+              Your Projects ({projects.length})
+            </p>
+            <span className="text-xs text-ah-muted font-mono">Click any card to open the active stage</span>
+          </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {[1, 2, 3].map(i => (
-                <div key={i} className="bg-ah-surface border border-ah rounded-2xl p-5 h-36 animate-pulse" />
+                <div key={i} className="bg-ah-surface border border-ah rounded-2xl p-5 h-48 animate-pulse" />
               ))}
             </div>
-          ) : projects.length === 0 ? (
-            <EmptyState onNew={() => setShowNaming(true)} />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {projects.map(p => (
                 <ProjectCard
                   key={p.id}
                   project={p}
                   onClick={() => handleProjectClick(p)}
+                  onStageJump={handleStageJump}
                 />
               ))}
             </div>

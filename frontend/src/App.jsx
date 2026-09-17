@@ -41,12 +41,36 @@ function AppInner() {
   // Supabase auth state listener
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
+      if (session?.user) {
+        setUser(session.user)
+      } else {
+        const saved = localStorage.getItem('refineiq_auth_user')
+        try {
+          const parsed = saved ? JSON.parse(saved) : null
+          if (!parsed?.isDemo) {
+            setUser(null)
+          }
+        } catch (_) {
+          setUser(null)
+        }
+      }
       setLoading(false)
     }).catch(() => setLoading(false))
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+      if (session?.user) {
+        setUser(session.user)
+      } else {
+        const saved = localStorage.getItem('refineiq_auth_user')
+        try {
+          const parsed = saved ? JSON.parse(saved) : null
+          if (!parsed?.isDemo) {
+            setUser(null)
+          }
+        } catch (_) {
+          setUser(null)
+        }
+      }
     })
     return () => subscription?.unsubscribe()
   }, [setUser, setLoading])
@@ -63,6 +87,7 @@ function AppInner() {
 
   const handleSignOutNow = useCallback(async () => {
     setWarnSeconds(null)
+    localStorage.removeItem('refineiq_auth_user')
     await supabase.auth.signOut()
     setUser(null)
   }, [setUser])

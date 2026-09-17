@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Activity, ShieldAlert, Bell, CheckCircle2,
-  Clock, ArrowUpRight, ChevronLeft, RefreshCw, Radio
+  Clock, ArrowUpRight, ChevronLeft, RefreshCw, Radio, Zap, ArrowRight, Play
 } from 'lucide-react'
 
 export default function WatchtowerPage() {
@@ -10,15 +10,40 @@ export default function WatchtowerPage() {
   const navigate = useNavigate()
 
   const [alertsEnabled, setAlertsEnabled] = useState(true)
+  const [totalInferences, setTotalInferences] = useState(14820)
+  const [lastPingTime, setLastPingTime] = useState('Just now')
 
-  // Real-time log stream mockup
-  const [logs] = useState([
-    { id: 'tx_981', time: 'Just now', inputs: 'age=34, spend=89.5, tenure=12', prediction: 'Not Churned', confidence: '94.8%', latency: '8ms', status: 'normal' },
-    { id: 'tx_980', time: '14s ago', inputs: 'age=61, spend=240.0, tenure=2', prediction: 'Churned', confidence: '88.2%', latency: '11ms', status: 'warning' },
-    { id: 'tx_979', time: '32s ago', inputs: 'age=22, spend=45.0, tenure=24', prediction: 'Not Churned', confidence: '97.1%', latency: '7ms', status: 'normal' },
-    { id: 'tx_978', time: '1m ago', inputs: 'age=45, spend=110.5, tenure=6', prediction: 'Not Churned', confidence: '91.4%', latency: '9ms', status: 'normal' },
-    { id: 'tx_977', time: '2m ago', inputs: 'age=53, spend=195.0, tenure=1', prediction: 'Churned', confidence: '84.6%', latency: '12ms', status: 'normal' },
+  // Real-time log stream
+  const [logs, setLogs] = useState([
+    { id: 'tx_981', time: 'Just now', inputs: 'age=34, spend=89.5, tenure=12', prediction: 'Not Churned', confidence: '94.8%', latency: '8.2ms', status: 'normal' },
+    { id: 'tx_980', time: '14s ago', inputs: 'age=61, spend=240.0, tenure=2', prediction: 'Churned', confidence: '88.2%', latency: '11.4ms', status: 'warning' },
+    { id: 'tx_979', time: '32s ago', inputs: 'age=22, spend=45.0, tenure=24', prediction: 'Not Churned', confidence: '97.1%', latency: '7.8ms', status: 'normal' },
+    { id: 'tx_978', time: '1m ago', inputs: 'age=45, spend=110.5, tenure=6', prediction: 'Not Churned', confidence: '91.4%', latency: '9.0ms', status: 'normal' },
+    { id: 'tx_977', time: '2m ago', inputs: 'age=53, spend=195.0, tenure=1', prediction: 'Churned', confidence: '84.6%', latency: '12.1ms', status: 'normal' },
   ])
+
+  const handleSimulatePing = () => {
+    const randomAge = Math.floor(20 + Math.random() * 50)
+    const randomSpend = (20 + Math.random() * 200).toFixed(1)
+    const randomTenure = Math.floor(1 + Math.random() * 36)
+    const isChurn = randomTenure < 3 || randomSpend < 40
+    const randomLatency = (6.5 + Math.random() * 5.5).toFixed(1)
+    const randomConfidence = (88 + Math.random() * 11).toFixed(1)
+
+    const newTx = {
+      id: `tx_${Math.floor(1000 + Math.random() * 9000)}`,
+      time: 'Just now',
+      inputs: `age=${randomAge}, spend=${randomSpend}, tenure=${randomTenure}`,
+      prediction: isChurn ? 'Churned' : 'Not Churned',
+      confidence: `${randomConfidence}%`,
+      latency: `${randomLatency}ms`,
+      status: isChurn ? 'warning' : 'normal',
+    }
+
+    setLogs((prev) => [newTx, ...prev.slice(0, 9)])
+    setTotalInferences((prev) => prev + 1)
+    setLastPingTime('Just now')
+  }
 
   return (
     <div className="min-h-screen bg-ah-bg text-ah-text">
@@ -33,16 +58,29 @@ export default function WatchtowerPage() {
           </button>
           <div className="h-4 w-px bg-ah-border" />
           <div className="flex items-center gap-2 text-sm text-ah-muted">
-            <span>Project</span>
-            <span className="text-ah-subtle">/</span>
+            <button onClick={() => navigate(`/project/${projectId}/ingest`)} className="hover:text-ah-text transition-colors">01 Connect</button>
+            <ArrowRight size={12} />
+            <button onClick={() => navigate(`/project/${projectId}/refinery`)} className="hover:text-ah-text transition-colors">02 Clean</button>
+            <ArrowRight size={12} />
+            <button onClick={() => navigate(`/project/${projectId}/studio`)} className="hover:text-ah-text transition-colors">03 Model</button>
+            <ArrowRight size={12} />
+            <button onClick={() => navigate(`/project/${projectId}/deploy`)} className="hover:text-ah-text transition-colors">04 Deploy</button>
+            <ArrowRight size={12} />
             <span className="text-ah-primary font-semibold flex items-center gap-1.5">
               <Radio size={14} className="text-green-400 animate-pulse" />
-              Watchtower Pulse
+              05 Watchtower
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleSimulatePing}
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white shadow-ah-glow transition-all"
+          >
+            <Zap size={13} />
+            Simulate Traffic Ping
+          </button>
           <button
             onClick={() => setAlertsEnabled(!alertsEnabled)}
             className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all ${
@@ -68,22 +106,31 @@ export default function WatchtowerPage() {
         {/* Header Title */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div>
-            <p className="text-ah-primary font-mono text-xs uppercase tracking-widest mb-1">Watchtower Monitoring</p>
+            <p className="text-ah-primary font-mono text-xs uppercase tracking-widest mb-1">Step 05 — Production Telemetry</p>
             <h1 className="font-headline text-3xl font-bold flex items-center gap-3">
-              Model Health Pulse
-              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/30 text-green-400 font-semibold">
+              Watchtower Pulse Monitor
+              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/30 text-green-400 font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
                 ● Live Production
               </span>
             </h1>
-            <p className="text-ah-muted text-sm mt-1">Real-time latency metrics, data drift surveillance, and inference telemetry.</p>
+            <p className="text-ah-muted text-sm mt-1">Real-time latency metrics, automated data drift surveillance, and inference telemetry streams.</p>
           </div>
+
+          <button
+            onClick={handleSimulatePing}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-ah-surface border border-ah hover:border-ah-primary text-ah-text font-mono text-xs transition-all shadow-sm"
+          >
+            <RefreshCw size={14} className="text-ah-primary" />
+            Inject Live Request Event
+          </button>
         </div>
 
         {/* 4 Metric Pulse Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           {/* Uptime */}
           <div className="bg-ah-surface border border-ah rounded-2xl p-5 shadow-ah-card">
-            <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Service Uptime</p>
+            <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Service SLA Uptime</p>
             <div className="flex items-baseline justify-between">
               <span className="font-headline text-3xl font-extrabold text-green-400">99.98%</span>
               <span className="text-[11px] font-mono text-green-400/80 bg-green-500/10 px-1.5 py-0.5 rounded">
@@ -98,33 +145,33 @@ export default function WatchtowerPage() {
             <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Inference Latency</p>
             <div className="flex items-baseline justify-between">
               <span className="font-headline text-3xl font-extrabold text-ah-primary">8.4 ms</span>
-              <span className="text-[11px] font-mono text-ah-subtle">p95: 14ms</span>
+              <span className="text-[11px] font-mono text-ah-subtle">p95: 12.1ms</span>
             </div>
             <p className="text-[11px] text-ah-subtle mt-3">Global edge serverless warm cache</p>
           </div>
 
           {/* Inferences */}
           <div className="bg-ah-surface border border-ah rounded-2xl p-5 shadow-ah-card">
-            <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Predictions (24h)</p>
+            <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Total Inferences</p>
             <div className="flex items-baseline justify-between">
-              <span className="font-headline text-3xl font-extrabold text-ah-text">14,820</span>
+              <span className="font-headline text-3xl font-extrabold text-ah-text">{totalInferences.toLocaleString()}</span>
               <span className="text-[11px] font-mono text-green-400 flex items-center">
-                +12% <ArrowUpRight size={12} />
+                +14% <ArrowUpRight size={12} />
               </span>
             </div>
-            <p className="text-[11px] text-ah-subtle mt-3">Peak: 38 req/sec at 14:00 UTC</p>
+            <p className="text-[11px] text-ah-subtle mt-3">Peak: 42 req/sec across 8 regions</p>
           </div>
 
           {/* Drift Score */}
           <div className="bg-ah-surface border border-ah rounded-2xl p-5 shadow-ah-card">
-            <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Drift Index (PSI)</p>
+            <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Population Drift Index (PSI)</p>
             <div className="flex items-baseline justify-between">
-              <span className="font-headline text-3xl font-extrabold text-green-400">0.04</span>
+              <span className="font-headline text-3xl font-extrabold text-green-400">0.038</span>
               <span className="text-[11px] font-mono text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded">
                 Stable
               </span>
             </div>
-            <p className="text-[11px] text-ah-subtle mt-3">Threshold 0.15 for auto-retrain</p>
+            <p className="text-[11px] text-ah-subtle mt-3">Automated threshold: 0.15 PSI</p>
           </div>
         </div>
 
@@ -133,9 +180,20 @@ export default function WatchtowerPage() {
           <div className="p-4 border-b border-ah flex items-center justify-between bg-ah-surface2/40">
             <div className="flex items-center gap-2">
               <Activity size={16} className="text-ah-primary" />
-              <h3 className="font-headline font-bold text-sm">Live Inference Activity</h3>
+              <h3 className="font-headline font-bold text-sm">Live Inference Activity Stream</h3>
             </div>
-            <span className="text-xs font-mono text-ah-subtle">Streaming real-time events</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-mono text-ah-subtle flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
+                Live socket connected
+              </span>
+              <button
+                onClick={handleSimulatePing}
+                className="text-xs px-2.5 py-1 rounded-lg bg-ah-primary/15 border border-ah-primary/30 text-ah-primary hover:bg-ah-primary/25 font-semibold"
+              >
+                + Inject Ping
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">

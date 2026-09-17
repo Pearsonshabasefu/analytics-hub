@@ -5,81 +5,216 @@ import {
   TrendingDown, Terminal, Database, Sparkles, UploadCloud, FileSpreadsheet,
   Play, Code2, Info, Lock, Server, Clock, Quote, Layers, ChevronRight,
   ChevronDown, Activity, Star, SlidersHorizontal, Calendar, Search, Plus,
-  Bell, Settings, ExternalLink, ArrowUpRight, Filter, RefreshCw
+  Bell, Settings, ExternalLink, ArrowUpRight, Filter, RefreshCw, X, Loader2
 } from 'lucide-react'
 import Logo from '../components/common/Logo'
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 1. EXACT FINNOVA-STYLE PRODUCT UI (Image 2)
+// 1. FULLY INTERACTIVE FINNOVA-STYLE PRODUCT UI SANDBOX (Image 2)
 // ═════════════════════════════════════════════════════════════════════════════
 function FinnovaProductUI() {
-  const [activeTab, setActiveTab] = useState('models')
-  const [selectedModel, setSelectedModel] = useState('1003')
+  const [filterMode, setFilterMode] = useState('all') // 'all' | 'live' | 'draft'
+  const [selectedModelId, setSelectedModelId] = useState('1003')
+  const [activeNavPill, setActiveNavPill] = useState('models')
+  const [isDeploying, setIsDeploying] = useState(false)
+  const [deployedSuccess, setDeployedSuccess] = useState(false)
+  const [showTrainModal, setShowTrainModal] = useState(false)
+  const [showShapModal, setShowShapModal] = useState(false)
+  const [isTournamentRunning, setIsTournamentRunning] = useState(false)
+  const [tournamentWinner, setTournamentWinner] = useState(null)
+  const [testResult, setTestResult] = useState(null)
+  const [isPredicting, setIsPredicting] = useState(false)
 
-  const models = [
+  // Interactive Test Inputs
+  const [inputTenure, setInputTenure] = useState(14)
+  const [inputSpend, setInputSpend] = useState(65.0)
+  const [inputTickets, setInputTickets] = useState(1)
+
+  // Dynamic models state
+  const [modelsList, setModelsList] = useState([
     {
       id: '1001',
       code: '#MOD-1001',
-      name: 'Customer Churn',
+      name: 'Customer Churn Risk',
       status: 'Live',
+      dataset: 'Telco Global Churn v4',
       statusColor: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-      metric: '94.8% AUC',
-      eta: 'In production 2d',
+      accuracy: '94.8%',
+      metricLabel: 'ROC-AUC',
+      latency: '18 ms',
+      f1: '0.924',
       algo: 'XGBoost',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face'
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face',
+      analyst: 'Sarah Jenkins',
+      role: 'Growth Operations',
+      endpoint: 'https://api.refineiq.ai/v1/predict/churn-1001',
+      predictionType: 'Churn Risk',
+      defaultRisk: 'Low (8.4%)'
     },
     {
       id: '1002',
       code: '#MOD-1002',
-      name: 'Lead Scoring',
-      status: 'Staging',
-      statusColor: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-      metric: '91.2% AUC',
-      eta: 'Testing in 4h',
+      name: 'B2B Lead Scoring',
+      status: 'Live',
+      dataset: 'HubSpot Inbound Pipeline',
+      statusColor: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+      accuracy: '91.2%',
+      metricLabel: 'Precision',
+      latency: '12 ms',
+      f1: '0.896',
       algo: 'LightGBM',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face'
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face',
+      analyst: 'Marcus Vance',
+      role: 'Demand Gen Lead',
+      endpoint: 'https://api.refineiq.ai/v1/predict/leads-1002',
+      predictionType: 'Conversion Likelihood',
+      defaultRisk: 'High (84.2%)'
     },
     {
       id: '1003',
       code: '#MOD-1003',
       name: 'Revenue Forecast',
-      status: 'Active',
+      status: 'Live',
+      dataset: 'BrightWave Enterprise Dataset',
       statusColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40',
-      metric: '96.1% Acc',
-      eta: 'Serving API',
-      algo: 'Ensemble',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face'
+      accuracy: '96.1%',
+      metricLabel: 'Accuracy',
+      latency: '14 ms',
+      f1: '0.942',
+      algo: 'Ensemble Stack',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face',
+      analyst: 'James Carter',
+      role: 'Lead Data Scientist',
+      endpoint: 'https://api.refineiq.ai/v1/predict/rev-1003',
+      predictionType: 'Expansion Likelihood',
+      defaultRisk: 'Strong Expansion (92.1%)'
     },
     {
       id: '1004',
       code: '#MOD-1004',
-      name: 'Fraud Detection',
+      name: 'Stripe Fraud Detection',
       status: 'Live',
+      dataset: 'Checkout Transactions Q3',
       statusColor: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-      metric: '98.4% ROC',
-      eta: 'Serving API',
+      accuracy: '98.4%',
+      metricLabel: 'ROC-AUC',
+      latency: '8 ms',
+      f1: '0.978',
       algo: 'CatBoost',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face'
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face',
+      analyst: 'Elena Rostova',
+      role: 'Security & ML Eng',
+      endpoint: 'https://api.refineiq.ai/v1/predict/fraud-1004',
+      predictionType: 'Fraud Risk Flag',
+      defaultRisk: 'Legitimate (0.2% Risk)'
     },
     {
       id: '1005',
       code: '#MOD-1005',
-      name: 'LTV Predictor',
-      status: 'Trained',
+      name: 'LTV Cohort Predictor',
+      status: 'Draft',
+      dataset: 'Shopify Cohort Retention',
       statusColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-      metric: '89.5% Acc',
-      eta: 'Ready to deploy',
-      algo: 'RandomForest',
-      avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=80&h=80&fit=crop&crop=face'
+      accuracy: '89.5%',
+      metricLabel: 'R2-Score',
+      latency: '22 ms',
+      f1: '0.881',
+      algo: 'Random Forest',
+      avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=80&h=80&fit=crop&crop=face',
+      analyst: 'Kabwe Mumba',
+      role: 'E-Commerce Analyst',
+      endpoint: 'https://api.refineiq.ai/v1/predict/ltv-1005',
+      predictionType: 'Predicted 12M LTV',
+      defaultRisk: '$1,420 Expected'
     }
-  ]
+  ])
+
+  // Current active model
+  const activeModel = modelsList.find(m => m.id === selectedModelId) || modelsList[0]
+
+  // Filtered model list
+  const filteredModels = modelsList.filter(m => {
+    if (filterMode === 'live') return m.status === 'Live'
+    if (filterMode === 'draft') return m.status === 'Draft'
+    return true
+  })
+
+  // Simulated live prediction
+  const handleRunPrediction = () => {
+    setIsPredicting(true)
+    setTestResult(null)
+    setTimeout(() => {
+      setIsPredicting(false)
+      const calculatedRisk = (inputSpend > 80 && inputTickets > 2) ? 'High Churn Risk (78.2%)' : 'Retained (91.6% Confidence)'
+      setTestResult({
+        outcome: calculatedRisk,
+        probability: (inputSpend > 80 && inputTickets > 2) ? '0.782' : '0.084',
+        latency: `${Math.floor(11 + Math.random() * 6)} ms`,
+        status: '200 OK',
+        drivers: [
+          { feature: 'tenure_months', impact: inputTenure > 12 ? '+0.42 (Loyal)' : '-0.21' },
+          { feature: 'monthly_spend', impact: inputSpend > 75 ? '-0.28 (Price sensitive)' : '+0.15' },
+          { feature: 'support_tickets', impact: inputTickets > 1 ? '-0.33 (Dissatisfied)' : '+0.25' }
+        ]
+      })
+    }, 450)
+  }
+
+  // Simulated Deployment
+  const handleDeploy = () => {
+    setIsDeploying(true)
+    setTimeout(() => {
+      setIsDeploying(false)
+      setDeployedSuccess(true)
+      setTimeout(() => setDeployedSuccess(false), 5000)
+    }, 800)
+  }
+
+  // Simulated AutoML Tournament Run
+  const handleStartTournament = () => {
+    setIsTournamentRunning(true)
+    setTournamentWinner(null)
+    setTimeout(() => {
+      setIsTournamentRunning(false)
+      const newWinner = {
+        code: '#MOD-1006',
+        name: 'E-Commerce Conversion',
+        accuracy: '95.4%',
+        algo: 'CatBoost Tuned'
+      }
+      setTournamentWinner(newWinner)
+      // Add to list
+      setModelsList(prev => [
+        {
+          id: '1006',
+          code: '#MOD-1006',
+          name: 'E-Commerce Conversion',
+          status: 'Live',
+          dataset: 'Shopify Black Friday Ingestion',
+          statusColor: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+          accuracy: '95.4%',
+          metricLabel: 'ROC-AUC',
+          latency: '11 ms',
+          f1: '0.948',
+          algo: 'CatBoost',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face',
+          analyst: 'Pearson Shabasefu',
+          role: 'Platform Founder',
+          endpoint: 'https://api.refineiq.ai/v1/predict/conv-1006',
+          predictionType: 'Purchase Probability',
+          defaultRisk: 'High (88.7%)'
+        },
+        ...prev
+      ])
+      setSelectedModelId('1006')
+    }, 2200)
+  }
 
   return (
-    <div className="w-full bg-[#F4F5FB] text-[#1E1E2F] rounded-[28px] p-4 sm:p-6 shadow-[0_25px_70px_rgba(0,0,0,0.5)] border border-white/20 font-sans select-none overflow-hidden transition-all">
+    <div className="w-full bg-[#F4F5FB] text-[#1E1E2F] rounded-[28px] p-4 sm:p-6 shadow-[0_25px_70px_rgba(0,0,0,0.5)] border border-white/20 font-sans select-none overflow-hidden transition-all relative">
       
       {/* ── Top Pill Navigation Bar (Finnova style) ── */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        {/* Left Brand Badge */}
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#4F46E5] to-[#7C3AED] flex items-center justify-center text-white font-bold text-xs shadow-md">
             RIQ
@@ -90,28 +225,33 @@ function FinnovaProductUI() {
           </div>
         </div>
 
-        {/* Center Pill Menu with Active Blurple Pill */}
+        {/* Center Pill Menu with Interactive Tab Switching */}
         <div className="hidden lg:flex items-center bg-[#1E1E2F] text-gray-300 rounded-full p-1 text-xs font-medium shadow-inner">
           <span className="px-3 py-1 text-gray-400 font-mono text-[11px] font-bold">80</span>
-          <button className="px-3 py-1 rounded-full text-gray-300 hover:text-white transition-colors">Overview</button>
-          <button className="px-3 py-1 rounded-full text-gray-300 hover:text-white transition-colors">Pipelines</button>
-          <button className="px-4 py-1.5 rounded-full bg-[#4F46E5] text-white font-semibold shadow-[0_0_12px_rgba(79,70,229,0.5)]">
-            + Models
-          </button>
-          <button className="px-3 py-1 rounded-full text-gray-300 hover:text-white transition-colors">Endpoints</button>
-          <button className="px-3 py-1 rounded-full text-gray-300 hover:text-white transition-colors">Watchtower</button>
-          <button className="px-3 py-1 rounded-full text-gray-300 hover:text-white transition-colors">Billing</button>
+          {['overview', 'pipelines', 'models', 'endpoints', 'watchtower', 'billing'].map((pill) => (
+            <button
+              key={pill}
+              onClick={() => setActiveNavPill(pill)}
+              className={`capitalize px-3 py-1 rounded-full transition-all ${
+                activeNavPill === pill
+                  ? 'bg-[#4F46E5] text-white font-semibold shadow-[0_0_12px_rgba(79,70,229,0.5)]'
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              {pill === 'models' ? '+ Models' : pill}
+            </button>
+          ))}
         </div>
 
         {/* Right Icon Badges */}
         <div className="flex items-center gap-1.5">
-          <div className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer">
+          <div title="Database Connections" className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer">
             <Database size={13} />
           </div>
-          <div className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer">
+          <div title="Alerts & Drift" className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer">
             <Bell size={13} />
           </div>
-          <div className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer">
+          <div title="Workspace Settings" className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer">
             <Settings size={13} />
           </div>
           <img
@@ -122,7 +262,7 @@ function FinnovaProductUI() {
         </div>
       </div>
 
-      {/* ── Sub-header: Title + Actions ── */}
+      {/* ── Sub-header: Title + Interactive "Train New Model" Action ── */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div className="flex items-center gap-3">
           <button className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-700 shadow-sm hover:bg-gray-50">
@@ -130,15 +270,24 @@ function FinnovaProductUI() {
           </button>
           <div>
             <h3 className="font-extrabold text-xl text-[#111827] tracking-tight">Models & Inference</h3>
-            <p className="text-xs text-gray-500">Manage, evaluate, and deploy your predictive ML models in one place.</p>
+            <p className="text-xs text-gray-500">Manage, evaluate, and test your predictive ML models in real time.</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="h-9 px-3 rounded-xl bg-white border border-gray-200 text-gray-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm hover:bg-gray-50">
+          <button 
+            onClick={() => alert("Filter presets: Accuracy > 90%, Latency < 20ms, Active in Production")}
+            className="h-9 px-3 rounded-xl bg-white border border-gray-200 text-gray-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm hover:bg-gray-50 transition-colors"
+          >
             <SlidersHorizontal size={13} />
+            <span className="hidden sm:inline">Filters</span>
           </button>
-          <button className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all">
+
+          {/* Interactive Trigger for Tournament */}
+          <button
+            onClick={() => setShowTrainModal(true)}
+            className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all active:scale-95"
+          >
             <Plus size={14} />
             <span>Train New Model</span>
           </button>
@@ -155,22 +304,21 @@ function FinnovaProductUI() {
               <span className="text-[11px] font-medium text-gray-500">Active Deployed Models</span>
               <span className="w-4 h-4 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-bold">!</span>
             </div>
-            <div className="font-extrabold text-2xl text-[#111827] tracking-tight">4 Models Live</div>
+            <div className="font-extrabold text-2xl text-[#111827] tracking-tight">{modelsList.filter(m => m.status === 'Live').length} Models Live</div>
             <div className="flex items-center gap-1 text-[11px] text-red-500 font-semibold mt-1">
               <TrendingUp size={12} />
-              <span>94.8% Peak ROC-AUC</span>
+              <span>96.1% Peak Accuracy</span>
             </div>
           </div>
-          {/* Mini workspace photo visual */}
           <div className="mt-3 h-14 rounded-xl bg-gradient-to-r from-gray-50 to-indigo-50/40 border border-gray-100 flex items-center justify-center overflow-hidden relative">
             <div className="flex items-center gap-2 text-[10px] text-indigo-700 font-mono font-semibold">
               <Sparkles size={13} className="text-indigo-600" />
-              <span>AutoML v2.4 Active</span>
+              <span>Polars + Presidio Active</span>
             </div>
           </div>
         </div>
 
-        {/* Card 2: Predictions Served (Bar Chart Card) */}
+        {/* Card 2: Predictions Served (Interactive Bar Chart Card) */}
         <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1">
@@ -183,13 +331,12 @@ function FinnovaProductUI() {
               <span>↑ 8.2% from last month</span>
             </div>
           </div>
-          {/* Mini Bar Chart SVG */}
           <div className="mt-3 h-14 flex items-end justify-between gap-1.5 px-2 pt-2">
             {[25, 40, 35, 60, 50, 75, 95].map((h, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+              <div key={i} className="flex-1 flex flex-col items-center gap-1 group/bar cursor-pointer" title={`Day ${i+1}: ${h * 200} predictions`}>
                 <div 
                   className={`w-full rounded-t-sm transition-all ${
-                    i === 6 ? 'bg-[#4F46E5]' : 'bg-indigo-200/80 hover:bg-indigo-300'
+                    i === 6 ? 'bg-[#4F46E5]' : 'bg-indigo-200/80 group-hover/bar:bg-indigo-400'
                   }`}
                   style={{ height: `${h}%` }}
                 />
@@ -198,20 +345,19 @@ function FinnovaProductUI() {
           </div>
         </div>
 
-        {/* Card 3: Average Latency (Line Sparkline Card) */}
+        {/* Card 3: Average Latency (Interactive Line Sparkline Card) */}
         <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-[11px] font-medium text-gray-500">Average Inference Latency</span>
               <Clock size={13} className="text-cyan-500" />
             </div>
-            <div className="font-extrabold text-2xl text-[#111827] tracking-tight">16 ms</div>
+            <div className="font-extrabold text-2xl text-[#111827] tracking-tight">{activeModel.latency}</div>
             <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">
               <TrendingDown size={12} />
-              <span>↓ 2ms faster than SLA</span>
+              <span>↓ Sub-20ms SLA Enforced</span>
             </div>
           </div>
-          {/* Mini Sparkline Chart SVG */}
           <div className="mt-3 h-14 relative flex items-center">
             <svg viewBox="0 0 160 50" className="w-full h-full overflow-visible">
               <path
@@ -238,36 +384,38 @@ function FinnovaProductUI() {
             </div>
             <div className="font-extrabold text-2xl text-[#111827] tracking-tight">186 OCUs</div>
             <div className="text-[11px] text-gray-500 mt-1">
-              Gateway: <span className="font-semibold text-indigo-600">Flutterwave</span>
+              Gateway: <span className="font-semibold text-indigo-600">Flutterwave (Active)</span>
             </div>
           </div>
-          {/* Payment chips & Top Up button */}
           <div className="mt-3 flex items-center justify-between gap-2">
             <div className="px-2.5 py-1.5 rounded-lg bg-gray-100 text-[10px] font-mono font-semibold text-gray-700 flex items-center gap-1">
               <span>CARD •••• 4242</span>
             </div>
-            <button className="px-3 py-1.5 rounded-lg bg-[#1E1E2F] text-white text-[11px] font-semibold hover:bg-black transition-colors shadow-sm">
+            <Link
+              to="/settings"
+              className="px-3 py-1.5 rounded-lg bg-[#1E1E2F] hover:bg-black text-white text-[11px] font-semibold transition-colors shadow-sm"
+            >
               Top Up
-            </button>
+            </Link>
           </div>
         </div>
 
       </div>
 
-      {/* ── Active Filters Bar ── */}
+      {/* ── Active Filters Bar with Search & Date ── */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5 text-xs text-gray-600">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gray-200 font-semibold text-gray-800 shadow-sm">
             <span>Active filters</span>
-            <span className="w-4 h-4 rounded-full bg-[#1E1E2F] text-white text-[10px] flex items-center justify-center">2</span>
+            <span className="w-4 h-4 rounded-full bg-[#1E1E2F] text-white text-[10px] flex items-center justify-center">
+              {filterMode === 'all' ? '2' : '3'}
+            </span>
           </div>
-          <div className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 shadow-sm flex items-center gap-2 cursor-pointer">
-            <span>All algorithms</span>
-            <ChevronDown size={12} className="text-gray-400" />
+          <div className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 shadow-sm flex items-center gap-2">
+            <span>Algorithm: {activeModel.algo}</span>
           </div>
-          <div className="hidden md:flex px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 shadow-sm items-center gap-2 cursor-pointer">
-            <span>All datasets</span>
-            <ChevronDown size={12} className="text-gray-400" />
+          <div className="hidden md:flex px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 shadow-sm items-center gap-2">
+            <span>Dataset: {activeModel.dataset}</span>
           </div>
         </div>
 
@@ -280,8 +428,8 @@ function FinnovaProductUI() {
             <Search size={12} />
             <input
               type="text"
-              placeholder="Search model code..."
-              className="w-28 text-xs text-gray-700 outline-none bg-transparent placeholder-gray-400"
+              placeholder={`Search ${modelsList.length} models...`}
+              className="w-28 sm:w-36 text-xs text-gray-700 outline-none bg-transparent placeholder-gray-400"
               readOnly
             />
           </div>
@@ -291,20 +439,39 @@ function FinnovaProductUI() {
       {/* ── Dual-Tone Split Workspace (Deep Slate Navy Bottom Container) ── */}
       <div className="bg-[#121324] text-white rounded-2xl p-4 sm:p-5 shadow-2xl">
         
-        {/* Inner Tab Control Bar */}
+        {/* Inner Tab Control Bar with REAL FILTERING */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
           <div className="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
-            <span>Active Model Benchmarks</span>
+            <span>Model Registry</span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-              5 Competing
+              {filteredModels.length} Showing
             </span>
           </div>
 
           <div className="flex items-center gap-1 bg-[#1A1B30] p-1 rounded-xl text-xs font-medium">
-            <button className="px-3 py-1 rounded-lg text-gray-400 hover:text-white">All (5)</button>
-            <button className="px-3 py-1 rounded-lg text-gray-400 hover:text-white">Draft (1)</button>
-            <button className="px-3 py-1 rounded-lg bg-[#4F46E5] text-white font-semibold shadow-sm">
-              Live (4)
+            <button
+              onClick={() => setFilterMode('all')}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                filterMode === 'all' ? 'bg-[#4F46E5] text-white font-semibold' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              All ({modelsList.length})
+            </button>
+            <button
+              onClick={() => setFilterMode('live')}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                filterMode === 'live' ? 'bg-[#4F46E5] text-white font-semibold' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Live ({modelsList.filter(m => m.status === 'Live').length})
+            </button>
+            <button
+              onClick={() => setFilterMode('draft')}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                filterMode === 'draft' ? 'bg-[#4F46E5] text-white font-semibold' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Draft ({modelsList.filter(m => m.status === 'Draft').length})
             </button>
           </div>
         </div>
@@ -314,12 +481,15 @@ function FinnovaProductUI() {
           
           {/* Left Model Queue List (5 columns) */}
           <div className="lg:col-span-5 space-y-2">
-            {models.map((m) => {
-              const isSelected = selectedModel === m.id
+            {filteredModels.map((m) => {
+              const isSelected = selectedModelId === m.id
               return (
                 <div
                   key={m.id}
-                  onClick={() => setSelectedModel(m.id)}
+                  onClick={() => {
+                    setSelectedModelId(m.id)
+                    setTestResult(null)
+                  }}
                   className={`p-3 rounded-xl flex items-center justify-between cursor-pointer transition-all ${
                     isSelected
                       ? 'bg-gradient-to-r from-[#4F46E5] to-[#4338CA] text-white shadow-lg shadow-indigo-500/20'
@@ -335,16 +505,16 @@ function FinnovaProductUI() {
                           {m.algo}
                         </span>
                       </div>
-                      <div className={`text-[11px] font-medium truncate max-w-[110px] ${isSelected ? 'text-indigo-100' : 'text-gray-400'}`}>
+                      <div className={`text-[11px] font-medium truncate max-w-[120px] ${isSelected ? 'text-indigo-100' : 'text-gray-400'}`}>
                         {m.name}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="font-mono font-bold text-xs">{m.metric}</div>
+                    <div className="font-mono font-bold text-xs">{m.accuracy}</div>
                     <div className={`text-[10px] ${isSelected ? 'text-indigo-200' : 'text-gray-500'}`}>
-                      {m.status}
+                      {m.metricLabel}
                     </div>
                   </div>
                 </div>
@@ -352,77 +522,156 @@ function FinnovaProductUI() {
             })}
           </div>
 
-          {/* Right Model Detail Showcase (7 columns - Glowing Indigo Card) */}
+          {/* Right Model Detail Showcase (7 columns - DYNAMIC INDIGO CARD) */}
           <div className="lg:col-span-7 bg-gradient-to-br from-[#2D2A82] via-[#242168] to-[#1A184E] rounded-2xl p-5 border border-indigo-400/30 shadow-xl space-y-4">
             
             {/* Header */}
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="font-extrabold text-base tracking-tight text-white">#MOD-1003 Revenue Forecast</h4>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                    Production Ready
+                  <h4 className="font-extrabold text-base tracking-tight text-white">{activeModel.code} {activeModel.name}</h4>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${activeModel.statusColor}`}>
+                    {activeModel.status}
                   </span>
                 </div>
-                <p className="text-xs text-indigo-200 mt-0.5">Trained on: <strong className="text-white">BrightWave Enterprise Dataset</strong></p>
+                <p className="text-xs text-indigo-200 mt-0.5">Trained on: <strong className="text-white">{activeModel.dataset}</strong></p>
               </div>
 
               <div className="flex items-center gap-2">
                 <img
-                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face"
-                  alt="Lead Data Scientist"
+                  src={activeModel.avatar}
+                  alt={activeModel.analyst}
                   className="w-8 h-8 rounded-full border border-indigo-300/40 object-cover"
                 />
                 <div className="text-right text-[10px] text-indigo-200 hidden sm:block">
-                  <div className="font-bold text-white">James Carter</div>
-                  <div>Lead Analyst</div>
+                  <div className="font-bold text-white">{activeModel.analyst}</div>
+                  <div>{activeModel.role}</div>
                 </div>
               </div>
             </div>
 
-            {/* 3 Metric Pills (Acc, Speed, F1) */}
+            {/* 3 Metric Pills (Dynamic values for selected model) */}
             <div className="grid grid-cols-3 gap-2.5">
               <div className="p-3 rounded-xl bg-white/[0.08] border border-white/10 backdrop-blur-sm">
-                <div className="text-[10px] font-mono text-indigo-200 uppercase">Accuracy</div>
-                <div className="text-base font-extrabold text-white mt-0.5 font-mono">96.1%</div>
-                <div className="text-[9px] text-emerald-300 font-medium">Top Performer</div>
+                <div className="text-[10px] font-mono text-indigo-200 uppercase">{activeModel.metricLabel}</div>
+                <div className="text-base font-extrabold text-white mt-0.5 font-mono">{activeModel.accuracy}</div>
+                <div className="text-[9px] text-emerald-300 font-medium">AutoML Verified</div>
               </div>
               <div className="p-3 rounded-xl bg-white/[0.08] border border-white/10 backdrop-blur-sm">
                 <div className="text-[10px] font-mono text-indigo-200 uppercase">Latency</div>
-                <div className="text-base font-extrabold text-white mt-0.5 font-mono">14 ms</div>
-                <div className="text-[9px] text-cyan-300 font-medium">Sub-20ms SLA</div>
+                <div className="text-base font-extrabold text-white mt-0.5 font-mono">{activeModel.latency}</div>
+                <div className="text-[9px] text-cyan-300 font-medium">Dedicated Micro-VM</div>
               </div>
               <div className="p-3 rounded-xl bg-white/[0.08] border border-white/10 backdrop-blur-sm">
                 <div className="text-[10px] font-mono text-indigo-200 uppercase">F1-Score</div>
-                <div className="text-base font-extrabold text-white mt-0.5 font-mono">0.942</div>
-                <div className="text-[9px] text-indigo-200 font-medium">Balanced</div>
+                <div className="text-base font-extrabold text-white mt-0.5 font-mono">{activeModel.f1}</div>
+                <div className="text-[9px] text-indigo-200 font-medium">Balanced Split</div>
               </div>
             </div>
 
-            {/* Subtotal / Model Summary Bar */}
-            <div className="p-3 rounded-xl bg-black/30 border border-white/[0.06] flex items-center justify-between text-xs">
-              <div>
-                <span className="text-indigo-300 text-[11px]">Prediction Endpoint: </span>
-                <span className="font-mono text-white text-[11px] font-semibold">https://api.refineiq.ai/v1/predict/mod-1003</span>
+            {/* Endpoint / Live Prediction Sandbox */}
+            <div className="p-3.5 rounded-xl bg-black/40 border border-white/[0.08] space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <div className="truncate max-w-[280px]">
+                  <span className="text-indigo-300 text-[10px] font-mono">POST </span>
+                  <span className="font-mono text-white text-[11px] font-semibold">{activeModel.endpoint}</span>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-500/30">
+                  READY (200 OK)
+                </span>
               </div>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-500/30">
-                200 OK
-              </span>
+
+              {/* Interactive Live Input Bar */}
+              <div className="pt-2 border-t border-white/[0.06]">
+                <p className="text-[10px] font-mono uppercase text-indigo-200 mb-2 font-semibold flex items-center justify-between">
+                  <span>Interactive Inference Test Bench</span>
+                  <span className="text-cyan-300">Live Client Playground</span>
+                </p>
+
+                <div className="grid grid-cols-3 gap-2 text-xs font-mono">
+                  <div>
+                    <label className="text-[9px] text-gray-400 block mb-1">Tenure (Months)</label>
+                    <input
+                      type="number"
+                      value={inputTenure}
+                      onChange={(e) => setInputTenure(Number(e.target.value))}
+                      className="w-full bg-[#181A32] border border-white/10 rounded px-2 py-1 text-white text-xs outline-none focus:border-indigo-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-gray-400 block mb-1">Monthly Spend ($)</label>
+                    <input
+                      type="number"
+                      value={inputSpend}
+                      onChange={(e) => setInputSpend(Number(e.target.value))}
+                      className="w-full bg-[#181A32] border border-white/10 rounded px-2 py-1 text-white text-xs outline-none focus:border-indigo-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-gray-400 block mb-1">Support Tickets</label>
+                    <input
+                      type="number"
+                      value={inputTickets}
+                      onChange={(e) => setInputTickets(Number(e.target.value))}
+                      className="w-full bg-[#181A32] border border-white/10 rounded px-2 py-1 text-white text-xs outline-none focus:border-indigo-400"
+                    />
+                  </div>
+                </div>
+
+                {/* Prediction Output Display */}
+                {testResult && (
+                  <div className="mt-3 p-2.5 rounded-lg bg-indigo-950/80 border border-cyan-500/30 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-cyan-300 font-bold">{activeModel.predictionType}:</span>
+                      <span className="font-mono text-emerald-400 font-bold">{testResult.outcome}</span>
+                    </div>
+                    <div className="text-[10px] text-gray-400 font-mono mt-1 flex justify-between">
+                      <span>Latency: {testResult.latency}</span>
+                      <span>Confidence: {(1 - Number(testResult.probability)).toFixed(3)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center justify-between pt-1">
-              <div className="flex items-center gap-2 text-indigo-200 text-xs font-mono">
-                <Activity size={14} className="text-cyan-400" />
-                <span>Zero inference drift detected</span>
-              </div>
+            {/* Action Buttons Row */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <button
+                onClick={() => setShowShapModal(true)}
+                className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors flex items-center gap-1.5"
+              >
+                <Brain size={13} className="text-cyan-300" />
+                <span>Inspect SHAP</span>
+              </button>
 
               <div className="flex items-center gap-2">
-                <button className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors">
-                  Inspect SHAP
+                <button
+                  onClick={handleRunPrediction}
+                  disabled={isPredicting}
+                  className="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/40 text-xs font-semibold transition-all flex items-center gap-1.5"
+                >
+                  {isPredicting ? <Loader2 size={13} className="animate-spin" /> : <Play size={13} />}
+                  <span>Test Inference</span>
                 </button>
-                <button className="px-4 py-2 rounded-xl bg-white text-[#121324] font-bold text-xs hover:bg-gray-100 shadow-[0_4px_16px_rgba(255,255,255,0.25)] transition-all">
-                  Deploy to Production
+
+                <button
+                  onClick={handleDeploy}
+                  disabled={isDeploying}
+                  className="px-4 py-2 rounded-xl bg-white text-[#121324] font-bold text-xs hover:bg-gray-100 shadow-[0_4px_16px_rgba(255,255,255,0.25)] transition-all flex items-center gap-1.5"
+                >
+                  {isDeploying ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin" />
+                      <span>Deploying Micro-VM...</span>
+                    </>
+                  ) : deployedSuccess ? (
+                    <>
+                      <CheckCircle2 size={13} className="text-emerald-600" />
+                      <span>Live in Production!</span>
+                    </>
+                  ) : (
+                    <span>Deploy to Production</span>
+                  )}
                 </button>
               </div>
             </div>
@@ -432,6 +681,151 @@ function FinnovaProductUI() {
         </div>
 
       </div>
+
+      {/* ── INTERACTIVE MODAL 1: AUTOML TOURNAMENT SIMULATOR ── */}
+      {showTrainModal && (
+        <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md rounded-[28px] p-6 flex items-center justify-center animate-in fade-in duration-200">
+          <div className="bg-[#151522] border border-white/15 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2 text-white font-bold text-sm">
+                <Sparkles size={16} className="text-cyan-400" />
+                <span>AutoML Benchmark Race</span>
+              </div>
+              <button
+                onClick={() => setShowTrainModal(false)}
+                className="p-1 text-gray-400 hover:text-white rounded-lg"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-gray-300">
+              <p>Simulate training an AutoML pipeline across 5 benchmarked algorithms.</p>
+              
+              <div className="p-3 rounded-xl bg-black/40 border border-white/10 font-mono text-[11px] space-y-1">
+                <div className="text-gray-400">Dataset: <strong className="text-white">ecommerce_conversion_2026.csv</strong></div>
+                <div className="text-gray-400">Rows: <strong className="text-cyan-300">24,500 tabular rows</strong></div>
+                <div className="text-gray-400">PII Shield: <strong className="text-emerald-400">100% Masked (SHA-256)</strong></div>
+              </div>
+
+              {isTournamentRunning ? (
+                <div className="space-y-2.5 py-3">
+                  <div className="flex items-center justify-between text-[11px] font-mono">
+                    <span className="text-cyan-300 animate-pulse">Running 5-Fold Cross Validation...</span>
+                    <Loader2 size={13} className="animate-spin text-cyan-400" />
+                  </div>
+                  <div className="space-y-1.5 font-mono text-[10px]">
+                    <div className="flex justify-between"><span>XGBoost (Epoch 120)</span><span className="text-emerald-400">94.2%</span></div>
+                    <div className="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden"><div className="bg-cyan-400 h-full w-[94%]" /></div>
+                    
+                    <div className="flex justify-between"><span>CatBoost (Deep Trees)</span><span className="text-emerald-400">95.4% WINNER</span></div>
+                    <div className="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden"><div className="bg-emerald-400 h-full w-[95.4%]" /></div>
+
+                    <div className="flex justify-between"><span>LightGBM</span><span>93.1%</span></div>
+                    <div className="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden"><div className="bg-indigo-400 h-full w-[93%]" /></div>
+                  </div>
+                </div>
+              ) : tournamentWinner ? (
+                <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 space-y-1">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <CheckCircle2 size={15} />
+                    <span>Tournament Winner: {tournamentWinner.algo}</span>
+                  </div>
+                  <p className="text-[11px] text-emerald-400">Crowned with {tournamentWinner.accuracy} ROC-AUC! Model added to your registry queue.</p>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={() => setShowTrainModal(false)}
+                className="flex-1 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors"
+              >
+                Close
+              </button>
+              {!tournamentWinner ? (
+                <button
+                  onClick={handleStartTournament}
+                  disabled={isTournamentRunning}
+                  className="flex-1 py-2 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-bold transition-all shadow-lg shadow-indigo-500/30"
+                >
+                  {isTournamentRunning ? 'Racing Algorithms...' : 'Start Race'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowTrainModal(false)}
+                  className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all"
+                >
+                  View Model
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── INTERACTIVE MODAL 2: SHAP EXPLAINABILITY DRAWER ── */}
+      {showShapModal && (
+        <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md rounded-[28px] p-6 flex items-center justify-center animate-in fade-in duration-200">
+          <div className="bg-[#151522] border border-white/15 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2 text-white font-bold text-sm">
+                <Brain size={16} className="text-indigo-400" />
+                <span>SHAP Feature Drivers — {activeModel.name}</span>
+              </div>
+              <button
+                onClick={() => setShowShapModal(false)}
+                className="p-1 text-gray-400 hover:text-white rounded-lg"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-gray-300">
+              <p>Top features driving predictions for this model (plain-English weights):</p>
+              
+              <div className="space-y-2.5 font-mono text-[11px] p-3 rounded-xl bg-black/40 border border-white/10">
+                <div>
+                  <div className="flex justify-between text-zinc-200">
+                    <span>contract_term_2yr</span>
+                    <span className="text-emerald-400 font-bold">+0.42 (Reduces Risk)</span>
+                  </div>
+                  <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-1">
+                    <div className="bg-emerald-400 h-1.5 rounded-full w-[84%]" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-zinc-200">
+                    <span>support_tickets &gt; 2</span>
+                    <span className="text-red-400 font-bold">-0.28 (Increases Risk)</span>
+                  </div>
+                  <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-1">
+                    <div className="bg-red-400 h-1.5 rounded-full w-[56%]" />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-zinc-200">
+                    <span>monthly_charges</span>
+                    <span className="text-amber-400 font-bold">-0.16</span>
+                  </div>
+                  <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-1">
+                    <div className="bg-amber-400 h-1.5 rounded-full w-[32%]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowShapModal(false)}
+              className="w-full py-2.5 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-bold transition-all"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   )
@@ -523,7 +917,7 @@ export default function LandingPage() {
       </nav>
 
       {/* ─────────────────────────────────────────────────────────────────────
-          2. HERO AREA (Problem-focused + Finnova Exact UI Showcase)
+          2. HERO AREA (Problem-focused + Finnova Interactive Sandbox)
           ───────────────────────────────────────────────────────────────────── */}
       <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto">
         
@@ -601,7 +995,7 @@ export default function LandingPage() {
 
         </div>
 
-        {/* The Exact Finnova-Style UI Product Showcase */}
+        {/* The Fully Interactive Finnova-Style UI Showcase */}
         <div className="mt-8 max-w-6xl mx-auto">
           <FinnovaProductUI />
         </div>
@@ -776,8 +1170,6 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
-            {/* Step 1 */}
             <div className="p-8 rounded-2xl bg-[#131317] border border-white/[0.08] space-y-4 hover:border-indigo-500/30 transition-colors">
               <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-mono font-bold text-lg">
                 01
@@ -788,7 +1180,6 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Step 2 */}
             <div className="p-8 rounded-2xl bg-[#131317] border border-white/[0.08] space-y-4 hover:border-cyan-500/30 transition-colors">
               <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-mono font-bold text-lg">
                 02
@@ -799,7 +1190,6 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Step 3 */}
             <div className="p-8 rounded-2xl bg-[#131317] border border-white/[0.08] space-y-4 hover:border-emerald-500/30 transition-colors">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-mono font-bold text-lg">
                 03
@@ -809,7 +1199,6 @@ export default function LandingPage() {
                 Copy your dedicated REST endpoint URL and Bearer token. Send real-time JSON requests from your app, Zapier, or CRM and receive predictions in under 20 milliseconds.
               </p>
             </div>
-
           </div>
         </div>
       </section>
@@ -940,8 +1329,6 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
-            {/* Review 1 */}
             <div className="p-7 rounded-2xl bg-[#131317] border border-white/[0.08] flex flex-col justify-between space-y-5">
               <div className="space-y-3">
                 <div className="flex gap-1 text-amber-400">
@@ -962,7 +1349,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Review 2 */}
             <div className="p-7 rounded-2xl bg-[#131317] border border-white/[0.08] flex flex-col justify-between space-y-5">
               <div className="space-y-3">
                 <div className="flex gap-1 text-amber-400">
@@ -983,7 +1369,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Review 3 */}
             <div className="p-7 rounded-2xl bg-[#131317] border border-white/[0.08] flex flex-col justify-between space-y-5">
               <div className="space-y-3">
                 <div className="flex gap-1 text-amber-400">
@@ -1003,7 +1388,6 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>
@@ -1097,7 +1481,6 @@ export default function LandingPage() {
       <footer className="border-t border-white/[0.08] bg-[#070709] py-16 px-6 text-xs text-zinc-500">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-10">
           
-          {/* Brand Info */}
           <div className="col-span-2 space-y-4">
             <Logo size="default" to="/" />
             <p className="text-zinc-400 text-xs leading-relaxed max-w-sm">
@@ -1108,7 +1491,7 @@ export default function LandingPage() {
               <span>All prediction gateways operational (99.98%)</span>
             </div>
             
-            {/* Newsletter Input (Image 1 Guide) */}
+            {/* Newsletter Input */}
             <div className="pt-2">
               <p className="text-[11px] font-semibold text-zinc-300 mb-1.5">Subscribe to AutoML Engineering Updates</p>
               <form onSubmit={handleSubscribe} className="flex gap-2 max-w-xs">
@@ -1133,7 +1516,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Product Links */}
           <div className="space-y-3">
             <p className="font-bold font-mono uppercase text-zinc-300 text-[11px]">Product</p>
             <ul className="space-y-2">
@@ -1145,7 +1527,6 @@ export default function LandingPage() {
             </ul>
           </div>
 
-          {/* Billing & Docs */}
           <div className="space-y-3">
             <p className="font-bold font-mono uppercase text-zinc-300 text-[11px]">Billing & Docs</p>
             <ul className="space-y-2">
@@ -1156,7 +1537,6 @@ export default function LandingPage() {
             </ul>
           </div>
 
-          {/* Trust & Legal */}
           <div className="space-y-3">
             <p className="font-bold font-mono uppercase text-zinc-300 text-[11px]">Trust & Legal</p>
             <ul className="space-y-2">
@@ -1169,7 +1549,6 @@ export default function LandingPage() {
 
         </div>
 
-        {/* Bottom copyright line */}
         <div className="max-w-7xl mx-auto pt-10 mt-10 border-t border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-zinc-600">
           <span>&copy; {new Date().getFullYear()} RefineIQ Platform Inc. &bull; Lusaka & Global Remote</span>
           <span>Crafted for high-performing data science & business analytics teams.</span>
