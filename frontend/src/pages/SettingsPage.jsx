@@ -164,6 +164,9 @@ export default function SettingsPage() {
                         </span>
                         <span className="text-xs text-ah-muted">Operations Compute Units</span>
                       </div>
+                      <p className="text-xs text-green-400 font-medium mt-1">
+                        ~{Math.round(ocuBalance / 10)} hours of model training left
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 px-3 py-1.5 rounded-xl text-xs font-mono">

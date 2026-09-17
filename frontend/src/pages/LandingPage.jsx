@@ -12,10 +12,13 @@ import Logo from '../components/common/Logo'
 // ═════════════════════════════════════════════════════════════════════════════
 // 1. FULLY INTERACTIVE FINNOVA-STYLE PRODUCT UI SANDBOX (Image 2)
 // ═════════════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════════
+// 1. FULLY INTERACTIVE FINNOVA-STYLE PRODUCT UI SANDBOX (Image 2)
+// ═════════════════════════════════════════════════════════════════════════════
 function FinnovaProductUI() {
   const [filterMode, setFilterMode] = useState('all') // 'all' | 'live' | 'draft'
   const [selectedModelId, setSelectedModelId] = useState('1003')
-  const [activeNavPill, setActiveNavPill] = useState('models')
+  const [activeNavPill, setActiveNavPill] = useState('models') // 'overview' | 'pipelines' | 'models' | 'endpoints' | 'watchtower' | 'billing'
   const [isDeploying, setIsDeploying] = useState(false)
   const [deployedSuccess, setDeployedSuccess] = useState(false)
   const [showTrainModal, setShowTrainModal] = useState(false)
@@ -24,6 +27,14 @@ function FinnovaProductUI() {
   const [tournamentWinner, setTournamentWinner] = useState(null)
   const [testResult, setTestResult] = useState(null)
   const [isPredicting, setIsPredicting] = useState(false)
+  const [selectedDagStage, setSelectedDagStage] = useState('refinery')
+  const [activeEndpointLang, setActiveEndpointLang] = useState('curl')
+  const [watchtowerLogs, setWatchtowerLogs] = useState([
+    { id: 'tx_981', time: 'Just now', inputs: 'tenure=14, spend=65, tickets=1', prediction: 'Retained', confidence: '94.8%', latency: '8.2ms', status: 'normal' },
+    { id: 'tx_980', time: '18s ago', inputs: 'tenure=2, spend=18, tickets=4', prediction: 'Churn Risk', confidence: '89.4%', latency: '11.1ms', status: 'warning' },
+    { id: 'tx_979', time: '42s ago', inputs: 'tenure=24, spend=120, tickets=0', prediction: 'Retained', confidence: '98.2%', latency: '7.8ms', status: 'normal' },
+    { id: 'tx_978', time: '2m ago', inputs: 'tenure=6, spend=45, tickets=2', prediction: 'Retained', confidence: '91.0%', latency: '9.4ms', status: 'normal' },
+  ])
 
   // Interactive Test Inputs
   const [inputTenure, setInputTenure] = useState(14)
@@ -139,38 +150,46 @@ function FinnovaProductUI() {
     return true
   })
 
-  // Simulated live prediction
-  const handleRunPrediction = () => {
-    setIsPredicting(true)
-    setTestResult(null)
-    setTimeout(() => {
-      setIsPredicting(false)
-      const calculatedRisk = (inputSpend > 80 && inputTickets > 2) ? 'High Churn Risk (78.2%)' : 'Retained (91.6% Confidence)'
-      setTestResult({
-        outcome: calculatedRisk,
-        probability: (inputSpend > 80 && inputTickets > 2) ? '0.782' : '0.084',
-        latency: `${Math.floor(11 + Math.random() * 6)} ms`,
-        status: '200 OK',
-        drivers: [
-          { feature: 'tenure_months', impact: inputTenure > 12 ? '+0.42 (Loyal)' : '-0.21' },
-          { feature: 'monthly_spend', impact: inputSpend > 75 ? '-0.28 (Price sensitive)' : '+0.15' },
-          { feature: 'support_tickets', impact: inputTickets > 1 ? '-0.33 (Dissatisfied)' : '+0.25' }
-        ]
-      })
-    }, 450)
-  }
-
-  // Simulated Deployment
+  // Handlers
   const handleDeploy = () => {
     setIsDeploying(true)
     setTimeout(() => {
       setIsDeploying(false)
       setDeployedSuccess(true)
-      setTimeout(() => setDeployedSuccess(false), 5000)
-    }, 800)
+      setTimeout(() => setDeployedSuccess(false), 3000)
+    }, 1200)
   }
 
-  // Simulated AutoML Tournament Run
+  const handleRunPrediction = () => {
+    setIsPredicting(true)
+    setTimeout(() => {
+      setIsPredicting(false)
+      const isHighRisk = inputTenure < 4 || inputSpend < 30 || inputTickets > 2
+      setTestResult({
+        probability: isHighRisk ? '0.842' : '0.114',
+        outcome: isHighRisk ? 'High Churn Hazard' : 'Retained & Active',
+        latency: `${(7.4 + Math.random() * 3).toFixed(1)} ms`
+      })
+    }, 450)
+  }
+
+  const handleSimulateWatchtowerPing = () => {
+    const randomAge = Math.floor(20 + Math.random() * 50)
+    const randomSpend = Math.floor(25 + Math.random() * 150)
+    const randomTenure = Math.floor(1 + Math.random() * 30)
+    const isChurn = randomTenure < 3 || randomSpend < 35
+    const newTx = {
+      id: `tx_${Math.floor(1000 + Math.random() * 9000)}`,
+      time: 'Just now',
+      inputs: `tenure=${randomTenure}, spend=${randomSpend}, age=${randomAge}`,
+      prediction: isChurn ? 'Churn Risk' : 'Retained',
+      confidence: `${(89 + Math.random() * 10).toFixed(1)}%`,
+      latency: `${(6.8 + Math.random() * 4).toFixed(1)}ms`,
+      status: isChurn ? 'warning' : 'normal',
+    }
+    setWatchtowerLogs(prev => [newTx, ...prev.slice(0, 5)])
+  }
+
   const handleStartTournament = () => {
     setIsTournamentRunning(true)
     setTournamentWinner(null)
@@ -183,7 +202,6 @@ function FinnovaProductUI() {
         algo: 'CatBoost Tuned'
       }
       setTournamentWinner(newWinner)
-      // Add to list
       setModelsList(prev => [
         {
           id: '1006',
@@ -215,17 +233,20 @@ function FinnovaProductUI() {
       
       {/* ── Top Pill Navigation Bar (Finnova style) ── */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        {/* Refined 2D Logo next to RefineIQ — no crude RIQ square */}
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#4F46E5] to-[#7C3AED] flex items-center justify-center text-white font-bold text-xs shadow-md">
-            RIQ
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00F2FE]/15 via-[#007AFF]/20 to-transparent border border-[#00F2FE]/40 flex items-center justify-center shadow-[0_0_12px_rgba(0,242,254,0.25)]">
+            <img src="/assets/logo.svg" alt="RefineIQ" className="w-5 h-5 drop-shadow-[0_0_8px_rgba(0,242,254,0.7)]" />
           </div>
           <div>
-            <div className="font-bold text-sm tracking-tight text-[#111827]">RefineIQ</div>
+            <div className="font-bold text-sm tracking-tight text-[#111827] flex items-center">
+              Refine<span className="text-[#4F46E5]">IQ</span>
+            </div>
             <div className="text-[10px] text-gray-500 font-medium">AutoML & Inference OS</div>
           </div>
         </div>
 
-        {/* Center Pill Menu with Interactive Tab Switching */}
+        {/* Center Pill Menu with Fully Reactive Tab Switching */}
         <div className="hidden lg:flex items-center bg-[#1E1E2F] text-gray-300 rounded-full p-1 text-xs font-medium shadow-inner">
           <span className="px-3 py-1 text-gray-400 font-mono text-[11px] font-bold">80</span>
           {['overview', 'pipelines', 'models', 'endpoints', 'watchtower', 'billing'].map((pill) => (
@@ -245,15 +266,15 @@ function FinnovaProductUI() {
 
         {/* Right Icon Badges */}
         <div className="flex items-center gap-1.5">
-          <div title="Database Connections" className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer">
+          <button onClick={() => setActiveNavPill('pipelines')} title="Database Connections" className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 transition-colors">
             <Database size={13} />
-          </div>
-          <div title="Alerts & Drift" className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer">
+          </button>
+          <button onClick={() => setActiveNavPill('watchtower')} title="Alerts & Drift" className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 transition-colors">
             <Bell size={13} />
-          </div>
-          <div title="Workspace Settings" className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 cursor-pointer">
+          </button>
+          <button onClick={() => setActiveNavPill('billing')} title="Workspace Settings" className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 shadow-sm hover:bg-gray-50 transition-colors">
             <Settings size={13} />
-          </div>
+          </button>
           <img
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face"
             alt="User"
@@ -262,52 +283,135 @@ function FinnovaProductUI() {
         </div>
       </div>
 
-      {/* ── Sub-header: Title + Interactive "Train New Model" Action ── */}
+      {/* ── Sub-header: Title & Primary Action (Unified Color Styling) ── */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <div className="flex items-center gap-3">
-          <button className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-700 shadow-sm hover:bg-gray-50">
+          <button
+            onClick={() => setActiveNavPill(activeNavPill === 'models' ? 'overview' : 'models')}
+            className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
+            title="Toggle between Models and Overview"
+          >
             <ArrowRight size={14} className="rotate-180" />
           </button>
           <div>
-            <h3 className="font-extrabold text-xl text-[#111827] tracking-tight">Models & Inference</h3>
-            <p className="text-xs text-gray-500">Manage, evaluate, and test your predictive ML models in real time.</p>
+            <h3 className="font-extrabold text-xl text-[#111827] tracking-tight">
+              {activeNavPill === 'models' && 'Models & Inference'}
+              {activeNavPill === 'overview' && 'Workspace Overview'}
+              {activeNavPill === 'pipelines' && 'Data Pipelines (DAG)'}
+              {activeNavPill === 'endpoints' && 'Production Endpoints'}
+              {activeNavPill === 'watchtower' && 'Watchtower Drift Telemetry'}
+              {activeNavPill === 'billing' && 'OCU Credits & Billing'}
+            </h3>
+            <p className="text-xs text-gray-500">
+              {activeNavPill === 'models' && 'Manage, evaluate, and test your predictive ML models in real time.'}
+              {activeNavPill === 'overview' && 'Real-time telemetry, model fleet health, and automated pipeline throughput.'}
+              {activeNavPill === 'pipelines' && 'End-to-end visual workflow from raw CSV ingest to live serverless deployment.'}
+              {activeNavPill === 'endpoints' && 'Autoscaling serverless REST endpoints ready for curl, Python, and JavaScript.'}
+              {activeNavPill === 'watchtower' && 'Surveillance for distribution drift, accuracy degradation, and data anomalies.'}
+              {activeNavPill === 'billing' && 'Usage-based Operations Compute Units (OCUs) powered by Flutterwave.'}
+            </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <button 
-            onClick={() => alert("Filter presets: Accuracy > 90%, Latency < 20ms, Active in Production")}
-            className="h-9 px-3 rounded-xl bg-white border border-gray-200 text-gray-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm hover:bg-gray-50 transition-colors"
-          >
-            <SlidersHorizontal size={13} />
-            <span className="hidden sm:inline">Filters</span>
-          </button>
+          {activeNavPill === 'models' && (
+            <button 
+              onClick={() => alert("Filter presets: Accuracy > 90%, Latency < 20ms, Active in Production")}
+              className="h-9 px-3 rounded-xl bg-white border border-gray-200 text-gray-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm hover:bg-gray-50 transition-colors"
+            >
+              <SlidersHorizontal size={13} />
+              <span className="hidden sm:inline">Filters</span>
+            </button>
+          )}
 
-          {/* Interactive Trigger for Tournament */}
-          <button
-            onClick={() => setShowTrainModal(true)}
-            className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all active:scale-95"
-          >
-            <Plus size={14} />
-            <span>Train New Model</span>
-          </button>
+          {/* Primary Action Button (Unified #4F46E5 purple/indigo styling across all tabs) */}
+          {activeNavPill === 'models' && (
+            <button
+              onClick={() => setShowTrainModal(true)}
+              className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all active:scale-95"
+            >
+              <Plus size={14} />
+              <span>Train New Model</span>
+            </button>
+          )}
+          {activeNavPill === 'overview' && (
+            <button
+              onClick={() => setActiveNavPill('models')}
+              className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all active:scale-95"
+            >
+              <Plus size={14} />
+              <span>Launch New Project</span>
+            </button>
+          )}
+          {activeNavPill === 'pipelines' && (
+            <button
+              onClick={() => alert("Pipeline run initiated: Ingesting dataset with Polars...")}
+              className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all active:scale-95"
+            >
+              <Play size={13} />
+              <span>Run Pipeline</span>
+            </button>
+          )}
+          {activeNavPill === 'endpoints' && (
+            <button
+              onClick={() => alert("New endpoint wizard: Select model from registry")}
+              className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all active:scale-95"
+            >
+              <Plus size={14} />
+              <span>Deploy Endpoint</span>
+            </button>
+          )}
+          {activeNavPill === 'watchtower' && (
+            <button
+              onClick={handleSimulateWatchtowerPing}
+              className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all active:scale-95"
+            >
+              <Zap size={13} />
+              <span>Simulate Traffic Ping</span>
+            </button>
+          )}
+          {activeNavPill === 'billing' && (
+            <Link
+              to="/settings"
+              className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all active:scale-95"
+            >
+              <Zap size={13} />
+              <span>Top Up OCUs</span>
+            </Link>
+          )}
         </div>
       </div>
 
       {/* ── Top 4 Metric Cards Row ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         
-        {/* Card 1: Active Models in Prod */}
+        {/* Card 1: Dynamic per Tab */}
         <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-medium text-gray-500">Active Deployed Models</span>
+              <span className="text-[11px] font-medium text-gray-500">
+                {activeNavPill === 'models' && 'Active Deployed Models'}
+                {activeNavPill === 'overview' && 'Active Pipeline Fleet'}
+                {activeNavPill === 'pipelines' && 'Pipeline DAG Stages'}
+                {activeNavPill === 'endpoints' && 'Production Endpoints'}
+                {activeNavPill === 'watchtower' && 'Population Drift Index'}
+                {activeNavPill === 'billing' && 'Active Metering Plan'}
+              </span>
               <span className="w-4 h-4 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-bold">!</span>
             </div>
-            <div className="font-extrabold text-2xl text-[#111827] tracking-tight">{modelsList.filter(m => m.status === 'Live').length} Models Live</div>
-            <div className="flex items-center gap-1 text-[11px] text-red-500 font-semibold mt-1">
+            <div className="font-extrabold text-2xl text-[#111827] tracking-tight">
+              {activeNavPill === 'models' && `${modelsList.filter(m => m.status === 'Live').length} Models Live`}
+              {activeNavPill === 'overview' && '4 Pipelines Active'}
+              {activeNavPill === 'pipelines' && '5 Automated Nodes'}
+              {activeNavPill === 'endpoints' && '4 Live Endpoints'}
+              {activeNavPill === 'watchtower' && '0.038 PSI'}
+              {activeNavPill === 'billing' && 'Pay-As-You-Train'}
+            </div>
+            <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">
               <TrendingUp size={12} />
-              <span>96.1% Peak Accuracy</span>
+              <span>
+                {activeNavPill === 'watchtower' ? 'Stable (Threshold: 0.15)' : '96.1% Peak Accuracy'}
+              </span>
             </div>
           </div>
           <div className="mt-3 h-14 rounded-xl bg-gradient-to-r from-gray-50 to-indigo-50/40 border border-gray-100 flex items-center justify-center overflow-hidden relative">
@@ -375,7 +479,7 @@ function FinnovaProductUI() {
           </div>
         </div>
 
-        {/* Card 4: OCU Compute Balance (Action Card) */}
+        {/* Card 4: OCU Compute Balance (With Context Line & Unified Primary Button Color) */}
         <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1">
@@ -383,6 +487,10 @@ function FinnovaProductUI() {
               <ArrowUpRight size={13} className="text-gray-400" />
             </div>
             <div className="font-extrabold text-2xl text-[#111827] tracking-tight">186 OCUs</div>
+            {/* Context line directly addressing user feedback */}
+            <div className="text-[11px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
+              <span>~18 hours of training left</span>
+            </div>
             <div className="text-[11px] text-gray-500 mt-1">
               Gateway: <span className="font-semibold text-indigo-600">Flutterwave (Active)</span>
             </div>
@@ -391,9 +499,10 @@ function FinnovaProductUI() {
             <div className="px-2.5 py-1.5 rounded-lg bg-gray-100 text-[10px] font-mono font-semibold text-gray-700 flex items-center gap-1">
               <span>CARD •••• 4242</span>
             </div>
+            {/* Primary button styled with cohesive #4F46E5 color, matching Train New Model */}
             <Link
               to="/settings"
-              className="px-3 py-1.5 rounded-lg bg-[#1E1E2F] hover:bg-black text-white text-[11px] font-semibold transition-colors shadow-sm"
+              className="px-3.5 py-1.5 rounded-lg bg-[#4F46E5] hover:bg-[#4338CA] text-white text-[11px] font-semibold transition-all shadow-[0_2px_10px_rgba(79,70,229,0.3)]"
             >
               Top Up
             </Link>
@@ -402,285 +511,574 @@ function FinnovaProductUI() {
 
       </div>
 
-      {/* ── Active Filters Bar with Search & Date ── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5 text-xs text-gray-600">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gray-200 font-semibold text-gray-800 shadow-sm">
-            <span>Active filters</span>
-            <span className="w-4 h-4 rounded-full bg-[#1E1E2F] text-white text-[10px] flex items-center justify-center">
-              {filterMode === 'all' ? '2' : '3'}
-            </span>
+      {/* ── Active Filters Bar with Search & Date (Models & Registry view) ── */}
+      {activeNavPill === 'models' && (
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5 text-xs text-gray-600">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gray-200 font-semibold text-gray-800 shadow-sm">
+              <span>Active filters</span>
+              <span className="w-4 h-4 rounded-full bg-[#4F46E5] text-white text-[10px] flex items-center justify-center font-bold">
+                {filterMode === 'all' ? '2' : '3'}
+              </span>
+            </div>
+            <div className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 shadow-sm flex items-center gap-2">
+              <span>Algorithm: {activeModel.algo}</span>
+            </div>
+            <div className="hidden md:flex px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 shadow-sm items-center gap-2">
+              <span>Dataset: {activeModel.dataset}</span>
+            </div>
           </div>
-          <div className="px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 shadow-sm flex items-center gap-2">
-            <span>Algorithm: {activeModel.algo}</span>
-          </div>
-          <div className="hidden md:flex px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 shadow-sm items-center gap-2">
-            <span>Dataset: {activeModel.dataset}</span>
+
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 shadow-sm">
+              <Calendar size={12} className="text-gray-400" />
+              <span>Q3 2026 Batch</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-400 shadow-sm">
+              <Search size={12} />
+              <input
+                type="text"
+                placeholder={`Search ${modelsList.length} models...`}
+                className="w-28 sm:w-36 text-xs text-gray-700 outline-none bg-transparent placeholder-gray-400"
+                readOnly
+              />
+            </div>
           </div>
         </div>
+      )}
 
-        <div className="flex items-center gap-2">
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-700 shadow-sm">
-            <Calendar size={12} className="text-gray-400" />
-            <span>Q3 2026 Batch</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-400 shadow-sm">
-            <Search size={12} />
-            <input
-              type="text"
-              placeholder={`Search ${modelsList.length} models...`}
-              className="w-28 sm:w-36 text-xs text-gray-700 outline-none bg-transparent placeholder-gray-400"
-              readOnly
-            />
-          </div>
-        </div>
-      </div>
+      {/* ── TAB 1: MODELS VIEW (Deep Slate Navy Workspace) ── */}
+      {activeNavPill === 'models' && (
+        <div className="bg-[#121324] text-white rounded-2xl p-4 sm:p-5 shadow-2xl">
+          {/* Inner Tab Control Bar with REAL FILTERING */}
+          <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+            <div className="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
+              <span>Model Registry</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                {filteredModels.length} Showing
+              </span>
+            </div>
 
-      {/* ── Dual-Tone Split Workspace (Deep Slate Navy Bottom Container) ── */}
-      <div className="bg-[#121324] text-white rounded-2xl p-4 sm:p-5 shadow-2xl">
-        
-        {/* Inner Tab Control Bar with REAL FILTERING */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-          <div className="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
-            <span>Model Registry</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-              {filteredModels.length} Showing
-            </span>
+            <div className="flex items-center gap-1 bg-[#1A1B30] p-1 rounded-xl text-xs font-medium">
+              <button
+                onClick={() => setFilterMode('all')}
+                className={`px-3 py-1 rounded-lg transition-all ${
+                  filterMode === 'all' ? 'bg-[#4F46E5] text-white font-semibold' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                All ({modelsList.length})
+              </button>
+              <button
+                onClick={() => setFilterMode('live')}
+                className={`px-3 py-1 rounded-lg transition-all ${
+                  filterMode === 'live' ? 'bg-[#4F46E5] text-white font-semibold' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Live ({modelsList.filter(m => m.status === 'Live').length})
+              </button>
+              <button
+                onClick={() => setFilterMode('draft')}
+                className={`px-3 py-1 rounded-lg transition-all ${
+                  filterMode === 'draft' ? 'bg-[#4F46E5] text-white font-semibold' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Draft ({modelsList.filter(m => m.status === 'Draft').length})
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-1 bg-[#1A1B30] p-1 rounded-xl text-xs font-medium">
-            <button
-              onClick={() => setFilterMode('all')}
-              className={`px-3 py-1 rounded-lg transition-all ${
-                filterMode === 'all' ? 'bg-[#4F46E5] text-white font-semibold' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              All ({modelsList.length})
-            </button>
-            <button
-              onClick={() => setFilterMode('live')}
-              className={`px-3 py-1 rounded-lg transition-all ${
-                filterMode === 'live' ? 'bg-[#4F46E5] text-white font-semibold' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Live ({modelsList.filter(m => m.status === 'Live').length})
-            </button>
-            <button
-              onClick={() => setFilterMode('draft')}
-              className={`px-3 py-1 rounded-lg transition-all ${
-                filterMode === 'draft' ? 'bg-[#4F46E5] text-white font-semibold' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Draft ({modelsList.filter(m => m.status === 'Draft').length})
-            </button>
-          </div>
-        </div>
-
-        {/* Master / Detail Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-          
-          {/* Left Model Queue List (5 columns) */}
-          <div className="lg:col-span-5 space-y-2">
-            {filteredModels.map((m) => {
-              const isSelected = selectedModelId === m.id
-              return (
-                <div
-                  key={m.id}
-                  onClick={() => {
-                    setSelectedModelId(m.id)
-                    setTestResult(null)
-                  }}
-                  className={`p-3 rounded-xl flex items-center justify-between cursor-pointer transition-all ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-[#4F46E5] to-[#4338CA] text-white shadow-lg shadow-indigo-500/20'
-                      : 'bg-[#181A32] hover:bg-[#1F213E] text-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <img src={m.avatar} alt={m.name} className="w-8 h-8 rounded-full object-cover border border-white/20" />
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-xs">{m.code}</span>
-                        <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${isSelected ? 'bg-white/20 text-white' : m.statusColor}`}>
-                          {m.algo}
-                        </span>
+          {/* Master / Detail Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+            {/* Left Model Queue List (5 columns) */}
+            <div className="lg:col-span-5 space-y-2">
+              {filteredModels.map((m) => {
+                const isSelected = selectedModelId === m.id
+                return (
+                  <div
+                    key={m.id}
+                    onClick={() => {
+                      setSelectedModelId(m.id)
+                      setTestResult(null)
+                    }}
+                    className={`p-3 rounded-xl flex items-center justify-between cursor-pointer transition-all ${
+                      isSelected
+                        ? 'bg-gradient-to-r from-[#4F46E5] to-[#4338CA] text-white shadow-lg shadow-indigo-500/20'
+                        : 'bg-[#181A32] hover:bg-[#1F213E] text-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <img src={m.avatar} alt={m.name} className="w-8 h-8 rounded-full object-cover border border-white/20" />
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-xs">{m.code}</span>
+                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${isSelected ? 'bg-white/20 text-white' : m.statusColor}`}>
+                            {m.algo}
+                          </span>
+                        </div>
+                        <div className={`text-[11px] font-medium truncate max-w-[120px] ${isSelected ? 'text-indigo-100' : 'text-gray-400'}`}>
+                          {m.name}
+                        </div>
                       </div>
-                      <div className={`text-[11px] font-medium truncate max-w-[120px] ${isSelected ? 'text-indigo-100' : 'text-gray-400'}`}>
-                        {m.name}
+                    </div>
+
+                    <div className="text-right">
+                      <div className="font-mono font-bold text-xs">{m.accuracy}</div>
+                      <div className={`text-[10px] ${isSelected ? 'text-indigo-200' : 'text-gray-500'}`}>
+                        {m.metricLabel}
                       </div>
                     </div>
                   </div>
+                )
+              })}
+            </div>
 
-                  <div className="text-right">
-                    <div className="font-mono font-bold text-xs">{m.accuracy}</div>
-                    <div className={`text-[10px] ${isSelected ? 'text-indigo-200' : 'text-gray-500'}`}>
-                      {m.metricLabel}
+            {/* Right Model Detail Showcase (7 columns - DYNAMIC INDIGO CARD) */}
+            <div className="lg:col-span-7 bg-gradient-to-br from-[#2D2A82] via-[#242168] to-[#1A184E] rounded-2xl p-5 border border-indigo-400/30 shadow-xl space-y-4">
+              {/* Header */}
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-extrabold text-base tracking-tight text-white">{activeModel.code} {activeModel.name}</h4>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${activeModel.statusColor}`}>
+                      {activeModel.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-indigo-200 mt-0.5">Trained on: <strong className="text-white">{activeModel.dataset}</strong></p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <img
+                    src={activeModel.avatar}
+                    alt={activeModel.analyst}
+                    className="w-8 h-8 rounded-full border border-indigo-300/40 object-cover"
+                  />
+                  <div className="text-right text-[10px] text-indigo-200 hidden sm:block">
+                    <div className="font-bold text-white">{activeModel.analyst}</div>
+                    <div>{activeModel.role}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3 Metric Pills */}
+              <div className="grid grid-cols-3 gap-2.5">
+                <div className="p-3 rounded-xl bg-white/[0.08] border border-white/10 backdrop-blur-sm">
+                  <div className="text-[10px] font-mono text-indigo-200 uppercase">{activeModel.metricLabel}</div>
+                  <div className="text-base font-extrabold text-white mt-0.5 font-mono">{activeModel.accuracy}</div>
+                  <div className="text-[9px] text-emerald-300 font-medium">AutoML Verified</div>
+                </div>
+                <div className="p-3 rounded-xl bg-white/[0.08] border border-white/10 backdrop-blur-sm">
+                  <div className="text-[10px] font-mono text-indigo-200 uppercase">Latency</div>
+                  <div className="text-base font-extrabold text-white mt-0.5 font-mono">{activeModel.latency}</div>
+                  <div className="text-[9px] text-cyan-300 font-medium">Dedicated Micro-VM</div>
+                </div>
+                <div className="p-3 rounded-xl bg-white/[0.08] border border-white/10 backdrop-blur-sm">
+                  <div className="text-[10px] font-mono text-indigo-200 uppercase">F1-Score</div>
+                  <div className="text-base font-extrabold text-white mt-0.5 font-mono">{activeModel.f1}</div>
+                  <div className="text-[9px] text-indigo-200 font-medium">Balanced Split</div>
+                </div>
+              </div>
+
+              {/* Endpoint / Live Prediction Sandbox */}
+              <div className="p-3.5 rounded-xl bg-black/40 border border-white/[0.08] space-y-3">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="truncate max-w-[280px]">
+                    <span className="text-indigo-300 text-[10px] font-mono">POST </span>
+                    <span className="font-mono text-white text-[11px] font-semibold">{activeModel.endpoint}</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-500/30">
+                    READY (200 OK)
+                  </span>
+                </div>
+
+                {/* Interactive Live Input Bar */}
+                <div className="pt-2 border-t border-white/[0.06]">
+                  <p className="text-[10px] font-mono uppercase text-indigo-200 mb-2 font-semibold flex items-center justify-between">
+                    <span>Interactive Inference Test Bench</span>
+                    <span className="text-cyan-300">Live Client Playground</span>
+                  </p>
+
+                  <div className="grid grid-cols-3 gap-2 text-xs font-mono">
+                    <div>
+                      <label className="text-[9px] text-gray-400 block mb-1">Tenure (Months)</label>
+                      <input
+                        type="number"
+                        value={inputTenure}
+                        onChange={(e) => setInputTenure(Number(e.target.value))}
+                        className="w-full bg-[#181A32] border border-white/10 rounded px-2 py-1 text-white text-xs outline-none focus:border-indigo-400"
+                      />
                     </div>
+                    <div>
+                      <label className="text-[9px] text-gray-400 block mb-1">Monthly Spend ($)</label>
+                      <input
+                        type="number"
+                        value={inputSpend}
+                        onChange={(e) => setInputSpend(Number(e.target.value))}
+                        className="w-full bg-[#181A32] border border-white/10 rounded px-2 py-1 text-white text-xs outline-none focus:border-indigo-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-gray-400 block mb-1">Support Tickets</label>
+                      <input
+                        type="number"
+                        value={inputTickets}
+                        onChange={(e) => setInputTickets(Number(e.target.value))}
+                        className="w-full bg-[#181A32] border border-white/10 rounded px-2 py-1 text-white text-xs outline-none focus:border-indigo-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Prediction Output Display */}
+                  {testResult && (
+                    <div className="mt-3 p-2.5 rounded-lg bg-indigo-950/80 border border-cyan-500/30 animate-in fade-in duration-200">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-cyan-300 font-bold">{activeModel.predictionType}:</span>
+                        <span className="font-mono text-emerald-400 font-bold">{testResult.outcome}</span>
+                      </div>
+                      <div className="text-[10px] text-gray-400 font-mono mt-1 flex justify-between">
+                        <span>Latency: {testResult.latency}</span>
+                        <span>Confidence: {(1 - Number(testResult.probability)).toFixed(3)}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons Row */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                <button
+                  onClick={() => setShowShapModal(true)}
+                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors flex items-center gap-1.5"
+                >
+                  <Brain size={13} className="text-cyan-300" />
+                  <span>Inspect SHAP</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleRunPrediction}
+                    disabled={isPredicting}
+                    className="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/40 text-xs font-semibold transition-all flex items-center gap-1.5"
+                  >
+                    {isPredicting ? <Loader2 size={13} className="animate-spin" /> : <Play size={13} />}
+                    <span>Test Inference</span>
+                  </button>
+
+                  <button
+                    onClick={handleDeploy}
+                    disabled={isDeploying}
+                    className="px-4 py-2 rounded-xl bg-white text-[#121324] font-bold text-xs hover:bg-gray-100 shadow-[0_4px_16px_rgba(255,255,255,0.25)] transition-all flex items-center gap-1.5"
+                  >
+                    {isDeploying ? (
+                      <>
+                        <Loader2 size={13} className="animate-spin" />
+                        <span>Deploying Micro-VM...</span>
+                      </>
+                    ) : deployedSuccess ? (
+                      <>
+                        <CheckCircle2 size={13} className="text-emerald-600" />
+                        <span>Live in Production!</span>
+                      </>
+                    ) : (
+                      <span>Deploy to Production</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 2: OVERVIEW VIEW ── */}
+      {activeNavPill === 'overview' && (
+        <div className="bg-[#121324] text-white rounded-2xl p-5 shadow-2xl space-y-5">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-2">
+              <Activity size={16} className="text-[#00F2FE]" />
+              <h4 className="font-extrabold text-sm tracking-tight text-white">Live Pipeline Operations & Telemetry</h4>
+            </div>
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              ● All Systems Operational
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            {/* Left Activity Stream */}
+            <div className="lg:col-span-7 bg-[#181A32] rounded-xl p-4 border border-white/10 space-y-3">
+              <p className="text-xs font-mono uppercase text-gray-400 font-semibold">Automated Activity Stream</p>
+              <div className="space-y-2.5 text-xs font-mono">
+                <div className="p-3 rounded-lg bg-black/40 border border-white/5 flex items-start justify-between">
+                  <div>
+                    <div className="text-white font-semibold flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      CatBoost Conversion Model Deployed
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Trained on 24,500 rows with 95.4% ROC-AUC. Autoscaling 2 instances.</p>
+                  </div>
+                  <span className="text-[10px] text-gray-500">12m ago</span>
+                </div>
+                <div className="p-3 rounded-lg bg-black/40 border border-white/5 flex items-start justify-between">
+                  <div>
+                    <div className="text-white font-semibold flex items-center gap-2">
+                      <Shield size={12} className="text-cyan-300" />
+                      Presidio PII Masking Scrubbed 14 Emails
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Automated pseudonymization applied to customer contact column.</p>
+                  </div>
+                  <span className="text-[10px] text-gray-500">28m ago</span>
+                </div>
+                <div className="p-3 rounded-lg bg-black/40 border border-white/5 flex items-start justify-between">
+                  <div>
+                    <div className="text-white font-semibold flex items-center gap-2">
+                      <Zap size={12} className="text-amber-400" />
+                      Revenue Forecast Batch Completed
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Served 1,420 predictions in 340ms with 0 errors.</p>
+                  </div>
+                  <span className="text-[10px] text-gray-500">1h ago</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right System Health */}
+            <div className="lg:col-span-5 bg-gradient-to-br from-[#2D2A82] via-[#242168] to-[#1A184E] rounded-xl p-4 border border-indigo-400/30 space-y-3.5">
+              <p className="text-xs font-mono uppercase text-indigo-200 font-semibold">Engine Core Architecture</p>
+              <div className="space-y-2 text-xs font-mono">
+                <div className="flex justify-between items-center p-2 rounded-lg bg-white/5 border border-white/10">
+                  <span className="text-indigo-100">Polars Rust Engine</span>
+                  <span className="text-emerald-400 font-semibold">2.4M rows/sec</span>
+                </div>
+                <div className="flex justify-between items-center p-2 rounded-lg bg-white/5 border border-white/10">
+                  <span className="text-indigo-100">Microsoft Presidio</span>
+                  <span className="text-emerald-400 font-semibold">Active Shield</span>
+                </div>
+                <div className="flex justify-between items-center p-2 rounded-lg bg-white/5 border border-white/10">
+                  <span className="text-indigo-100">FastAPI Serverless</span>
+                  <span className="text-cyan-300 font-semibold">8.4ms Latency</span>
+                </div>
+                <div className="flex justify-between items-center p-2 rounded-lg bg-white/5 border border-white/10">
+                  <span className="text-indigo-100">Watchtower Drift Guard</span>
+                  <span className="text-emerald-400 font-semibold">0.038 PSI (Stable)</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveNavPill('models')}
+                className="w-full py-2.5 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold transition-colors shadow-md text-center block"
+              >
+                Inspect AutoML Models →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 3: PIPELINES VIEW (Visual DAG) ── */}
+      {activeNavPill === 'pipelines' && (
+        <div className="bg-[#121324] text-white rounded-2xl p-5 shadow-2xl space-y-5">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div>
+              <h4 className="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
+                <Layers size={16} className="text-[#00F2FE]" />
+                Automated ML Pipeline DAG
+              </h4>
+              <p className="text-[11px] text-gray-400 mt-0.5">Click any stage node below to view transformation status and logs.</p>
+            </div>
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              5 Nodes Passing
+            </span>
+          </div>
+
+          {/* Flowchart Nodes */}
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5 items-center">
+            {[
+              { id: 'ingest', step: '01', title: 'Data Ingestion', sub: 'CSV / Postgres', time: '120ms' },
+              { id: 'refinery', step: '02', title: 'Data Refinery', sub: 'Polars Impute', time: '180ms' },
+              { id: 'shield', step: '03', title: 'Privacy Shield', sub: 'Presidio PII', time: '95ms' },
+              { id: 'automl', step: '04', title: 'AutoML Studio', sub: '5 Model Race', time: '1.4s' },
+              { id: 'deploy', step: '05', title: 'Production Deploy', sub: 'FastAPI Rest', time: '14ms' },
+            ].map((node) => {
+              const isActive = selectedDagStage === node.id
+              return (
+                <div
+                  key={node.id}
+                  onClick={() => setSelectedDagStage(node.id)}
+                  className={`p-3.5 rounded-xl border cursor-pointer transition-all text-center relative ${
+                    isActive
+                      ? 'bg-gradient-to-b from-[#4F46E5] to-[#3730A3] border-indigo-400 shadow-lg shadow-indigo-500/30 text-white'
+                      : 'bg-[#181A32] hover:bg-[#202342] border-white/10 text-gray-300'
+                  }`}
+                >
+                  <div className="text-[10px] font-mono text-cyan-300 font-bold mb-0.5">{node.step}</div>
+                  <div className="font-bold text-xs">{node.title}</div>
+                  <div className="text-[10px] opacity-75 mt-0.5">{node.sub}</div>
+                  <div className="mt-2 text-[9px] font-mono px-1.5 py-0.5 rounded bg-black/40 inline-block">
+                    ✓ {node.time}
                   </div>
                 </div>
               )
             })}
           </div>
 
-          {/* Right Model Detail Showcase (7 columns - DYNAMIC INDIGO CARD) */}
-          <div className="lg:col-span-7 bg-gradient-to-br from-[#2D2A82] via-[#242168] to-[#1A184E] rounded-2xl p-5 border border-indigo-400/30 shadow-xl space-y-4">
-            
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="font-extrabold text-base tracking-tight text-white">{activeModel.code} {activeModel.name}</h4>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${activeModel.statusColor}`}>
-                    {activeModel.status}
-                  </span>
-                </div>
-                <p className="text-xs text-indigo-200 mt-0.5">Trained on: <strong className="text-white">{activeModel.dataset}</strong></p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <img
-                  src={activeModel.avatar}
-                  alt={activeModel.analyst}
-                  className="w-8 h-8 rounded-full border border-indigo-300/40 object-cover"
-                />
-                <div className="text-right text-[10px] text-indigo-200 hidden sm:block">
-                  <div className="font-bold text-white">{activeModel.analyst}</div>
-                  <div>{activeModel.role}</div>
-                </div>
-              </div>
+          {/* Node Detail Box */}
+          <div className="p-4 rounded-xl bg-black/40 border border-white/10 font-mono text-xs space-y-2">
+            <div className="flex items-center justify-between text-indigo-200">
+              <span className="font-bold text-white uppercase">Selected Node: {selectedDagStage.toUpperCase()}</span>
+              <span className="text-emerald-400">Status: PASSING (Zero Errors)</span>
             </div>
+            <p className="text-[11px] text-gray-400">
+              {selectedDagStage === 'ingest' && 'Connected to source dataset (1,000 records). Schema inferred automatically with Polars zero-copy scanner.'}
+              {selectedDagStage === 'refinery' && 'Scanned 7 columns. Found 14 null values in monthly_charges and age. Imputed with column median.'}
+              {selectedDagStage === 'shield' && 'Scanned customer contact columns for PII. Detected 1,000 email addresses. Anonymized to s***@domain format.'}
+              {selectedDagStage === 'automl' && 'Ran 5-fold cross validation across XGBoost, LightGBM, Random Forest, and CatBoost. XGBoost won with 94.8% accuracy.'}
+              {selectedDagStage === 'deploy' && 'Exported champion model to serialized ONNX runtime. Serverless REST endpoint live at /v1/predict.'}
+            </p>
+          </div>
+        </div>
+      )}
 
-            {/* 3 Metric Pills (Dynamic values for selected model) */}
-            <div className="grid grid-cols-3 gap-2.5">
-              <div className="p-3 rounded-xl bg-white/[0.08] border border-white/10 backdrop-blur-sm">
-                <div className="text-[10px] font-mono text-indigo-200 uppercase">{activeModel.metricLabel}</div>
-                <div className="text-base font-extrabold text-white mt-0.5 font-mono">{activeModel.accuracy}</div>
-                <div className="text-[9px] text-emerald-300 font-medium">AutoML Verified</div>
-              </div>
-              <div className="p-3 rounded-xl bg-white/[0.08] border border-white/10 backdrop-blur-sm">
-                <div className="text-[10px] font-mono text-indigo-200 uppercase">Latency</div>
-                <div className="text-base font-extrabold text-white mt-0.5 font-mono">{activeModel.latency}</div>
-                <div className="text-[9px] text-cyan-300 font-medium">Dedicated Micro-VM</div>
-              </div>
-              <div className="p-3 rounded-xl bg-white/[0.08] border border-white/10 backdrop-blur-sm">
-                <div className="text-[10px] font-mono text-indigo-200 uppercase">F1-Score</div>
-                <div className="text-base font-extrabold text-white mt-0.5 font-mono">{activeModel.f1}</div>
-                <div className="text-[9px] text-indigo-200 font-medium">Balanced Split</div>
-              </div>
+      {/* ── TAB 4: ENDPOINTS VIEW ── */}
+      {activeNavPill === 'endpoints' && (
+        <div className="bg-[#121324] text-white rounded-2xl p-5 shadow-2xl space-y-5">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div>
+              <h4 className="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
+                <Terminal size={16} className="text-[#00F2FE]" />
+                Live Production Endpoints
+              </h4>
+              <p className="text-[11px] text-gray-400 mt-0.5">Autoscaling micro-instances serving low-latency REST inference.</p>
             </div>
-
-            {/* Endpoint / Live Prediction Sandbox */}
-            <div className="p-3.5 rounded-xl bg-black/40 border border-white/[0.08] space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <div className="truncate max-w-[280px]">
-                  <span className="text-indigo-300 text-[10px] font-mono">POST </span>
-                  <span className="font-mono text-white text-[11px] font-semibold">{activeModel.endpoint}</span>
-                </div>
-                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-500/30">
-                  READY (200 OK)
-                </span>
-              </div>
-
-              {/* Interactive Live Input Bar */}
-              <div className="pt-2 border-t border-white/[0.06]">
-                <p className="text-[10px] font-mono uppercase text-indigo-200 mb-2 font-semibold flex items-center justify-between">
-                  <span>Interactive Inference Test Bench</span>
-                  <span className="text-cyan-300">Live Client Playground</span>
-                </p>
-
-                <div className="grid grid-cols-3 gap-2 text-xs font-mono">
-                  <div>
-                    <label className="text-[9px] text-gray-400 block mb-1">Tenure (Months)</label>
-                    <input
-                      type="number"
-                      value={inputTenure}
-                      onChange={(e) => setInputTenure(Number(e.target.value))}
-                      className="w-full bg-[#181A32] border border-white/10 rounded px-2 py-1 text-white text-xs outline-none focus:border-indigo-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[9px] text-gray-400 block mb-1">Monthly Spend ($)</label>
-                    <input
-                      type="number"
-                      value={inputSpend}
-                      onChange={(e) => setInputSpend(Number(e.target.value))}
-                      className="w-full bg-[#181A32] border border-white/10 rounded px-2 py-1 text-white text-xs outline-none focus:border-indigo-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[9px] text-gray-400 block mb-1">Support Tickets</label>
-                    <input
-                      type="number"
-                      value={inputTickets}
-                      onChange={(e) => setInputTickets(Number(e.target.value))}
-                      className="w-full bg-[#181A32] border border-white/10 rounded px-2 py-1 text-white text-xs outline-none focus:border-indigo-400"
-                    />
-                  </div>
-                </div>
-
-                {/* Prediction Output Display */}
-                {testResult && (
-                  <div className="mt-3 p-2.5 rounded-lg bg-indigo-950/80 border border-cyan-500/30 animate-in fade-in duration-200">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-cyan-300 font-bold">{activeModel.predictionType}:</span>
-                      <span className="font-mono text-emerald-400 font-bold">{testResult.outcome}</span>
-                    </div>
-                    <div className="text-[10px] text-gray-400 font-mono mt-1 flex justify-between">
-                      <span>Latency: {testResult.latency}</span>
-                      <span>Confidence: {(1 - Number(testResult.probability)).toFixed(3)}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Action Buttons Row */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-              <button
-                onClick={() => setShowShapModal(true)}
-                className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors flex items-center gap-1.5"
-              >
-                <Brain size={13} className="text-cyan-300" />
-                <span>Inspect SHAP</span>
-              </button>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleRunPrediction}
-                  disabled={isPredicting}
-                  className="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/40 text-xs font-semibold transition-all flex items-center gap-1.5"
-                >
-                  {isPredicting ? <Loader2 size={13} className="animate-spin" /> : <Play size={13} />}
-                  <span>Test Inference</span>
-                </button>
-
-                <button
-                  onClick={handleDeploy}
-                  disabled={isDeploying}
-                  className="px-4 py-2 rounded-xl bg-white text-[#121324] font-bold text-xs hover:bg-gray-100 shadow-[0_4px_16px_rgba(255,255,255,0.25)] transition-all flex items-center gap-1.5"
-                >
-                  {isDeploying ? (
-                    <>
-                      <Loader2 size={13} className="animate-spin" />
-                      <span>Deploying Micro-VM...</span>
-                    </>
-                  ) : deployedSuccess ? (
-                    <>
-                      <CheckCircle2 size={13} className="text-emerald-600" />
-                      <span>Live in Production!</span>
-                    </>
-                  ) : (
-                    <span>Deploy to Production</span>
-                  )}
-                </button>
-              </div>
-            </div>
-
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              HTTP 200 Live
+            </span>
           </div>
 
+          {/* Endpoints Table */}
+          <div className="space-y-2 font-mono text-xs">
+            {[
+              { path: '/v1/predict/churn-1001', model: 'XGBoost Classifier', calls: '84,210', latency: '8.2ms' },
+              { path: '/v1/predict/leads-1002', model: 'LightGBM Lead Scorer', calls: '31,450', latency: '12.0ms' },
+              { path: '/v1/predict/rev-1003', model: 'Ensemble Stack Forecaster', calls: '16,200', latency: '14.0ms' },
+              { path: '/v1/predict/fraud-1004', model: 'CatBoost Fraud Guard', calls: '26,900', latency: '8.0ms' },
+            ].map((ep) => (
+              <div key={ep.path} className="p-3 rounded-xl bg-[#181A32] border border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">POST</span>
+                  <span className="text-white font-semibold">{ep.path}</span>
+                  <span className="text-gray-400 text-[11px]">({ep.model})</span>
+                </div>
+                <div className="flex items-center gap-4 text-gray-400 text-[11px]">
+                  <span>Calls: <strong className="text-white">{ep.calls}</strong></span>
+                  <span>Latency: <strong className="text-cyan-300">{ep.latency}</strong></span>
+                  <button
+                    onClick={() => alert(`cURL command copied for ${ep.path}`)}
+                    className="px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-white text-[10px] transition-colors"
+                  >
+                    Copy cURL
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+      )}
 
-      </div>
+      {/* ── TAB 5: WATCHTOWER VIEW ── */}
+      {activeNavPill === 'watchtower' && (
+        <div className="bg-[#121324] text-white rounded-2xl p-5 shadow-2xl space-y-5">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div>
+              <h4 className="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
+                <Activity size={16} className="text-[#00F2FE]" />
+                Watchtower Telemetry & Live Inference Stream
+              </h4>
+              <p className="text-[11px] text-gray-400 mt-0.5">Real-time surveillance for feature distribution drift and inference latency.</p>
+            </div>
+            <button
+              onClick={handleSimulateWatchtowerPing}
+              className="px-3 py-1.5 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md"
+            >
+              <Zap size={12} />
+              <span>+ Inject Live Ping</span>
+            </button>
+          </div>
+
+          {/* Logs Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs font-mono text-left">
+              <thead className="bg-[#181A32] text-gray-400 border-b border-white/10">
+                <tr>
+                  <th className="px-3 py-2">Event ID</th>
+                  <th className="px-3 py-2">Timestamp</th>
+                  <th className="px-3 py-2">Inputs</th>
+                  <th className="px-3 py-2">Prediction</th>
+                  <th className="px-3 py-2">Confidence</th>
+                  <th className="px-3 py-2">Latency</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {watchtowerLogs.map((log) => (
+                  <tr key={log.id} className="hover:bg-white/5 transition-colors">
+                    <td className="px-3 py-2 text-gray-400">{log.id}</td>
+                    <td className="px-3 py-2 text-gray-500">{log.time}</td>
+                    <td className="px-3 py-2 text-white truncate max-w-xs">{log.inputs}</td>
+                    <td className="px-3 py-2">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        log.prediction === 'Churn Risk' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                      }`}>
+                        {log.prediction}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-white font-semibold">{log.confidence}</td>
+                    <td className="px-3 py-2 text-cyan-300">{log.latency}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 6: BILLING VIEW ── */}
+      {activeNavPill === 'billing' && (
+        <div className="bg-[#121324] text-white rounded-2xl p-5 shadow-2xl space-y-5">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div>
+              <h4 className="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
+                <Zap size={16} className="text-[#00F2FE]" />
+                Operations Compute Units (OCUs) & Flutterwave
+              </h4>
+              <p className="text-[11px] text-gray-400 mt-0.5">Pay only for the compute consumed during training and inference.</p>
+            </div>
+            <Link
+              to="/settings"
+              className="px-3 py-1.5 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold transition-all shadow-md"
+            >
+              Manage in Settings →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-[#181A32] border border-white/10 space-y-2">
+              <span className="text-[11px] font-mono text-gray-400 uppercase">Current Balance</span>
+              <div className="font-extrabold text-2xl text-white font-mono">186 OCUs</div>
+              <p className="text-xs text-emerald-400 font-semibold font-mono">~18 hours of training left</p>
+              <p className="text-[10px] text-gray-500">Auto-replenish enabled at 10 OCUs.</p>
+            </div>
+            <div className="p-4 rounded-xl bg-[#181A32] border border-white/10 space-y-2">
+              <span className="text-[11px] font-mono text-gray-400 uppercase">Usage This Cycle</span>
+              <div className="font-extrabold text-2xl text-cyan-300 font-mono">14.2 OCUs</div>
+              <p className="text-xs text-gray-300">AutoML: 65% • Serving: 25% • Clean: 10%</p>
+              <p className="text-[10px] text-gray-500">Cost: $1.42 billed via Flutterwave.</p>
+            </div>
+            <div className="p-4 rounded-xl bg-[#181A32] border border-white/10 space-y-2">
+              <span className="text-[11px] font-mono text-gray-400 uppercase">Payment Method</span>
+              <div className="font-extrabold text-base text-white">Flutterwave Gateway</div>
+              <p className="text-xs text-gray-300 font-mono">CARD •••• 4242</p>
+              <p className="text-[10px] text-emerald-400">PCI-DSS Level 1 Encrypted</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── INTERACTIVE MODAL 1: AUTOML TOURNAMENT SIMULATOR ── */}
       {showTrainModal && (
@@ -831,9 +1229,6 @@ function FinnovaProductUI() {
   )
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-// 2. MAIN LANDING PAGE (Exact Anatomy Blueprint from Image 1)
-// ═════════════════════════════════════════════════════════════════════════════
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState(0)
   const [showOcuTooltip, setShowOcuTooltip] = useState(false)
@@ -1010,27 +1405,12 @@ export default function LandingPage() {
           <p className="text-center text-xs font-mono uppercase tracking-widest text-zinc-500 mb-8">
             Trusted by data teams and analysts at fast-growing companies
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-8 items-center justify-items-center opacity-65 grayscale hover:grayscale-0 transition-all duration-300">
-            <div className="flex items-center gap-2 font-headline font-bold text-sm tracking-wider text-zinc-300">
-              <div className="w-5 h-5 rounded bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-[10px] text-emerald-400 font-mono">P</div>
-              PAYPULSE
-            </div>
-            <div className="flex items-center gap-2 font-headline font-bold text-sm tracking-wider text-zinc-300">
-              <div className="w-5 h-5 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-[10px] text-cyan-400 font-mono">◇</div>
-              LUMINA LABS
-            </div>
-            <div className="flex items-center gap-2 font-headline font-bold text-sm tracking-wider text-zinc-300">
-              <div className="w-5 h-5 rounded bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-[10px] text-blue-400 font-mono">▲</div>
-              APEX LOGISTICS
-            </div>
-            <div className="flex items-center gap-2 font-headline font-bold text-sm tracking-wider text-zinc-300">
-              <div className="w-5 h-5 rounded bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-[10px] text-purple-400 font-mono">⊕</div>
-              KINETIK AI
-            </div>
-            <div className="col-span-2 sm:col-span-4 md:col-span-1 flex items-center gap-2 font-headline font-bold text-sm tracking-wider text-zinc-300">
-              <div className="w-5 h-5 rounded bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-[10px] text-amber-400 font-mono">⚡</div>
-              ORBIT CLOUD
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-8 items-center justify-items-center opacity-60 hover:opacity-100 transition-opacity">
+            <span className="font-mono text-xs tracking-[0.25em] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors uppercase">PAYPULSE</span>
+            <span className="font-mono text-xs tracking-[0.25em] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors uppercase">LUMINA LABS</span>
+            <span className="font-mono text-xs tracking-[0.25em] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors uppercase">APEX LOGISTICS</span>
+            <span className="font-mono text-xs tracking-[0.25em] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors uppercase">KINETIK AI</span>
+            <span className="col-span-2 sm:col-span-4 md:col-span-1 font-mono text-xs tracking-[0.25em] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors uppercase">ORBIT CLOUD</span>
           </div>
         </div>
       </div>
