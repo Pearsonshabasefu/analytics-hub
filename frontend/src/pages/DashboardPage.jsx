@@ -247,7 +247,7 @@ export default function DashboardPage() {
       {/* Top bar */}
       <header className="sticky top-0 z-40 glass border-b border-ah">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Logo size="default" to="/dashboard" />
+          <Logo size="default" />
           <div className="flex items-center gap-3">
             {/* Theme toggle */}
             <button

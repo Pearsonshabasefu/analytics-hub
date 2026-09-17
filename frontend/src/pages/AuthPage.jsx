@@ -197,7 +197,7 @@ export default function AuthPage() {
       <div className="w-full max-w-md relative">
         {/* Logo */}
         <div className="text-center mb-8 flex flex-col items-center">
-          <Logo size="lg" to="/" />
+          <Logo size="lg" />
           <p className="text-[#71717A] mt-2 text-xs font-mono">The Intelligence in Your Data, Unleashed</p>
         </div>
 

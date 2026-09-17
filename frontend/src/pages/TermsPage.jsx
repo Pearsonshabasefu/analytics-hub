@@ -8,7 +8,7 @@ export default function TermsPage() {
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-ah">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Logo size="default" to="/" />
+          <Logo size="default" />
           <div className="flex items-center gap-4">
             <Link
               to="/"

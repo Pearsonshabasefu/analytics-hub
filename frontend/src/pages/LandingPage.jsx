@@ -8,6 +8,7 @@ import {
   Bell, Settings, ExternalLink, ArrowUpRight, Filter, RefreshCw, X, Loader2
 } from 'lucide-react'
 import Logo from '../components/common/Logo'
+import { useAuthStore } from '../store/authStore'
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 1. FULLY INTERACTIVE FINNOVA-STYLE PRODUCT UI SANDBOX (Image 2)
@@ -16,6 +17,7 @@ import Logo from '../components/common/Logo'
 // 1. FULLY INTERACTIVE FINNOVA-STYLE PRODUCT UI SANDBOX (Image 2)
 // ═════════════════════════════════════════════════════════════════════════════
 function FinnovaProductUI() {
+  const { user } = useAuthStore()
   const [filterMode, setFilterMode] = useState('all') // 'all' | 'live' | 'draft'
   const [selectedModelId, setSelectedModelId] = useState('1003')
   const [activeNavPill, setActiveNavPill] = useState('models') // 'overview' | 'pipelines' | 'models' | 'endpoints' | 'watchtower' | 'billing'
@@ -234,8 +236,8 @@ function FinnovaProductUI() {
       {/* ── Top Pill Navigation Bar (Finnova style) ── */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         {/* Refined 2D Logo next to RefineIQ — no crude RIQ square */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00F2FE]/15 via-[#007AFF]/20 to-transparent border border-[#00F2FE]/40 flex items-center justify-center shadow-[0_0_12px_rgba(0,242,254,0.25)]">
+        <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2.5 group cursor-pointer hover:opacity-90 transition-opacity">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#00F2FE]/15 via-[#007AFF]/20 to-transparent border border-[#00F2FE]/40 flex items-center justify-center shadow-[0_0_12px_rgba(0,242,254,0.25)] group-hover:scale-105 transition-transform">
             <img src="/assets/logo.svg" alt="RefineIQ" className="w-5 h-5 drop-shadow-[0_0_8px_rgba(0,242,254,0.7)]" />
           </div>
           <div>
@@ -244,7 +246,7 @@ function FinnovaProductUI() {
             </div>
             <div className="text-[10px] text-gray-500 font-medium">AutoML & Inference OS</div>
           </div>
-        </div>
+        </Link>
 
         {/* Center Pill Menu with Fully Reactive Tab Switching */}
         <div className="hidden lg:flex items-center bg-[#1E1E2F] text-gray-300 rounded-full p-1 text-xs font-medium shadow-inner">
@@ -1230,6 +1232,7 @@ function FinnovaProductUI() {
 }
 
 export default function LandingPage() {
+  const { user } = useAuthStore()
   const [openFaq, setOpenFaq] = useState(0)
   const [showOcuTooltip, setShowOcuTooltip] = useState(false)
   const [newsletterEmail, setNewsletterEmail] = useState('')
@@ -1287,7 +1290,7 @@ export default function LandingPage() {
           ───────────────────────────────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0C]/85 backdrop-blur-xl border-b border-white/[0.08]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Logo size="default" to="/" />
+          <Logo size="default" />
           
           <div className="hidden md:flex items-center gap-8 text-xs font-medium text-zinc-400">
             <a href="#benefits" className="hover:text-white transition-colors">Benefits</a>
@@ -1298,15 +1301,27 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link to="/auth" className="text-zinc-400 hover:text-white text-xs font-medium transition-colors">
-              Sign In
-            </Link>
-            <Link
-              to="/auth"
-              className="px-4 py-2 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold transition-all shadow-[0_0_18px_rgba(79,70,229,0.35)]"
-            >
-              Get Started Free
-            </Link>
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="px-4 py-2 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold transition-all shadow-[0_0_18px_rgba(79,70,229,0.35)] flex items-center gap-1.5"
+              >
+                <span>Dashboard</span>
+                <ArrowRight size={13} />
+              </Link>
+            ) : (
+              <>
+                <Link to="/auth" className="text-zinc-400 hover:text-white text-xs font-medium transition-colors">
+                  Sign In
+                </Link>
+                <Link
+                  to="/auth"
+                  className="px-4 py-2 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold transition-all shadow-[0_0_18px_rgba(79,70,229,0.35)]"
+                >
+                  Get Started Free
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -1862,7 +1877,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-10">
           
           <div className="col-span-2 space-y-4">
-            <Logo size="default" to="/" />
+            <Logo size="default" />
             <p className="text-zinc-400 text-xs leading-relaxed max-w-sm">
               The automated machine learning and tabular intelligence platform. Clean data, benchmark models, and deploy production endpoints in minutes.
             </p>

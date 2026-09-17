@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, ArrowRight, Zap, Shield, Sparkles, ChevronLeft } from 'lucide-react'
 import Logo from '../components/common/Logo'
+import { useAuthStore } from '../store/authStore'
 
 export default function PricingPage() {
+  const { user } = useAuthStore()
   const navigate = useNavigate()
 
   const tiers = [
@@ -58,15 +60,26 @@ export default function PricingPage() {
     <div className="min-h-screen bg-ah-bg text-ah-text">
       {/* Top Navbar */}
       <nav className="glass border-b border-ah sticky top-0 z-30 px-6 h-16 flex items-center justify-between">
-        <Logo size="default" to="/" />
+        <Logo size="default" />
         <div className="flex items-center gap-4">
-          <Link to="/auth" className="text-sm text-ah-muted hover:text-ah-text">Sign In</Link>
-          <Link
-            to="/auth"
-            className="bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-ah-glow"
-          >
-            Get Started Free
-          </Link>
+          {user ? (
+            <Link
+              to="/dashboard"
+              className="bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-ah-glow flex items-center gap-1.5"
+            >
+              <span>Dashboard</span>
+            </Link>
+          ) : (
+            <>
+              <Link to="/auth" className="text-sm text-ah-muted hover:text-ah-text">Sign In</Link>
+              <Link
+                to="/auth"
+                className="bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-ah-glow"
+              >
+                Get Started Free
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
