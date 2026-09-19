@@ -125,39 +125,43 @@ export default function PwaInstallPrompt() {
               </div>
             </div>
 
-            {/* Platform Instructions */}
-            {hasDeferredPrompt ? (
-              <div className="space-y-3">
-                <button
-                  onClick={async () => {
-                    await promptInstall()
+            {/* Action or Instructions */}
+            <div className="space-y-3">
+              <button
+                onClick={async () => {
+                  const res = await promptInstall()
+                  if (!res) {
+                    alert('To install RefineIQ on Windows/Mac: Click the 3-dots menu (⋮) at the top-right of Chrome, then click "Install RefineIQ...".')
+                  } else {
                     setIsOpen(false)
-                  }}
-                  className="w-full py-3 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all"
-                >
-                  <Download size={16} />
-                  <span>Click to Install RefineIQ Now</span>
-                </button>
-              </div>
-            ) : isIos ? (
-              <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-200 space-y-2">
-                <p className="font-semibold text-white">How to install on iOS / Safari:</p>
-                <ol className="list-decimal list-inside space-y-1 text-zinc-300">
-                  <li>Tap the <Share2 size={13} className="inline mx-1 text-indigo-400" /> <strong>Share</strong> button at the bottom of Safari.</li>
-                  <li>Scroll down and tap <PlusSquare size={13} className="inline mx-1 text-indigo-400" /> <strong>Add to Home Screen</strong>.</li>
-                  <li>Tap <strong>Add</strong> in the top right corner.</li>
-                </ol>
-              </div>
-            ) : (
-              <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-200 space-y-2">
-                <p className="font-semibold text-white">How to install on Chrome / Edge desktop:</p>
-                <ol className="list-decimal list-inside space-y-1.5 text-zinc-300">
-                  <li>Look at the right side of your browser URL address bar.</li>
-                  <li>Click the <strong>Install icon</strong> (<Download size={12} className="inline mx-0.5 text-cyan-400" /> or desktop screen icon).</li>
-                  <li>Click <strong>Install</strong> to add RefineIQ to your desktop apps.</li>
-                </ol>
-              </div>
-            )}
+                  }
+                }}
+                className="w-full py-3 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all"
+              >
+                <Download size={16} />
+                <span>Launch App Installation</span>
+              </button>
+
+              {isIos ? (
+                <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-200 space-y-2">
+                  <p className="font-semibold text-white">How to install on iOS / Safari:</p>
+                  <ol className="list-decimal list-inside space-y-1 text-zinc-300">
+                    <li>Tap the <Share2 size={13} className="inline mx-1 text-indigo-400" /> <strong>Share</strong> button at the bottom of Safari.</li>
+                    <li>Scroll down and tap <PlusSquare size={13} className="inline mx-1 text-indigo-400" /> <strong>Add to Home Screen</strong>.</li>
+                    <li>Tap <strong>Add</strong> in the top right corner.</li>
+                  </ol>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-200 space-y-2">
+                  <p className="font-semibold text-white">Or install via your browser menu (Chrome / Edge):</p>
+                  <div className="space-y-1.5 text-zinc-300">
+                    <p>• Click the <strong>⋮ (three dots)</strong> at the top right of your browser window.</p>
+                    <p>• Select <strong>"Install RefineIQ..."</strong> (or <em>"Cast, save, and share" $\rightarrow$ "Install page as app"</em>).</p>
+                    <p>• Click <strong>Install</strong> — RefineIQ is added to your desktop and taskbar!</p>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <button
               onClick={() => setIsOpen(false)}
