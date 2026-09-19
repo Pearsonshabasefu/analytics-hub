@@ -85,7 +85,7 @@ export default function AuthPage() {
   // Production URL for redirects
   const redirectBase = typeof window !== 'undefined'
     ? window.location.origin
-    : 'https://analytics-hub-l7jy.vercel.app'
+    : 'https://refineiq.vercel.app'
 
   // OAuth Handler
   const handleOAuthLogin = async (provider) => {
@@ -179,7 +179,7 @@ export default function AuthPage() {
   const handleDemoLogin = () => {
     setUser({
       id: 'demo-user-2026',
-      email: 'demo.analyst@analyticshub.ai',
+      email: 'demo.analyst@refineiq.ai',
       user_metadata: { full_name: 'Demo Analyst' },
       isDemo: true,
     })

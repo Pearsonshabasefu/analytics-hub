@@ -109,7 +109,7 @@ async def initiate_topup(
                 "customizations": {
                     "title": "RefineIQ — OCU Top-Up",
                     "description": package_info["label"],
-                    "logo": "https://analytics-hub-l7jy.vercel.app/assets/logo.svg",
+                    "logo": "https://refineiq.vercel.app/assets/logo.svg",
                 },
             },
         )

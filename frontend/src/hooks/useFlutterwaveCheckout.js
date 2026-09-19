@@ -29,7 +29,7 @@ export function useFlutterwaveCheckout(pkg, onSuccess, onClose) {
     customizations: {
       title:       'RefineIQ — OCU Top-Up',
       description: `${pkg.label}: ${pkg.ocus} Operations Compute Units`,
-      logo:        'https://analytics-hub-l7jy.vercel.app/assets/logo.svg',
+      logo:        typeof window !== 'undefined' ? `${window.location.origin}/assets/logo.svg` : 'https://refineiq.vercel.app/assets/logo.svg',
     },
     meta: {
       user_id: user?.id || '',
