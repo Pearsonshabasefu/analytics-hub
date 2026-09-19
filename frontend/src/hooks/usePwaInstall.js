@@ -79,11 +79,21 @@ export function usePwaInstall() {
     return null
   }
 
+  const openInstallModal = () => {
+    const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? window.deferredPwaPrompt : null)
+    if (promptEvent) {
+      promptInstall()
+    } else if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('open-pwa-install-modal'))
+    }
+  }
+
   return {
     isInstallable,
     isInstalled,
     isIos,
     hasDeferredPrompt: Boolean(deferredPrompt || (typeof window !== 'undefined' && window.deferredPwaPrompt)),
     promptInstall,
+    openInstallModal,
   }
 }

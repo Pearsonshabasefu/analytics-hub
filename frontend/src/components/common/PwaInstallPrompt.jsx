@@ -19,6 +19,16 @@ export default function PwaInstallPrompt() {
     }
   }, [isInstalled])
 
+  // Listen for custom trigger from any Install App button
+  useEffect(() => {
+    const handleOpenModal = () => {
+      setIsOpen(true)
+      setShowToast(false)
+    }
+    window.addEventListener('open-pwa-install-modal', handleOpenModal)
+    return () => window.removeEventListener('open-pwa-install-modal', handleOpenModal)
+  }, [])
+
   const handleInstallClick = async () => {
     if (hasDeferredPrompt) {
       await promptInstall()
@@ -127,20 +137,28 @@ export default function PwaInstallPrompt() {
 
             {/* Action or Instructions */}
             <div className="space-y-3">
-              <button
-                onClick={async () => {
-                  const res = await promptInstall()
-                  if (!res) {
-                    alert('To install RefineIQ on Windows/Mac: Click the 3-dots menu (⋮) at the top-right of Chrome, then click "Install RefineIQ...".')
-                  } else {
+              {hasDeferredPrompt ? (
+                <button
+                  onClick={async () => {
+                    await promptInstall()
                     setIsOpen(false)
-                  }
-                }}
-                className="w-full py-3 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all"
-              >
-                <Download size={16} />
-                <span>Launch App Installation</span>
-              </button>
+                  }}
+                  className="w-full py-3 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all"
+                >
+                  <Download size={16} />
+                  <span>Install RefineIQ to Desktop</span>
+                </button>
+              ) : (
+                <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-200 space-y-2">
+                  <p className="font-semibold text-white flex items-center gap-1.5">
+                    <Check size={14} className="text-emerald-400" />
+                    <span>App is ready or already installed</span>
+                  </p>
+                  <p className="text-zinc-300 leading-relaxed">
+                    Look at the right side of your address bar and click the <strong>Open in RefineIQ</strong> icon, or install via the browser menu below:
+                  </p>
+                </div>
+              )}
 
               {isIos ? (
                 <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-200 space-y-2">

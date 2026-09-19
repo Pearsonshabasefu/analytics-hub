@@ -200,7 +200,7 @@ export default function DashboardPage() {
   const queryClient = useQueryClient()
   const { user, setUser } = useAuthStore()
   const { theme, toggleTheme } = useThemeStore()
-  const { isInstalled, hasDeferredPrompt, promptInstall } = usePwaInstall()
+  const { isInstalled, openInstallModal } = usePwaInstall()
   const [showNaming, setShowNaming] = useState(false)
 
   const { data: projects = [], isLoading } = useQuery({
@@ -255,14 +255,7 @@ export default function DashboardPage() {
             {/* Install Desktop App Button */}
             {!isInstalled && (
               <button
-                onClick={() => {
-                  if (hasDeferredPrompt) {
-                    promptInstall()
-                  } else {
-                    // Fallback to trigger browser menu or alert
-                    alert('To install RefineIQ on your desktop: Click the Install icon in the right side of your browser URL address bar, or select "Install RefineIQ" from the browser menu (⋮).')
-                  }
-                }}
+                onClick={openInstallModal}
                 className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-300 hover:text-white text-xs font-semibold transition-all shadow-sm"
                 title="Install RefineIQ as a native desktop application"
               >

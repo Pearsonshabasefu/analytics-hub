@@ -320,7 +320,7 @@ function FinnovaProductUI() {
         <div className="flex items-center gap-2">
           {activeNavPill === 'models' && (
             <button 
-              onClick={() => alert("Filter presets: Accuracy > 90%, Latency < 20ms, Active in Production")}
+              onClick={() => setShowTrainModal(true)}
               className="h-9 px-3 rounded-xl bg-white border border-gray-200 text-gray-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm hover:bg-gray-50 transition-colors"
             >
               <SlidersHorizontal size={13} />
@@ -349,7 +349,7 @@ function FinnovaProductUI() {
           )}
           {activeNavPill === 'pipelines' && (
             <button
-              onClick={() => alert("Pipeline run initiated: Ingesting dataset with Polars...")}
+              onClick={() => setShowTrainModal(true)}
               className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all active:scale-95"
             >
               <Play size={13} />
@@ -358,7 +358,7 @@ function FinnovaProductUI() {
           )}
           {activeNavPill === 'endpoints' && (
             <button
-              onClick={() => alert("New endpoint wizard: Select model from registry")}
+              onClick={() => setActiveNavPill('models')}
               className="h-9 px-4 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold flex items-center gap-1.5 shadow-[0_4px_14px_rgba(79,70,229,0.35)] transition-all active:scale-95"
             >
               <Plus size={14} />
@@ -974,7 +974,12 @@ function FinnovaProductUI() {
                   <span>Calls: <strong className="text-white">{ep.calls}</strong></span>
                   <span>Latency: <strong className="text-cyan-300">{ep.latency}</strong></span>
                   <button
-                    onClick={() => alert(`cURL command copied for ${ep.path}`)}
+                    onClick={(e) => {
+                      navigator.clipboard.writeText(`curl -X POST https://api.refineiq.ai${ep.path} -H "Authorization: Bearer riq_live_9b4e8"`)
+                      const btn = e.currentTarget
+                      btn.textContent = 'Copied!'
+                      setTimeout(() => { btn.textContent = 'Copy cURL' }, 1500)
+                    }}
                     className="px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-white text-[10px] transition-colors"
                   >
                     Copy cURL
@@ -1235,7 +1240,7 @@ function FinnovaProductUI() {
 
 export default function LandingPage() {
   const { user } = useAuthStore()
-  const { isInstalled, hasDeferredPrompt, promptInstall } = usePwaInstall()
+  const { isInstalled, openInstallModal } = usePwaInstall()
   const [openFaq, setOpenFaq] = useState(0)
   const [showOcuTooltip, setShowOcuTooltip] = useState(false)
   const [newsletterEmail, setNewsletterEmail] = useState('')
@@ -1306,13 +1311,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             {!isInstalled && (
               <button
-                onClick={() => {
-                  if (hasDeferredPrompt) {
-                    promptInstall()
-                  } else {
-                    alert('To install RefineIQ as a desktop app: Click the Install icon (computer screen icon) in your browser address bar, or choose "Install RefineIQ" from the browser menu (⋮).')
-                  }
-                }}
+                onClick={openInstallModal}
                 className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-zinc-300 hover:text-white text-xs font-semibold transition-all"
                 title="Install RefineIQ as a standalone desktop app"
               >
