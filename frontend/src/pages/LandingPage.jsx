@@ -1310,17 +1310,12 @@ export default function LandingPage() {
                 <ArrowRight size={13} />
               </Link>
             ) : (
-              <>
-                <Link to="/auth" className="text-zinc-400 hover:text-white text-xs font-medium transition-colors">
-                  Sign In
-                </Link>
-                <Link
-                  to="/auth"
-                  className="px-4 py-2 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold transition-all shadow-[0_0_18px_rgba(79,70,229,0.35)]"
-                >
-                  Get Started Free
-                </Link>
-              </>
+              <Link
+                to="/auth"
+                className="px-4 py-2 rounded-xl bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold transition-all shadow-[0_0_18px_rgba(79,70,229,0.35)] flex items-center gap-1.5"
+              >
+                Get Started Free
+              </Link>
             )}
           </div>
         </div>

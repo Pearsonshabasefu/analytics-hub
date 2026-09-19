@@ -307,7 +307,86 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* ── Analytics Chart Strip ─────────────────────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {/* Chart 1: Model Accuracy Trend */}
+          <div className="bg-ah-surface border border-ah rounded-2xl p-4 shadow-ah-card">
+            <p className="text-[11px] font-mono uppercase text-ah-subtle mb-1 flex items-center gap-1.5">
+              <TrendingUp size={12} className="text-green-400" />
+              Model Accuracy Trend
+            </p>
+            <p className="font-headline text-2xl font-extrabold text-ah-text">94.8%</p>
+            <p className="text-[11px] text-green-400 font-mono mb-3">↑ +2.1% vs last week</p>
+            <svg viewBox="0 0 120 40" className="w-full h-10" preserveAspectRatio="none">
+              <polyline
+                points="0,38 20,32 40,34 60,28 80,20 100,15 120,10"
+                fill="none" stroke="#34D399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              />
+              <polyline
+                points="0,38 20,32 40,34 60,28 80,20 100,15 120,10 120,40 0,40"
+                fill="url(#greenGrad)" opacity="0.15"
+              />
+              <defs>
+                <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#34D399" />
+                  <stop offset="100%" stopColor="#34D399" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+
+          {/* Chart 2: OCU Usage (bar chart) */}
+          <div className="bg-ah-surface border border-ah rounded-2xl p-4 shadow-ah-card">
+            <p className="text-[11px] font-mono uppercase text-ah-subtle mb-1 flex items-center gap-1.5">
+              <BarChart2 size={12} className="text-ah-primary" />
+              OCU Usage This Week
+            </p>
+            <p className="font-headline text-2xl font-extrabold text-ah-text">14.2 OCUs</p>
+            <p className="text-[11px] text-ah-primary font-mono mb-3">~\$1.42 billed via Flutterwave</p>
+            <svg viewBox="0 0 120 40" className="w-full h-10">
+              {[8, 14, 6, 18, 10, 12, 14].map((h, i) => (
+                <rect
+                  key={i}
+                  x={i * 17 + 2}
+                  y={40 - h * 1.8}
+                  width="12"
+                  height={h * 1.8}
+                  rx="2"
+                  fill={i === 6 ? '#007AFF' : '#007AFF40'}
+                />
+              ))}
+            </svg>
+          </div>
+
+          {/* Chart 3: Predictions Volume */}
+          <div className="bg-ah-surface border border-ah rounded-2xl p-4 shadow-ah-card">
+            <p className="text-[11px] font-mono uppercase text-ah-subtle mb-1 flex items-center gap-1.5">
+              <Activity size={12} className="text-purple-400" />
+              Live Prediction Volume
+            </p>
+            <p className="font-headline text-2xl font-extrabold text-ah-text">1,284</p>
+            <p className="text-[11px] text-purple-400 font-mono mb-3">Inferences served today</p>
+            <svg viewBox="0 0 120 40" className="w-full h-10" preserveAspectRatio="none">
+              <polyline
+                points="0,35 15,30 30,32 45,20 60,25 75,12 90,18 105,8 120,14"
+                fill="none" stroke="#A78BFA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              />
+              <polyline
+                points="0,35 15,30 30,32 45,20 60,25 75,12 90,18 105,8 120,14 120,40 0,40"
+                fill="url(#purpleGrad)" opacity="0.15"
+              />
+              <defs>
+                <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#A78BFA" />
+                  <stop offset="100%" stopColor="#A78BFA" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+
         {/* Welcome header */}
+
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-headline text-3xl font-bold mb-1">

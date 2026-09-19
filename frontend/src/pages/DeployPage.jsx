@@ -3,15 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   Rocket, Copy, Check, Terminal, ExternalLink,
   ChevronLeft, ArrowRight, ShieldCheck, Zap, Activity,
-  Play, Sparkles, Loader2, RefreshCw
+  Play, Sparkles, Loader2, RefreshCw, Download, Lock, Info, HelpCircle
 } from 'lucide-react'
+import { useAuthStore } from '../store/authStore'
 
 export default function DeployPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuthStore()
 
   const [copiedKey, setCopiedKey] = useState(false)
   const [copiedEndpoint, setCopiedEndpoint] = useState(false)
+  const [copiedCode, setCopiedCode] = useState(false)
   const [copiedPayload, setCopiedPayload] = useState(false)
   const [activeLang, setActiveLang] = useState('curl') // 'curl' | 'python' | 'js'
 
@@ -35,8 +38,8 @@ export default function DeployPage() {
     ],
   })
 
-  const endpoint = 'https://api.analyticshub.ai/v1/predict/xgb_churn_ah9f2k'
-  const apiKey = 'ah_live_9b4e82f1c0d57a3e8'
+  const endpoint = `https://api.refineiq.ai/v1/predict/xgb_churn_${projectId || 'ah9f2k'}`
+  const apiKey = 'riq_live_9b4e82f1c0d57a3e8'
 
   const handleCopy = (text, type) => {
     navigator.clipboard.writeText(text)
@@ -326,34 +329,96 @@ console.log(data);`
         </div>
 
         {/* Integration Code Snippets */}
-        <div className="bg-ah-surface border border-ah rounded-2xl overflow-hidden shadow-ah-card mb-8">
-          <div className="p-4 border-b border-ah flex items-center justify-between bg-ah-surface2/50">
+        <div className="bg-ah-surface border border-ah rounded-2xl overflow-hidden shadow-ah-card mb-6">
+          <div className="p-4 border-b border-ah flex flex-wrap items-center justify-between gap-3 bg-ah-surface2/50">
             <div className="flex items-center gap-2">
               <Terminal size={16} className="text-ah-primary" />
               <h3 className="font-headline font-bold text-sm">Implementation Examples</h3>
             </div>
 
-            <div className="flex bg-ah-surface3 p-1 rounded-xl border border-ah gap-1">
-              {['curl', 'python', 'js'].map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => setActiveLang(lang)}
-                  className={`px-3 py-1 text-xs font-mono font-semibold rounded-lg transition-all ${
-                    activeLang === lang
-                      ? 'bg-ah-primary text-white shadow-sm'
-                      : 'text-ah-muted hover:text-ah-text'
-                  }`}
-                >
-                  {lang.toUpperCase()}
-                </button>
-              ))}
+            <div className="flex items-center gap-2">
+              <div className="flex bg-ah-surface3 p-1 rounded-xl border border-ah gap-1">
+                {['curl', 'python', 'js'].map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setActiveLang(lang)}
+                    className={`px-3 py-1 text-xs font-mono font-semibold rounded-lg transition-all ${
+                      activeLang === lang
+                        ? 'bg-ah-primary text-white shadow-sm'
+                        : 'text-ah-muted hover:text-ah-text'
+                    }`}
+                  >
+                    {lang.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+
+              {/* Copy button */}
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(codeSnippets[activeLang])
+                  setCopiedCode(true)
+                  setTimeout(() => setCopiedCode(false), 2000)
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-ah-surface2 hover:bg-ah-surface3 border border-ah text-xs font-semibold text-ah-muted hover:text-ah-text transition-all"
+                title="Copy code"
+              >
+                {copiedCode ? <Check size={13} className="text-green-400" /> : <Copy size={13} />}
+                <span>{copiedCode ? 'Copied!' : 'Copy'}</span>
+              </button>
             </div>
           </div>
 
           <div className="p-5 bg-ah-surface2/80 font-mono text-xs overflow-x-auto text-ah-muted leading-relaxed">
             <pre className="text-green-300/90">{codeSnippets[activeLang]}</pre>
           </div>
+
+          {/* Download Recipe — plan-gated */}
+          <div className="p-4 border-t border-ah bg-ah-surface/50">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold text-ah-text flex items-center gap-1.5">
+                  <Download size={13} className="text-ah-primary" />
+                  Download Deployment Recipe
+                </p>
+                <p className="text-[11px] text-ah-subtle mt-0.5">
+                  💡 <em>Download this code as a ready-to-run file. Standard Pack and above only.</em>
+                </p>
+              </div>
+
+              {/* Plan check — demo/starter → locked; otherwise free */}
+              {user?.isDemo || !user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-amber-400 font-mono bg-amber-500/10 border border-amber-500/20 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5">
+                    <Lock size={11} /> Available on Standard Pack ($25 / 250 OCUs)
+                  </span>
+                  <button
+                    onClick={() => navigate('/pricing')}
+                    className="px-3 py-1.5 rounded-xl bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white text-xs font-semibold transition-all shadow-ah-glow"
+                  >
+                    Upgrade Plan
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    const blob = new Blob([codeSnippets[activeLang]], { type: 'text/plain' })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `refineiq_deploy_recipe.${activeLang === 'python' ? 'py' : activeLang === 'js' ? 'js' : 'sh'}`
+                    a.click()
+                    URL.revokeObjectURL(url)
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white text-xs font-semibold transition-all shadow-ah-glow"
+                >
+                  <Download size={13} /> Download Recipe
+                </button>
+              )}
+            </div>
+          </div>
         </div>
+
 
         {/* Watchtower CTA Footer */}
         <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-ah-primary/30 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
