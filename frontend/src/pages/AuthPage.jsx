@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuthStore } from '../store/authStore'
 import {
@@ -70,10 +70,15 @@ function SocialBtn({ icon, label, onClick, disabled }) {
 // ── Main Component ───────────────────────────────────────────────────
 export default function AuthPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { setUser } = useAuthStore()
 
+  const searchParams = new URLSearchParams(location.search)
+  const initialMode = searchParams.get('mode') // 'signin' | 'signup'
+
   const [authMode, setAuthMode] = useState('password')
-  const [isSignUp, setIsSignUp] = useState(false)
+  // Default to Sign Up (Create Account) unless explicitly navigating to ?mode=signin
+  const [isSignUp, setIsSignUp] = useState(initialMode !== 'signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -206,13 +211,40 @@ export default function AuthPage() {
           {!magicSent ? (
             <>
               {/* Title */}
-              <div className="mb-6">
+              <div className="mb-5">
                 <h1 className="text-2xl font-bold text-[#F4F4F5]" style={{ fontFamily: 'Manrope, system-ui, sans-serif' }}>
-                  {isSignUp ? 'Create Account' : 'Welcome Back'}
+                  {isSignUp ? 'Create Free Account' : 'Welcome Back'}
                 </h1>
                 <p className="text-[#A1A1AA] text-xs mt-1">
-                  {isSignUp ? 'Start with 50 free OCUs — no credit card needed' : 'Sign in to your models & pipelines'}
+                  {isSignUp ? 'Get started with 50 free OCUs — no credit card needed' : 'Sign in to your models & pipelines'}
                 </p>
+              </div>
+
+              {/* Segmented Create Account / Sign In Tabs */}
+              <div className="flex bg-[#18181B] p-1.5 rounded-2xl border border-[#27272A] mb-6 shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => { setIsSignUp(true); setError('') }}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-150 flex items-center justify-center gap-1.5 ${
+                    isSignUp
+                      ? 'bg-[#4F46E5] text-white shadow-[0_0_16px_rgba(79,70,229,0.4)]'
+                      : 'text-[#A1A1AA] hover:text-[#F4F4F5]'
+                  }`}
+                >
+                  <Sparkles size={13} className={isSignUp ? 'text-yellow-300' : 'text-[#A1A1AA]'} />
+                  <span>Create Account (Free)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setIsSignUp(false); setError('') }}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-150 flex items-center justify-center gap-1.5 ${
+                    !isSignUp
+                      ? 'bg-[#4F46E5] text-white shadow-[0_0_16px_rgba(79,70,229,0.4)]'
+                      : 'text-[#A1A1AA] hover:text-[#F4F4F5]'
+                  }`}
+                >
+                  <span>Sign In</span>
+                </button>
               </div>
 
               {/* Provider Warning */}
@@ -353,13 +385,27 @@ export default function AuthPage() {
                     {loading ? 'Processing…' : isSignUp ? 'Create Free Account' : 'Sign In'}
                   </button>
 
-                  <div className="text-center pt-0.5">
+                  <div className="pt-2">
                     <button
                       type="button"
                       onClick={() => { setIsSignUp(!isSignUp); setError('') }}
-                      className="text-xs text-[#A1A1AA] hover:text-[#F4F4F5] active:opacity-70 transition-colors outline-none focus:underline"
+                      className="w-full py-3 px-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#27272A] hover:border-indigo-500/50 text-xs transition-all flex items-center justify-center gap-1.5 group shadow-sm"
                     >
-                      {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Create one"}
+                      {isSignUp ? (
+                        <>
+                          <span className="text-zinc-400">Already have an account?</span>
+                          <span className="text-indigo-400 font-bold group-hover:underline flex items-center gap-1">
+                            Sign In to your account <ArrowRight size={13} />
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-zinc-400">Don't have an account?</span>
+                          <span className="text-indigo-400 font-bold group-hover:underline flex items-center gap-1">
+                            Create free account (50 OCUs) <ArrowRight size={13} />
+                          </span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>
@@ -404,6 +450,30 @@ export default function AuthPage() {
                     {loading ? <Loader2 size={15} className="animate-spin" /> : <ArrowRight size={15} />}
                     {loading ? 'Dispatching link…' : 'Send Magic Link 🪄'}
                   </button>
+
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => { setIsSignUp(!isSignUp); setError('') }}
+                      className="w-full py-3 px-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-[#27272A] hover:border-indigo-500/50 text-xs transition-all flex items-center justify-center gap-1.5 group shadow-sm"
+                    >
+                      {isSignUp ? (
+                        <>
+                          <span className="text-zinc-400">Already registered?</span>
+                          <span className="text-indigo-400 font-bold group-hover:underline flex items-center gap-1">
+                            Sign In to your account <ArrowRight size={13} />
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-zinc-400">Don't have an account?</span>
+                          <span className="text-indigo-400 font-bold group-hover:underline flex items-center gap-1">
+                            Create free account (50 OCUs) <ArrowRight size={13} />
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </form>
               )}
 
