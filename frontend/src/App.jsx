@@ -16,6 +16,7 @@ import SettingsPage from './pages/SettingsPage'
 import PricingPage from './pages/PricingPage'
 import TermsPage from './pages/TermsPage'
 import MagicEarWidget from './components/features/feedback/MagicEarWidget'
+import PwaInstallPrompt from './components/common/PwaInstallPrompt'
 
 // Session security
 import { useIdleTimeout } from './hooks/useIdleTimeout'
@@ -116,6 +117,9 @@ function AppInner() {
 
       {/* Global: Magic Ear feedback widget */}
       <MagicEarWidget />
+
+      {/* Global: PWA Desktop/Mobile Installation Prompt */}
+      <PwaInstallPrompt />
 
       {/* Global: Session expiry warning modal */}
       <SessionWarningModal

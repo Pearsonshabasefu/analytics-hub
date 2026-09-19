@@ -5,10 +5,12 @@ import {
   TrendingDown, Terminal, Database, Sparkles, UploadCloud, FileSpreadsheet,
   Play, Code2, Info, Lock, Server, Clock, Quote, Layers, ChevronRight,
   ChevronDown, Activity, Star, SlidersHorizontal, Calendar, Search, Plus,
-  Bell, Settings, ExternalLink, ArrowUpRight, Filter, RefreshCw, X, Loader2
+  Bell, Settings, ExternalLink, ArrowUpRight, Filter, RefreshCw, X, Loader2,
+  Download, Monitor
 } from 'lucide-react'
 import Logo from '../components/common/Logo'
 import { useAuthStore } from '../store/authStore'
+import { usePwaInstall } from '../hooks/usePwaInstall'
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 1. FULLY INTERACTIVE FINNOVA-STYLE PRODUCT UI SANDBOX (Image 2)
@@ -1233,6 +1235,7 @@ function FinnovaProductUI() {
 
 export default function LandingPage() {
   const { user } = useAuthStore()
+  const { isInstalled, hasDeferredPrompt, promptInstall } = usePwaInstall()
   const [openFaq, setOpenFaq] = useState(0)
   const [showOcuTooltip, setShowOcuTooltip] = useState(false)
   const [newsletterEmail, setNewsletterEmail] = useState('')
@@ -1300,7 +1303,24 @@ export default function LandingPage() {
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {!isInstalled && (
+              <button
+                onClick={() => {
+                  if (hasDeferredPrompt) {
+                    promptInstall()
+                  } else {
+                    alert('To install RefineIQ as a desktop app: Click the Install icon (computer screen icon) in your browser address bar, or choose "Install RefineIQ" from the browser menu (⋮).')
+                  }
+                }}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-zinc-300 hover:text-white text-xs font-semibold transition-all"
+                title="Install RefineIQ as a standalone desktop app"
+              >
+                <Download size={13} className="text-cyan-400" />
+                <span>Install App</span>
+              </button>
+            )}
+
             {user ? (
               <Link
                 to="/dashboard"

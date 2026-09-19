@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Plus, Folder, Clock, ChevronRight, Zap, BarChart2, TrendingUp,
-  LogOut, Settings, Moon, Sun, Sparkles, Activity, ShieldCheck, Play, Database
+  LogOut, Settings, Moon, Sun, Sparkles, Activity, ShieldCheck, Play, Database,
+  Download, Monitor
 } from 'lucide-react'
 import apiClient from '../lib/apiClient'
 import { supabase } from '../lib/supabaseClient'
 import { useAuthStore } from '../store/authStore'
 import { useThemeStore } from '../store/themeStore'
+import { usePwaInstall } from '../hooks/usePwaInstall'
 import NamingModal from '../components/features/launcher/NamingModal'
 import Logo from '../components/common/Logo'
 
@@ -198,6 +200,7 @@ export default function DashboardPage() {
   const queryClient = useQueryClient()
   const { user, setUser } = useAuthStore()
   const { theme, toggleTheme } = useThemeStore()
+  const { isInstalled, hasDeferredPrompt, promptInstall } = usePwaInstall()
   const [showNaming, setShowNaming] = useState(false)
 
   const { data: projects = [], isLoading } = useQuery({
@@ -249,6 +252,25 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Logo size="default" />
           <div className="flex items-center gap-3">
+            {/* Install Desktop App Button */}
+            {!isInstalled && (
+              <button
+                onClick={() => {
+                  if (hasDeferredPrompt) {
+                    promptInstall()
+                  } else {
+                    // Fallback to trigger browser menu or alert
+                    alert('To install RefineIQ on your desktop: Click the Install icon in the right side of your browser URL address bar, or select "Install RefineIQ" from the browser menu (⋮).')
+                  }
+                }}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-300 hover:text-white text-xs font-semibold transition-all shadow-sm"
+                title="Install RefineIQ as a native desktop application"
+              >
+                <Download size={13} className="text-cyan-400" />
+                <span>Install Desktop App</span>
+              </button>
+            )}
+
             {/* Theme toggle */}
             <button
               onClick={toggleTheme}
