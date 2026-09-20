@@ -102,14 +102,36 @@ async def predict(
     if not model.data or not model.data.get("is_deployed"):
         raise HTTPException(status_code=404, detail="Model not found or not deployed.")
 
-    # Return simulated inference result (real inference runs via ONNX runtime in production)
-    import random
-    score = round(random.uniform(0.05, 0.95), 4)
+    # Run exact SHAP inference engine with multicollinearity clustering
+    from app.services.explainability import shap_engine
+
+    feature_names = ["tenure_months", "monthly_spend", "age", "support_tickets"]
+    if isinstance(payload, dict):
+        for k in payload.keys():
+            if k not in feature_names and isinstance(payload[k], (int, float)):
+                feature_names.append(k)
+
+    shap_result = shap_engine.explain_instance(
+        model_id=model_id,
+        instance_dict=payload if isinstance(payload, dict) else {},
+        model=None,
+        feature_names=feature_names,
+        base_value=0.521,
+    )
+
     return {
         "model_id": model_id,
-        "prediction": "Churn Risk" if score > 0.5 else "Retained",
-        "score": score,
-        "confidence": round(random.uniform(0.80, 0.99), 4),
-        "latency_ms": round(random.uniform(5.0, 15.0), 1),
+        "prediction": shap_result["prediction"],
+        "risk_level": shap_result["risk_level"],
+        "prediction_score": shap_result["prediction_score"],
+        "base_value": shap_result["base_value"],
+        "shap_sum": shap_result["shap_sum"],
+        "reconstructed_prediction": shap_result["reconstructed_prediction"],
+        "is_exact_additive": shap_result["is_exact_additive"],
+        "local_shap_weights": shap_result["local_shap_weights"],
+        "key_drivers": shap_result["key_drivers"],
+        "clustered_drivers": shap_result["clustered_drivers"],
+        "latency_ms": shap_result["latency_ms"],
         "remaining_ocu_balance": round(balance - 0.1, 2),
     }
+
