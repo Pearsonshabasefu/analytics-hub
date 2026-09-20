@@ -30,7 +30,7 @@ export default function Logo({ size = 'default', showWordmark = true, to }) {
   );
 
   return (
-    <Link to={destination} className="inline-block outline-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-lg">
+    <Link to={destination} className="inline-block shrink-0 outline-none focus:ring-2 focus:ring-[#007AFF]/40 rounded-lg">
       {content}
     </Link>
   );

@@ -405,34 +405,34 @@ export default function DashboardPage() {
       {/* Top bar */}
       <header className="sticky top-0 z-40 glass border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto flex w-full justify-between items-center px-6 py-4 flex-wrap gap-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 shrink-0">
             <Logo size="default" />
-            <div className="hidden sm:flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2.5 shrink-0">
               <button
                 onClick={() => navigate('/project/demo-proj-churn/watchtower')}
-                className="text-xs px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white hover:border-ah-primary font-semibold transition-all flex items-center gap-1.5 shadow-sm"
+                className="text-xs px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white hover:border-ah-primary font-semibold transition-all flex items-center gap-1.5 shadow-sm whitespace-nowrap"
               >
-                <Activity size={13} className="text-green-500 dark:text-green-400" />
+                <Activity size={13} className="text-green-500 dark:text-green-400 shrink-0" />
                 <span>Watchtower Pulse</span>
               </button>
               <button
                 onClick={() => navigate('/project/demo-proj-churn/deploy')}
-                className="text-xs px-3 py-1.5 rounded-xl bg-ah-primary text-white font-semibold hover:bg-ah-primary/80 transition-all shadow-ah-glow flex items-center gap-1.5"
+                className="text-xs px-3 py-1.5 rounded-xl bg-ah-primary text-white font-semibold hover:bg-ah-primary/80 transition-all shadow-ah-glow flex items-center gap-1.5 whitespace-nowrap"
               >
-                <Zap size={13} />
+                <Zap size={13} className="shrink-0" />
                 <span>Test Live Predictions</span>
               </button>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             {/* Install Desktop App Button */}
             {!isInstalled && (
               <button
                 onClick={openInstallModal}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 hover:text-indigo-700 dark:hover:text-white text-xs font-semibold transition-all shadow-sm"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white text-xs font-semibold transition-all shadow-sm whitespace-nowrap"
                 title="Install RefineIQ as a native desktop application"
               >
-                <Download size={13} className="text-cyan-500 dark:text-cyan-400" />
+                <Download size={13} className="text-cyan-600 dark:text-cyan-400 shrink-0" />
                 <span>Install Desktop App</span>
               </button>
             )}
@@ -464,23 +464,23 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Demo Mode Interactive Banner */}
-        <div className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-blue-900/30 via-purple-900/20 to-blue-900/30 border border-ah-primary/40 flex flex-wrap items-center justify-between gap-4 shadow-lg">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-ah-primary/20 flex items-center justify-center text-yellow-400">
+        <div className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 text-slate-800 dark:from-blue-900/30 dark:via-purple-900/20 dark:to-blue-900/30 dark:border-ah-primary/40 dark:text-white flex flex-wrap items-center justify-between gap-4 shadow-sm dark:shadow-lg">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-ah-primary/20 flex items-center justify-center text-amber-500 dark:text-yellow-400 shrink-0">
               <Sparkles size={20} />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm text-slate-900 dark:text-white">Interactive Demo Environment Active</span>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-ah-primary/20 text-ah-primary border border-ah-primary/30">ZERO BACKEND REQUIRED</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-sm text-slate-800 dark:text-white">Interactive Demo Environment Active</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-100 text-blue-700 border border-blue-200 dark:bg-ah-primary/20 dark:text-ah-primary dark:border-ah-primary/30 font-semibold">ZERO BACKEND REQUIRED</span>
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Explore the full RefineIQ pipeline: clean raw data, train AutoML models, test real-time predictions, and monitor drift.</p>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">Explore the full RefineIQ pipeline: clean raw data, train AutoML models, test real-time predictions, and monitor drift.</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/project/demo-proj-churn/watchtower')}
-              className="text-xs px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-white hover:border-ah-primary font-semibold transition-all flex items-center gap-1.5"
+              className="text-xs px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white hover:border-ah-primary font-semibold transition-all flex items-center gap-1.5 shadow-sm"
             >
               <Activity size={14} className="text-green-500 dark:text-green-400" />
               Watchtower Pulse
