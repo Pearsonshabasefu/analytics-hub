@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Plus, Folder, Clock, ChevronRight, Zap, BarChart2, TrendingUp,
   LogOut, Settings, Moon, Sun, Sparkles, Activity, ShieldCheck, Play, Database,
-  Download, Monitor
+  Download, Monitor, Trash2
 } from 'lucide-react'
 import apiClient from '../lib/apiClient'
 import { supabase } from '../lib/supabaseClient'
@@ -48,12 +48,38 @@ const DEFAULT_DEMO_PROJECTS = [
   },
 ]
 
+// Deduplicate projects helper: ensures unique IDs and prevents multiple pending projects with duplicate names
+const deduplicateProjects = (list) => {
+  if (!Array.isArray(list)) return []
+  const seenIds = new Set()
+  const seenCreatedNames = new Set()
+  const result = []
+
+  for (const p of list) {
+    if (!p || !p.id) continue
+    if (seenIds.has(p.id)) continue
+
+    const nameKey = p.name ? p.name.trim().toLowerCase() : ''
+    // If multiple projects are "created" or "Pending" with the exact same name, keep only one
+    if ((p.status === 'created' || p.algo === 'Pending') && seenCreatedNames.has(nameKey)) {
+      continue
+    }
+
+    seenIds.add(p.id)
+    if (p.status === 'created' || p.algo === 'Pending') {
+      seenCreatedNames.add(nameKey)
+    }
+    result.push(p)
+  }
+  return result
+}
+
 // Fetch projects with robust fallback
 const fetchProjects = async () => {
   try {
     const res = await apiClient.get('/api/projects/')
     if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-      return res.data
+      return deduplicateProjects(res.data)
     }
   } catch (err) {
     // Backend offline / demo mode fallback
@@ -63,7 +89,13 @@ const fetchProjects = async () => {
   if (saved) {
     try {
       const parsed = JSON.parse(saved)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const deduped = deduplicateProjects(parsed)
+        if (deduped.length !== parsed.length) {
+          localStorage.setItem('refineiq_user_projects', JSON.stringify(deduped))
+        }
+        return deduped
+      }
     } catch (_) {}
   }
   return DEFAULT_DEMO_PROJECTS
@@ -84,7 +116,8 @@ const createProject = async (data) => {
       algo: 'Pending',
     }
     const current = JSON.parse(localStorage.getItem('refineiq_user_projects') || '[]')
-    const updated = [newProj, ...(current.length ? current : DEFAULT_DEMO_PROJECTS)]
+    const baseList = current.length ? current : DEFAULT_DEMO_PROJECTS
+    const updated = deduplicateProjects([newProj, ...baseList])
     localStorage.setItem('refineiq_user_projects', JSON.stringify(updated))
     return newProj
   }
@@ -189,32 +222,48 @@ const TEMPLATES = [
   },
 ]
 
-function ProjectCard({ project, onClick, onStageJump }) {
+function ProjectCard({ project, onClick, onStageJump, onDelete }) {
   const badge = STATUS_BADGE[project.status] || STATUS_BADGE.created
   const date = new Date(project.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 
   return (
-    <div className="group bg-ah-surface border border-ah hover:border-ah-primary/70 rounded-2xl p-5 text-left transition-all shadow-ah-card hover:shadow-ah-glow flex flex-col justify-between">
+    <div className="group bg-white border border-slate-200 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white rounded-2xl p-5 text-left transition-all shadow-ah-card hover:shadow-ah-glow flex flex-col justify-between">
       <div>
         <div className="flex items-start justify-between mb-3">
           <div className="w-10 h-10 bg-ah-primary-glow rounded-xl flex items-center justify-center">
             <BarChart2 size={18} className="text-ah-primary" />
           </div>
-          <span className={`text-xs font-mono px-2 py-1 rounded-md ${badge.class}`}>{badge.label}</span>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-mono px-2 py-1 rounded-md ${badge.class}`}>{badge.label}</span>
+            {onDelete && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete(project.id)
+                }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-400 transition-all"
+                title="Delete project"
+                aria-label={`Delete project ${project.name}`}
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
+          </div>
         </div>
 
         <button onClick={onClick} className="text-left w-full">
-          <h3 className="font-headline font-bold text-base mb-1 group-hover:text-ah-primary transition-colors">
+          <h3 className="font-headline font-bold text-base mb-1 text-slate-900 dark:text-white group-hover:text-ah-primary transition-colors">
             {project.name}
           </h3>
           <div className="flex items-center gap-2 mb-3">
             {project.algo && (
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-ah-surface2 border border-ah text-ah-primary">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 text-ah-primary">
                 {project.algo}
               </span>
             )}
             {project.accuracy && (
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-green-500/10 text-green-400">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 font-semibold">
                 {project.accuracy}
               </span>
             )}
@@ -223,47 +272,47 @@ function ProjectCard({ project, onClick, onStageJump }) {
       </div>
 
       {/* Quick Stage Jump Links */}
-      <div className="pt-3 border-t border-ah/60 mt-3">
-        <p className="text-[10px] uppercase font-mono text-ah-subtle mb-2">Jump to pipeline stage:</p>
+      <div className="pt-3 border-t border-slate-100 dark:border-slate-700/60 mt-3">
+        <p className="text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400 mb-2">Jump to pipeline stage:</p>
         <div className="flex items-center gap-1.5 flex-wrap text-[11px] font-mono">
           <button
             onClick={() => onStageJump(project, 'ingest')}
-            className="px-2 py-1 rounded bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah transition-colors"
+            className="px-2 py-1 rounded bg-slate-100 hover:bg-ah-primary hover:text-white dark:bg-slate-700/50 dark:hover:bg-ah-primary dark:hover:text-white border border-slate-200 dark:border-slate-600 transition-colors text-slate-700 dark:text-slate-300"
             title="Data Ingestion"
           >
             01 Ingest
           </button>
           <button
             onClick={() => onStageJump(project, 'refinery')}
-            className="px-2 py-1 rounded bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah transition-colors"
+            className="px-2 py-1 rounded bg-slate-100 hover:bg-ah-primary hover:text-white dark:bg-slate-700/50 dark:hover:bg-ah-primary dark:hover:text-white border border-slate-200 dark:border-slate-600 transition-colors text-slate-700 dark:text-slate-300"
             title="Data Refinery (Cleaning & PII)"
           >
             02 Refinery
           </button>
           <button
             onClick={() => onStageJump(project, 'studio')}
-            className="px-2 py-1 rounded bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah transition-colors"
+            className="px-2 py-1 rounded bg-slate-100 hover:bg-ah-primary hover:text-white dark:bg-slate-700/50 dark:hover:bg-ah-primary dark:hover:text-white border border-slate-200 dark:border-slate-600 transition-colors text-slate-700 dark:text-slate-300"
             title="AutoML Model Studio"
           >
             03 Studio
           </button>
           <button
             onClick={() => onStageJump(project, 'deploy')}
-            className="px-2 py-1 rounded bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah transition-colors"
+            className="px-2 py-1 rounded bg-slate-100 hover:bg-ah-primary hover:text-white dark:bg-slate-700/50 dark:hover:bg-ah-primary dark:hover:text-white border border-slate-200 dark:border-slate-600 transition-colors text-slate-700 dark:text-slate-300"
             title="Live API & Playground"
           >
             04 Deploy
           </button>
           <button
             onClick={() => onStageJump(project, 'watchtower')}
-            className="px-2 py-1 rounded bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah transition-colors"
+            className="px-2 py-1 rounded bg-slate-100 hover:bg-ah-primary hover:text-white dark:bg-slate-700/50 dark:hover:bg-ah-primary dark:hover:text-white border border-slate-200 dark:border-slate-600 transition-colors text-slate-700 dark:text-slate-300"
             title="Live Watchtower Monitoring"
           >
             05 Watchtower
           </button>
         </div>
 
-        <div className="flex items-center gap-1 text-ah-subtle text-xs mt-3 pt-2 border-t border-ah/40">
+        <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-xs mt-3 pt-2 border-t border-slate-100 dark:border-slate-700/40">
           <Clock size={11} />
           <span>{date}</span>
           <button
@@ -300,6 +349,28 @@ export default function DashboardPage() {
     },
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: async (projectId) => {
+      try {
+        await apiClient.delete(`/api/projects/${projectId}`)
+      } catch (_) {
+        // Backend offline / demo mode fallback
+      }
+      const saved = localStorage.getItem('refineiq_user_projects')
+      const current = saved ? JSON.parse(saved) : DEFAULT_DEMO_PROJECTS
+      const updated = current.filter((p) => p.id !== projectId)
+      localStorage.setItem('refineiq_user_projects', JSON.stringify(deduplicateProjects(updated)))
+      return projectId
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['projects'])
+    },
+  })
+
+  const handleDeleteProject = (projectId) => {
+    deleteMutation.mutate(projectId)
+  }
+
   const handleProjectClick = (project) => {
     const routes = {
       created:   'ingest',
@@ -333,8 +404,26 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-ah-bg">
       {/* Top bar */}
       <header className="sticky top-0 z-40 glass border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto flex w-full justify-between items-center px-6 py-4">
-          <Logo size="default" />
+        <div className="max-w-7xl mx-auto flex w-full justify-between items-center px-6 py-4 flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <Logo size="default" />
+            <div className="hidden sm:flex items-center gap-2">
+              <button
+                onClick={() => navigate('/project/demo-proj-churn/watchtower')}
+                className="text-xs px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:text-white hover:border-ah-primary font-semibold transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Activity size={13} className="text-green-500 dark:text-green-400" />
+                <span>Watchtower Pulse</span>
+              </button>
+              <button
+                onClick={() => navigate('/project/demo-proj-churn/deploy')}
+                className="text-xs px-3 py-1.5 rounded-xl bg-ah-primary text-white font-semibold hover:bg-ah-primary/80 transition-all shadow-ah-glow flex items-center gap-1.5"
+              >
+                <Zap size={13} />
+                <span>Test Live Predictions</span>
+              </button>
+            </div>
+          </div>
           <div className="flex items-center gap-3">
             {/* Install Desktop App Button */}
             {!isInstalled && (
@@ -587,7 +676,7 @@ export default function DashboardPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <p className="text-ah-subtle text-xs font-mono uppercase tracking-widest">
-              Your Projects ({projects.length})
+              Your Projects ({deduplicateProjects(projects).length})
             </p>
             <span className="text-xs text-ah-muted font-mono">Click any card to open the active stage</span>
           </div>
@@ -595,17 +684,18 @@ export default function DashboardPage() {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {[1, 2, 3].map(i => (
-                <div key={i} className="bg-ah-surface border border-ah rounded-2xl p-5 h-48 animate-pulse" />
+                <div key={i} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 h-48 animate-pulse" />
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {projects.map(p => (
+              {deduplicateProjects(projects).map(p => (
                 <ProjectCard
                   key={p.id}
                   project={p}
                   onClick={() => handleProjectClick(p)}
                   onStageJump={handleStageJump}
+                  onDelete={handleDeleteProject}
                 />
               ))}
             </div>
