@@ -101,9 +101,92 @@ const STATUS_BADGE = {
 }
 
 const TEMPLATES = [
-  { id: 'churn_prediction',  icon: '🔮', label: 'Churn Prediction',   desc: 'Predict which customers will leave' },
-  { id: 'sales_forecasting', icon: '📈', label: 'Sales Forecasting',   desc: 'Forecast revenue & demand trends' },
-  { id: null,                icon: '⚡', label: 'Blank Project',        desc: 'Start from scratch with your data' },
+  {
+    id: 'churn_prediction',
+    icon: '🔄',
+    label: 'SaaS Churn Prediction',
+    desc: 'Predict which customers will leave next 30 days',
+    tag: 'Popular',
+    accuracy: '94.8%',
+    algo: 'XGBoost',
+    sampleCols: ['customer_id', 'tenure_months', 'monthly_spend', 'plan_tier', 'churned'],
+    sampleRows: [
+      ['CUST-1001', '14', '$89.50', 'Enterprise', '❌'],
+      ['CUST-1002', '2', '$12.00', 'Starter', '✅'],
+      ['CUST-1003', '22', '$210.40', 'Pro', '❌'],
+    ],
+  },
+  {
+    id: 'sales_forecasting',
+    icon: '📈',
+    label: 'E-Commerce LTV',
+    desc: 'Predict lifetime customer value & revenue trends',
+    tag: 'Time-Series',
+    accuracy: '92.4%',
+    algo: 'Prophet + LGB',
+    sampleCols: ['order_date', 'customer_id', 'order_value', 'category', 'ltv_90d'],
+    sampleRows: [
+      ['2024-01-15', 'USR-4401', '$142.30', 'Electronics', '$680'],
+      ['2024-01-16', 'USR-4402', '$28.50', 'Apparel', '$210'],
+      ['2024-01-17', 'USR-4403', '$520.00', 'Furniture', '$1,240'],
+    ],
+  },
+  {
+    id: 'fraud_detection',
+    icon: '🛡️',
+    label: 'Logistics Fraud Detection',
+    desc: 'Flag suspicious transactions before they process',
+    tag: 'High Accuracy',
+    accuracy: '98.1%',
+    algo: 'CatBoost',
+    sampleCols: ['tx_id', 'amount', 'merchant', 'device_new', 'is_fraud'],
+    sampleRows: [
+      ['TX-9001', '$4.99', 'Starbucks', 'No', '❌'],
+      ['TX-9002', '$1,840', 'Unknown_Vendor', 'Yes', '✅'],
+      ['TX-9003', '$23.50', 'Amazon', 'No', '❌'],
+    ],
+  },
+  {
+    id: 'lead_scoring',
+    icon: '🎯',
+    label: 'B2B Lead Scoring',
+    desc: 'Rank inbound leads by conversion probability',
+    tag: 'Growth Ops',
+    accuracy: '89.3%',
+    algo: 'LightGBM',
+    sampleCols: ['lead_id', 'company_size', 'industry', 'source', 'score'],
+    sampleRows: [
+      ['LEAD-501', '200-500', 'SaaS', 'LinkedIn', '87%'],
+      ['LEAD-502', '1-10', 'Retail', 'Cold Email', '12%'],
+      ['LEAD-503', '1000+', 'Finance', 'Webinar', '94%'],
+    ],
+  },
+  {
+    id: 'inventory_forecast',
+    icon: '📦',
+    label: 'Inventory Demand Forecast',
+    desc: 'Predict stock demand to avoid overstock & stockouts',
+    tag: 'Operations',
+    accuracy: '91.7%',
+    algo: 'Prophet',
+    sampleCols: ['sku_id', 'week', 'units_sold', 'price', 'forecast_units'],
+    sampleRows: [
+      ['SKU-7701', 'W-42', '1,240', '$14.99', '1,310'],
+      ['SKU-7702', 'W-42', '88', '$199.99', '95'],
+      ['SKU-7703', 'W-42', '4,200', '$4.50', '4,050'],
+    ],
+  },
+  {
+    id: null,
+    icon: '⚡',
+    label: 'Blank Project',
+    desc: 'Start from scratch with your own dataset',
+    tag: null,
+    accuracy: null,
+    algo: null,
+    sampleCols: [],
+    sampleRows: [],
+  },
 ]
 
 function ProjectCard({ project, onClick, onStageJump }) {
@@ -202,6 +285,7 @@ export default function DashboardPage() {
   const { theme, toggleTheme } = useThemeStore()
   const { isInstalled, openInstallModal } = usePwaInstall()
   const [showNaming, setShowNaming] = useState(false)
+  const [activeBlueprint, setActiveBlueprint] = useState(null)
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
@@ -248,18 +332,18 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-ah-bg">
       {/* Top bar */}
-      <header className="sticky top-0 z-40 glass border-b border-ah">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-40 glass border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto flex w-full justify-between items-center px-6 py-4">
           <Logo size="default" />
           <div className="flex items-center gap-3">
             {/* Install Desktop App Button */}
             {!isInstalled && (
               <button
                 onClick={openInstallModal}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-300 hover:text-white text-xs font-semibold transition-all shadow-sm"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 hover:text-indigo-700 dark:hover:text-white text-xs font-semibold transition-all shadow-sm"
                 title="Install RefineIQ as a native desktop application"
               >
-                <Download size={13} className="text-cyan-400" />
+                <Download size={13} className="text-cyan-500 dark:text-cyan-400" />
                 <span>Install Desktop App</span>
               </button>
             )}
@@ -267,20 +351,20 @@ export default function DashboardPage() {
             {/* Theme toggle */}
             <button
               onClick={toggleTheme}
-              className="w-9 h-9 rounded-lg bg-ah-surface border border-ah hover:border-ah-primary flex items-center justify-center transition-all text-ah-muted hover:text-ah-primary"
+              className="w-9 h-9 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-ah-primary hover:border-ah-primary dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:text-ah-primary flex items-center justify-center transition-all"
               title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>
             <button
               onClick={() => navigate('/settings')}
-              className="w-9 h-9 rounded-lg bg-ah-surface border border-ah hover:border-ah-primary flex items-center justify-center transition-all text-ah-muted hover:text-ah-primary"
+              className="w-9 h-9 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-ah-primary hover:border-ah-primary dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:text-ah-primary flex items-center justify-center transition-all"
             >
               <Settings size={15} />
             </button>
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-2 text-ah-muted hover:text-ah-error text-sm transition-colors px-2"
+              className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-red-500 text-sm transition-colors px-2"
             >
               <LogOut size={14} />
               Sign out
@@ -298,18 +382,18 @@ export default function DashboardPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm text-ah-text">Interactive Demo Environment Active</span>
+                <span className="font-semibold text-sm text-slate-900 dark:text-white">Interactive Demo Environment Active</span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-ah-primary/20 text-ah-primary border border-ah-primary/30">ZERO BACKEND REQUIRED</span>
               </div>
-              <p className="text-xs text-ah-muted mt-0.5">Explore the full RefineIQ pipeline: clean raw data, train AutoML models, test real-time predictions, and monitor drift.</p>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Explore the full RefineIQ pipeline: clean raw data, train AutoML models, test real-time predictions, and monitor drift.</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/project/demo-proj-churn/watchtower')}
-              className="text-xs px-3.5 py-2 rounded-xl bg-ah-surface border border-ah hover:border-ah-primary text-ah-text font-semibold transition-all flex items-center gap-1.5"
+              className="text-xs px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 dark:bg-slate-800 dark:border-slate-700 dark:text-white hover:border-ah-primary font-semibold transition-all flex items-center gap-1.5"
             >
-              <Activity size={14} className="text-green-400" />
+              <Activity size={14} className="text-green-500 dark:text-green-400" />
               Watchtower Pulse
             </button>
             <button
@@ -325,17 +409,17 @@ export default function DashboardPage() {
         {/* ── Analytics Chart Strip ─────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {/* Chart 1: Model Accuracy Trend */}
-          <div className="bg-ah-surface border border-ah rounded-2xl p-4 shadow-ah-card">
-            <p className="text-[11px] font-mono uppercase text-ah-subtle mb-1 flex items-center gap-1.5">
-              <TrendingUp size={12} className="text-green-400" />
+          <div className="bg-white border border-slate-200 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white rounded-2xl p-4 shadow-ah-card">
+            <p className="text-[11px] font-mono uppercase text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+              <TrendingUp size={12} className="text-green-500 dark:text-green-400" />
               Model Accuracy Trend
             </p>
-            <p className="font-headline text-2xl font-extrabold text-ah-text">94.8%</p>
-            <p className="text-[11px] text-green-400 font-mono mb-3">↑ +2.1% vs last week</p>
+            <p className="font-headline text-2xl font-extrabold text-slate-900 dark:text-white">94.8%</p>
+            <p className="text-[11px] text-green-600 dark:text-green-400 font-mono mb-3">↑ +2.1% vs last week</p>
             <svg viewBox="0 0 120 40" className="w-full h-10" preserveAspectRatio="none">
               <polyline
                 points="0,38 20,32 40,34 60,28 80,20 100,15 120,10"
-                fill="none" stroke="#34D399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
               />
               <polyline
                 points="0,38 20,32 40,34 60,28 80,20 100,15 120,10 120,40 0,40"
@@ -343,21 +427,21 @@ export default function DashboardPage() {
               />
               <defs>
                 <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#34D399" />
-                  <stop offset="100%" stopColor="#34D399" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#10B981" />
+                  <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
                 </linearGradient>
               </defs>
             </svg>
           </div>
 
           {/* Chart 2: OCU Usage (bar chart) */}
-          <div className="bg-ah-surface border border-ah rounded-2xl p-4 shadow-ah-card">
-            <p className="text-[11px] font-mono uppercase text-ah-subtle mb-1 flex items-center gap-1.5">
+          <div className="bg-white border border-slate-200 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white rounded-2xl p-4 shadow-ah-card">
+            <p className="text-[11px] font-mono uppercase text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5">
               <BarChart2 size={12} className="text-ah-primary" />
               OCU Usage This Week
             </p>
-            <p className="font-headline text-2xl font-extrabold text-ah-text">14.2 OCUs</p>
-            <p className="text-[11px] text-ah-primary font-mono mb-3">~\$1.42 billed via Flutterwave</p>
+            <p className="font-headline text-2xl font-extrabold text-slate-900 dark:text-white">14.2 OCUs</p>
+            <p className="text-[11px] text-ah-primary font-mono mb-3">~$1.42 billed via Flutterwave</p>
             <svg viewBox="0 0 120 40" className="w-full h-10">
               {[8, 14, 6, 18, 10, 12, 14].map((h, i) => (
                 <rect
@@ -374,17 +458,17 @@ export default function DashboardPage() {
           </div>
 
           {/* Chart 3: Predictions Volume */}
-          <div className="bg-ah-surface border border-ah rounded-2xl p-4 shadow-ah-card">
-            <p className="text-[11px] font-mono uppercase text-ah-subtle mb-1 flex items-center gap-1.5">
-              <Activity size={12} className="text-purple-400" />
+          <div className="bg-white border border-slate-200 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white rounded-2xl p-4 shadow-ah-card">
+            <p className="text-[11px] font-mono uppercase text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1.5">
+              <Activity size={12} className="text-purple-500 dark:text-purple-400" />
               Live Prediction Volume
             </p>
-            <p className="font-headline text-2xl font-extrabold text-ah-text">1,284</p>
-            <p className="text-[11px] text-purple-400 font-mono mb-3">Inferences served today</p>
+            <p className="font-headline text-2xl font-extrabold text-slate-900 dark:text-white">1,284</p>
+            <p className="text-[11px] text-purple-600 dark:text-purple-400 font-mono mb-3">Inferences served today</p>
             <svg viewBox="0 0 120 40" className="w-full h-10" preserveAspectRatio="none">
               <polyline
                 points="0,35 15,30 30,32 45,20 60,25 75,12 90,18 105,8 120,14"
-                fill="none" stroke="#A78BFA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                fill="none" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
               />
               <polyline
                 points="0,35 15,30 30,32 45,20 60,25 75,12 90,18 105,8 120,14 120,40 0,40"
@@ -392,8 +476,8 @@ export default function DashboardPage() {
               />
               <defs>
                 <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#A78BFA" />
-                  <stop offset="100%" stopColor="#A78BFA" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#8B5CF6" />
+                  <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0" />
                 </linearGradient>
               </defs>
             </svg>
@@ -404,10 +488,10 @@ export default function DashboardPage() {
 
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="font-headline text-3xl font-bold mb-1">
+            <h1 className="font-headline text-3xl font-bold mb-1 text-slate-900 dark:text-white">
               Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}! 👋
             </h1>
-            <p className="text-ah-muted text-sm">Your enterprise models and pipelines are ready. What are we building today?</p>
+            <p className="text-slate-600 dark:text-slate-300 text-sm">Your enterprise models and pipelines are ready. What are we building today?</p>
           </div>
           <button
             onClick={() => setShowNaming(true)}
@@ -417,30 +501,87 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Quick-start templates row */}
+        {/* Blueprint Showcase */}
         <div className="mb-10">
-          <p className="text-ah-subtle text-xs font-mono uppercase tracking-widest mb-4">Quick-Start Templates</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-ah-subtle text-xs font-mono uppercase tracking-widest">Industry Blueprints</p>
+              <p className="text-[11px] text-ah-muted mt-0.5">Click any blueprint to preview sample data, then launch with one click</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
             {TEMPLATES.map((t) => (
               <button
                 key={t.id ?? 'blank'}
-                onClick={() => {
-                  mutation.mutate({
-                    name: t.label,
-                    template: t.id,
-                  })
-                }}
-                className="bg-ah-surface border border-ah hover:border-ah-primary rounded-xl px-4 py-3.5 text-left flex items-center gap-3 transition-all group shadow-sm hover:shadow-md"
+                onClick={() => setActiveBlueprint(activeBlueprint?.id === t.id ? null : t)}
+                className={`bg-ah-surface border rounded-xl px-4 py-3.5 text-left flex items-start gap-3 transition-all group shadow-sm hover:shadow-md ${
+                  activeBlueprint?.id === t.id
+                    ? 'border-ah-primary bg-ah-primary/5'
+                    : 'border-ah hover:border-ah-primary/60'
+                }`}
               >
-                <span className="text-2xl">{t.icon}</span>
-                <div>
-                  <p className="font-semibold text-sm group-hover:text-ah-primary transition-colors">{t.label}</p>
-                  <p className="text-ah-subtle text-xs">{t.desc}</p>
+                <span className="text-2xl mt-0.5">{t.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold text-sm group-hover:text-ah-primary transition-colors">{t.label}</p>
+                    {t.tag && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-ah-primary/15 text-ah-primary border border-ah-primary/20">{t.tag}</span>
+                    )}
+                  </div>
+                  <p className="text-ah-subtle text-xs mt-0.5">{t.desc}</p>
+                  {t.accuracy && (
+                    <p className="text-[11px] text-green-400 font-mono mt-1">⚡ {t.algo} · {t.accuracy} accuracy</p>
+                  )}
                 </div>
               </button>
             ))}
           </div>
+
+          {/* Blueprint sample data preview panel */}
+          {activeBlueprint && activeBlueprint.sampleCols.length > 0 && (
+            <div className="bg-ah-surface border border-ah-primary/40 rounded-2xl overflow-hidden shadow-ah-glow mb-4 animate-in fade-in duration-200">
+              <div className="p-4 border-b border-ah bg-ah-primary/5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{activeBlueprint.icon}</span>
+                  <div>
+                    <p className="font-headline font-bold text-sm">{activeBlueprint.label} — Sample Dataset</p>
+                    <p className="text-[11px] text-ah-muted">This is what a real dataset looks like for this model type</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => mutation.mutate({ name: activeBlueprint.label, template: activeBlueprint.id })}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white text-xs font-semibold transition-all shadow-ah-glow"
+                >
+                  <Zap size={13} /> Launch with Sample Data
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs font-mono">
+                  <thead className="bg-ah-surface2 text-ah-muted border-b border-ah">
+                    <tr>
+                      {activeBlueprint.sampleCols.map(col => (
+                        <th key={col} className="px-4 py-2.5 text-left font-semibold uppercase tracking-wider text-[10px] whitespace-nowrap">{col}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-ah">
+                    {activeBlueprint.sampleRows.map((row, i) => (
+                      <tr key={i} className="hover:bg-ah-surface2/40 transition-colors">
+                        {row.map((cell, j) => (
+                          <td key={j} className="px-4 py-2.5 text-ah-text whitespace-nowrap">{cell}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="p-3 bg-ah-surface2/40 border-t border-ah">
+                <p className="text-[11px] text-ah-subtle font-mono">Sample shows 3 of ~1,000 rows. RefineIQ auto-loads the full dataset when you launch this blueprint.</p>
+              </div>
+            </div>
+          )}
         </div>
+
 
         {/* Projects grid */}
         <div>

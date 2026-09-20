@@ -40,6 +40,9 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab]         = useState('billing')
   const [ocuBalance, setOcuBalance]       = useState(50)
   const [autoTopUp, setAutoTopUp]         = useState(false)
+  const [autoTopUpThreshold, setAutoTopUpThreshold] = useState(15)
+  const [autoTopUpAmount, setAutoTopUpAmount]       = useState('standard')
+  const [autoTopUpSaved, setAutoTopUpSaved]         = useState(false)
   const [maxModelSpend, setMaxModelSpend] = useState(20)
   const [successMsg, setSuccessMsg]       = useState(null)
   const [activeReceipt, setActiveReceipt] = useState(null)
@@ -173,6 +176,102 @@ export default function SettingsPage() {
                       <span>Gateway: Flutterwave</span>
                     </div>
                   </div>
+                </div>
+
+                {/* Auto-Recharge Safeguard */}
+                <div className="bg-ah-surface border border-ah rounded-2xl p-6 shadow-ah-card space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-headline font-bold text-base flex items-center gap-2">
+                        <Zap size={16} className="text-yellow-400" />
+                        Auto-Recharge Safeguard
+                      </h3>
+                      <p className="text-xs text-ah-muted mt-0.5">Automatically top up OCUs when your balance drops below a threshold. Prevents live API downtime.</p>
+                    </div>
+                    {/* Toggle */}
+                    <button
+                      onClick={() => setAutoTopUp(v => !v)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        autoTopUp ? 'bg-ah-primary' : 'bg-ah-surface3 border border-ah'
+                      }`}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                        autoTopUp ? 'translate-x-6' : 'translate-x-1'
+                      }`} />
+                    </button>
+                  </div>
+
+                  {autoTopUp && (
+                    <div className="space-y-4 pt-2 border-t border-ah">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-mono uppercase text-ah-subtle mb-1.5">
+                            Trigger when balance drops below
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="range"
+                              min={5}
+                              max={50}
+                              step={5}
+                              value={autoTopUpThreshold}
+                              onChange={(e) => setAutoTopUpThreshold(Number(e.target.value))}
+                              className="flex-1 accent-[var(--color-primary)]"
+                            />
+                            <span className="text-sm font-bold text-ah-primary font-mono w-16 text-right">{autoTopUpThreshold} OCUs</span>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-mono uppercase text-ah-subtle mb-1.5">
+                            Top-up with package
+                          </label>
+                          <select
+                            value={autoTopUpAmount}
+                            onChange={(e) => setAutoTopUpAmount(e.target.value)}
+                            className="w-full bg-ah-surface2 border border-ah rounded-xl px-3 py-2 text-xs font-mono outline-none focus:border-ah-primary text-ah-text"
+                          >
+                            <option value="starter">Starter Pack — 50 OCUs ($5)</option>
+                            <option value="standard">Standard Pack — 150 OCUs ($12)</option>
+                            <option value="pro">Pro Scale — 500 OCUs ($35)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-ah-primary/10 border border-ah-primary/30">
+                        <p className="text-xs text-ah-muted">
+                          <span className="text-ah-primary font-semibold">Auto-charge trigger:</span>{' '}
+                          When OCU balance &lt; <strong className="text-ah-text">{autoTopUpThreshold} OCUs</strong>,
+                          charge <strong className="text-ah-text">{
+                            autoTopUpAmount === 'starter' ? '$5 (50 OCUs)' :
+                            autoTopUpAmount === 'standard' ? '$12 (150 OCUs)' : '$35 (500 OCUs)'
+                          }</strong> via saved payment method.
+                        </p>
+                        <button
+                          onClick={() => {
+                            setAutoTopUpSaved(true)
+                            setTimeout(() => setAutoTopUpSaved(false), 3000)
+                          }}
+                          className="ml-4 flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white text-xs font-semibold transition-all shadow-ah-glow"
+                        >
+                          {autoTopUpSaved ? <><Check size={12} /> Saved!</> : 'Save Rule'}
+                        </button>
+                      </div>
+
+                      {autoTopUpSaved && (
+                        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-xs">
+                          <CheckCircle2 size={14} />
+                          Auto-recharge rule saved. Your API will never go dark from an empty wallet.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {!autoTopUp && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs">
+                      <span>⚠️</span>
+                      Auto-recharge is off. Your live prediction API will return <code className="font-mono bg-ah-surface2 px-1 rounded">402 Payment Required</code> when OCUs hit zero.
+                    </div>
+                  )}
                 </div>
 
                 {/* Success Toast */}

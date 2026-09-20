@@ -22,7 +22,7 @@ export default function Logo({ size = 'default', showWordmark = true, to }) {
         <img src="/assets/logo.svg" alt="RefineIQ" className={`${config.svg} drop-shadow-[0_0_10px_rgba(0,242,254,0.75)]`} />
       </div>
       {showWordmark && (
-        <span className={`font-headline ${config.text} font-extrabold tracking-tight text-white flex items-center`}>
+        <span className={`font-headline ${config.text} font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center`}>
           Refine<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F2FE] via-[#007AFF] to-[#38BDF8] ml-0.5">IQ</span>
         </span>
       )}

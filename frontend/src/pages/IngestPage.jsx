@@ -27,6 +27,318 @@ const DEMO_SCHEMA = [
   { name: 'churned', type: 'Boolean', nulls: 0, uniq: 2 },
 ]
 
+// ─── ConnectorForm ────────────────────────────────────────────────────────────
+function ConnectorForm({ source, onConnect }) {
+  const [connState, setConnState] = useState('idle') // idle | testing | success | error
+  const [uri, setUri] = useState('')
+  const [host, setHost] = useState('')
+  const [port, setPort] = useState('')
+  const [dbName, setDbName] = useState('')
+  const [dbUser, setDbUser] = useState('')
+  const [dbPass, setDbPass] = useState('')
+  const [query, setQuery] = useState('SELECT * FROM customers LIMIT 5000')
+  const [sheetUrl, setSheetUrl] = useState('')
+  const [apiUrl, setApiUrl] = useState('')
+  const [apiKey, setApiKey] = useState('')
+  const [s3Bucket, setS3Bucket] = useState('')
+  const [s3Key, setS3Key] = useState('')
+
+  const defaultPorts = { postgres: '5432', mysql: '3306', mongodb: '27017', snowflake: '443', bigquery: '' }
+
+  const testAndSync = () => {
+    setConnState('testing')
+    setTimeout(() => {
+      setConnState('success')
+      onConnect(`${source}_query_export.csv`)
+    }, 1800)
+  }
+
+  const fieldCls = 'w-full bg-ah-surface2 border border-ah rounded-xl px-4 py-2.5 text-xs font-mono outline-none focus:border-ah-primary text-ah-text placeholder:text-ah-subtle'
+  const labelCls = 'block text-[11px] font-mono uppercase text-ah-subtle mb-1'
+
+  const sourceConfig = {
+    postgres: { label: 'PostgreSQL', defaultPort: '5432', color: '#336791' },
+    mysql:    { label: 'MySQL',      defaultPort: '3306', color: '#f59e0b' },
+    mongodb:  { label: 'MongoDB',    defaultPort: '27017', color: '#4db33d' },
+    snowflake:{ label: 'Snowflake',  defaultPort: '443',  color: '#29b5e8' },
+    bigquery: { label: 'BigQuery',   defaultPort: '',     color: '#4285f4' },
+  }
+
+  const isSql = ['postgres', 'mysql'].includes(source)
+  const isMongo = source === 'mongodb'
+  const isSnowflake = source === 'snowflake'
+  const isBigQuery = source === 'bigquery'
+  const isSheets = source === 'gsheets'
+  const isApi = source === 'api'
+  const isS3 = source === 's3'
+  const isAirtable = source === 'airtable'
+
+  return (
+    <div className="p-6 rounded-2xl bg-ah-surface border border-ah space-y-5">
+      <div className="flex items-center gap-2">
+        <Database size={16} className="text-ah-primary" />
+        <h3 className="font-semibold text-sm text-ah-text">
+          {sourceConfig[source]?.label || source.toUpperCase()} Connector
+        </h3>
+        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-ah-primary/15 text-ah-primary border border-ah-primary/20 ml-auto">
+          Read-Only Sync
+        </span>
+      </div>
+
+      {/* SQL: postgres / mysql */}
+      {isSql && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Host / Server</label>
+              <input className={fieldCls} placeholder="db.mycompany.com" value={host} onChange={e => setHost(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Port</label>
+              <input className={fieldCls} placeholder={sourceConfig[source].defaultPort} value={port} onChange={e => setPort(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className={labelCls}>Database Name</label>
+              <input className={fieldCls} placeholder="production_db" value={dbName} onChange={e => setDbName(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Username</label>
+              <input className={fieldCls} placeholder="readonly_user" value={dbUser} onChange={e => setDbUser(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Password</label>
+              <input className={fieldCls} type="password" placeholder="••••••••" value={dbPass} onChange={e => setDbPass(e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <label className={labelCls}>SQL Query (read-only)</label>
+            <textarea rows={3} className={fieldCls} value={query} onChange={e => setQuery(e.target.value)} />
+          </div>
+          <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-xs text-green-400 font-mono">
+            🔒 Credentials encrypted at rest via Supabase Vault. RefineIQ runs SELECT-only queries.
+          </div>
+        </div>
+      )}
+
+      {/* MongoDB */}
+      {isMongo && (
+        <div className="space-y-4">
+          <div>
+            <label className={labelCls}>Connection URI</label>
+            <input className={fieldCls} placeholder="mongodb+srv://user:pass@cluster.mongodb.net/mydb" value={uri} onChange={e => setUri(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Collection Name</label>
+              <input className={fieldCls} placeholder="customers" value={dbName} onChange={e => setDbName(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Row Limit</label>
+              <input className={fieldCls} placeholder="10000" type="number" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Snowflake */}
+      {isSnowflake && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Account Identifier</label>
+              <input className={fieldCls} placeholder="myorg-myaccount.snowflakecomputing.com" value={host} onChange={e => setHost(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Warehouse</label>
+              <input className={fieldCls} placeholder="COMPUTE_WH" value={dbName} onChange={e => setDbName(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className={labelCls}>Database</label>
+              <input className={fieldCls} placeholder="PROD_DB" />
+            </div>
+            <div>
+              <label className={labelCls}>Username</label>
+              <input className={fieldCls} placeholder="BI_READER" value={dbUser} onChange={e => setDbUser(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Password</label>
+              <input className={fieldCls} type="password" placeholder="••••••••" value={dbPass} onChange={e => setDbPass(e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <label className={labelCls}>SQL Query</label>
+            <textarea rows={2} className={fieldCls} value={query} onChange={e => setQuery(e.target.value)} />
+          </div>
+        </div>
+      )}
+
+      {/* BigQuery */}
+      {isBigQuery && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>GCP Project ID</label>
+              <input className={fieldCls} placeholder="my-project-id" value={host} onChange={e => setHost(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Dataset.Table</label>
+              <input className={fieldCls} placeholder="analytics.customers" value={dbName} onChange={e => setDbName(e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <label className={labelCls}>Service Account Key (JSON)</label>
+            <textarea rows={3} className={fieldCls} placeholder='{"type": "service_account", "project_id": "...", ...}' />
+          </div>
+          <div>
+            <label className={labelCls}>SQL Query (BigQuery syntax)</label>
+            <textarea rows={2} className={fieldCls} value={query} onChange={e => setQuery(e.target.value)} />
+          </div>
+        </div>
+      )}
+
+      {/* Google Sheets */}
+      {isSheets && (
+        <div className="space-y-4">
+          <div>
+            <label className={labelCls}>Google Sheets URL or ID</label>
+            <input className={fieldCls} placeholder="https://docs.google.com/spreadsheets/d/..." value={sheetUrl} onChange={e => setSheetUrl(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Sheet / Tab Name</label>
+              <input className={fieldCls} placeholder="Sheet1" />
+            </div>
+            <div>
+              <label className={labelCls}>Header Row</label>
+              <input className={fieldCls} placeholder="1" type="number" defaultValue={1} />
+            </div>
+          </div>
+          <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300">
+            📊 RefineIQ uses OAuth read-only scope. Your sheet will sync on schedule (hourly/daily).
+          </div>
+        </div>
+      )}
+
+      {/* REST API */}
+      {isApi && (
+        <div className="space-y-4">
+          <div>
+            <label className={labelCls}>API Endpoint URL</label>
+            <input className={fieldCls} placeholder="https://api.mycrm.com/v1/contacts?page=1" value={apiUrl} onChange={e => setApiUrl(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Authorization Header</label>
+              <input className={fieldCls} placeholder="Bearer sk-..." value={apiKey} onChange={e => setApiKey(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Pagination Type</label>
+              <select className={fieldCls}>
+                <option>Cursor-based (next_cursor)</option>
+                <option>Page-based (?page=N)</option>
+                <option>Offset (?offset=N&limit=100)</option>
+                <option>None (single response)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className={labelCls}>JSON Data Path (dot notation)</label>
+            <input className={fieldCls} placeholder="data.results (leave blank for root array)" />
+          </div>
+        </div>
+      )}
+
+      {/* AWS S3 */}
+      {isS3 && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Bucket Name</label>
+              <input className={fieldCls} placeholder="my-data-lake-bucket" value={s3Bucket} onChange={e => setS3Bucket(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Object Key / Path</label>
+              <input className={fieldCls} placeholder="exports/customers_2024.csv" value={s3Key} onChange={e => setS3Key(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className={labelCls}>AWS Region</label>
+              <input className={fieldCls} placeholder="us-east-1" />
+            </div>
+            <div>
+              <label className={labelCls}>Access Key ID</label>
+              <input className={fieldCls} placeholder="AKIA..." value={dbUser} onChange={e => setDbUser(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Secret Access Key</label>
+              <input className={fieldCls} type="password" placeholder="••••••••" value={dbPass} onChange={e => setDbPass(e.target.value)} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Airtable */}
+      {isAirtable && (
+        <div className="space-y-4">
+          <div>
+            <label className={labelCls}>Personal Access Token</label>
+            <input className={fieldCls} placeholder="patXXXXXXXXXXXXXX...." value={apiKey} onChange={e => setApiKey(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Base ID</label>
+              <input className={fieldCls} placeholder="appXXXXXXXXXXXXXX" value={dbName} onChange={e => setDbName(e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Table Name</label>
+              <input className={fieldCls} placeholder="Leads" value={dbUser} onChange={e => setDbUser(e.target.value)} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fallback for other sources */}
+      {!isSql && !isMongo && !isSnowflake && !isBigQuery && !isSheets && !isApi && !isS3 && !isAirtable && (
+        <div>
+          <label className={labelCls}>Connection URI</label>
+          <input className={fieldCls} placeholder="Enter connection string..." value={uri} onChange={e => setUri(e.target.value)} />
+        </div>
+      )}
+
+      {/* Connect Button */}
+      <div className="flex items-center gap-4 pt-2 border-t border-ah">
+        <button
+          onClick={testAndSync}
+          disabled={connState === 'testing' || connState === 'success'}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+            connState === 'success'
+              ? 'bg-green-500/20 text-green-400 border border-green-500/30 cursor-default'
+              : connState === 'testing'
+              ? 'bg-ah-surface3 text-ah-muted cursor-wait border border-ah'
+              : 'bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white shadow-ah-glow'
+          }`}
+        >
+          {connState === 'testing' && <RefreshCw size={13} className="animate-spin" />}
+          {connState === 'success' && <CheckCircle2 size={13} />}
+          {connState === 'idle' && <Database size={13} />}
+          {connState === 'idle' && 'Test Connection & Sync'}
+          {connState === 'testing' && 'Connecting...'}
+          {connState === 'success' && 'Connected — Schema Loaded ✓'}
+        </button>
+        {connState === 'idle' && (
+          <p className="text-[11px] text-ah-subtle font-mono">Credentials are never stored in plain text — encrypted via Supabase Vault.</p>
+        )}
+      </div>
+    </div>
+  )
+}
+// ──────────────────────────────────────────────────────────────────────────────
+
 const DEMO_SAMPLE_ROWS = [
   { customer_id: 'CUST-1001', signup_date: '2024-01-15', email: 'sarah.m@gmail.com', plan_tier: 'Enterprise', monthly_spend: 89.50, last_login_days: 2, churned: 'false' },
   { customer_id: 'CUST-1002', signup_date: '2024-02-01', email: 'david.k@yahoo.com', plan_tier: 'Starter', monthly_spend: 120.00, last_login_days: 45, churned: 'true' },
@@ -240,24 +552,10 @@ export default function IngestPage() {
             )}
           </div>
         ) : (
-          <div className="p-6 rounded-2xl bg-ah-surface border border-ah space-y-4">
-            <h3 className="font-semibold text-sm text-ah-text flex items-center gap-2">
-              <Database size={16} className="text-ah-primary" />
-              Direct Database Connection
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input
-                placeholder="Connection URI (postgresql://user:pass@host:5432/db)"
-                className="bg-ah-surface2 border border-ah rounded-xl px-4 py-2.5 text-xs font-mono outline-none focus:border-ah-primary"
-              />
-              <button
-                onClick={() => simulateUpload('db_query_export.csv')}
-                className="bg-ah-primary text-white text-xs font-semibold px-4 py-2.5 rounded-xl hover:bg-ah-primary/80 transition-all shadow-sm"
-              >
-                Test Connection & Sync
-              </button>
-            </div>
-          </div>
+          <ConnectorForm
+            source={activeSource}
+            onConnect={simulateUpload}
+          />
         )}
 
         {/* Schema & Preview Table */}

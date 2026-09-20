@@ -1,0 +1,113 @@
+# RefineIQ Local Inference Container
+# Allows enterprise teams to run predictions locally on air-gapped infrastructure
+# Build: docker build -f Dockerfile.inference -t refineiq-inference .
+# Run:   docker run -p 8080:8080 -v $(pwd)/models:/app/models -e MODEL_PATH=/app/models/champion.onnx refineiq-inference
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY backend/pyproject.toml ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    fastapi==0.111.0 \
+    uvicorn[standard]==0.30.1 \
+    onnxruntime==1.18.0 \
+    polars==1.0.0 \
+    numpy==1.26.4 \
+    python-multipart==0.0.9 \
+    scikit-learn==1.5.1
+
+# Copy inference service
+COPY backend/app/services/ ./app/services/
+COPY backend/app/core/ ./app/core/
+
+# Minimal inference-only FastAPI app
+COPY backend/app/routers/deploy.py ./app/routers/deploy.py
+
+# Create the inference entrypoint
+RUN cat > /app/inference_server.py << 'EOF'
+import os
+import numpy as np
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+import onnxruntime as ort
+import polars as pl
+from app.services.feature_engineer import auto_engineer_features
+
+app = FastAPI(
+    title="RefineIQ Local Inference Server",
+    description="Air-gapped, locally-hosted model inference. No data leaves your network.",
+    version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+MODEL_PATH = os.getenv("MODEL_PATH", "/app/models/champion.onnx")
+_session = None
+
+def get_session():
+    global _session
+    if _session is None:
+        if not os.path.exists(MODEL_PATH):
+            raise RuntimeError(f"Model file not found at {MODEL_PATH}. Mount your models directory.")
+        _session = ort.InferenceSession(MODEL_PATH)
+    return _session
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "model": MODEL_PATH, "air_gapped": True}
+
+@app.post("/predict")
+def predict(payload: dict):
+    try:
+        session = get_session()
+        features = np.array([list(payload.values())], dtype=np.float32)
+        input_name = session.get_inputs()[0].name
+        result = session.run(None, {input_name: features})
+        score = float(result[0][0])
+        return {
+            "prediction": "positive" if score > 0.5 else "negative",
+            "score": round(score, 4),
+            "air_gapped": True,
+            "model": os.path.basename(MODEL_PATH),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/predict/batch")
+async def batch_predict(payload: list[dict]):
+    try:
+        session = get_session()
+        features = np.array([[v for v in row.values()] for row in payload], dtype=np.float32)
+        input_name = session.get_inputs()[0].name
+        results = session.run(None, {input_name: features})
+        scores = results[0].flatten().tolist()
+        return {
+            "results": [
+                {"index": i, "score": round(s, 4), "prediction": "positive" if s > 0.5 else "negative"}
+                for i, s in enumerate(scores)
+            ],
+            "count": len(scores),
+            "air_gapped": True,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+EOF
+
+EXPOSE 8080
+
+CMD ["uvicorn", "inference_server:app", "--host", "0.0.0.0", "--port", "8080"]

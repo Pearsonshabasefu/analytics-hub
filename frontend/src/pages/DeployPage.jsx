@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Rocket, Copy, Check, Terminal, ExternalLink,
   ChevronLeft, ArrowRight, ShieldCheck, Zap, Activity,
-  Play, Sparkles, Loader2, RefreshCw, Download, Lock, Info, HelpCircle
+  Play, Sparkles, Loader2, RefreshCw, Download, Lock, Info, HelpCircle,
+  UploadCloud, FileDown, Table2, FileText
 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 
@@ -17,6 +18,16 @@ export default function DeployPage() {
   const [copiedCode, setCopiedCode] = useState(false)
   const [copiedPayload, setCopiedPayload] = useState(false)
   const [activeLang, setActiveLang] = useState('curl') // 'curl' | 'python' | 'js'
+
+  // Batch Predict state
+  const [activeMainTab, setActiveMainTab] = useState('live') // 'live' | 'batch'
+  const [batchFile, setBatchFile] = useState(null)
+  const [batchDragActive, setBatchDragActive] = useState(false)
+  const [batchProcessing, setBatchProcessing] = useState(false)
+  const [batchProgress, setBatchProgress] = useState(0)
+  const [batchResults, setBatchResults] = useState(null)
+  const batchFileRef = useRef(null)
+
 
   // Playground state
   const [playgroundAge, setPlaygroundAge] = useState(34)
@@ -85,6 +96,52 @@ export default function DeployPage() {
       })
       setIsPredicting(false)
     }, 450)
+  }
+
+  const handleBatchFile = (file) => {
+    if (!file) return
+    setBatchFile(file)
+    setBatchResults(null)
+    setBatchProcessing(true)
+    setBatchProgress(0)
+    const interval = setInterval(() => {
+      setBatchProgress(p => {
+        if (p >= 100) {
+          clearInterval(interval)
+          setBatchProcessing(false)
+          // Simulate results: original CSV rows + prediction_score column
+          setBatchResults({
+            filename: file.name,
+            rowCount: 1000,
+            scoredCount: 1000,
+            preview: [
+              { customer_id: 'CUST-1001', plan_tier: 'Enterprise', monthly_spend: 89.5, prediction_score: 0.114, risk: 'Low' },
+              { customer_id: 'CUST-1002', plan_tier: 'Starter', monthly_spend: 120.0, prediction_score: 0.847, risk: 'High' },
+              { customer_id: 'CUST-1003', plan_tier: 'Pro', monthly_spend: 45.2, prediction_score: 0.231, risk: 'Low' },
+              { customer_id: 'CUST-1004', plan_tier: 'Enterprise', monthly_spend: 210.0, prediction_score: 0.062, risk: 'Low' },
+              { customer_id: 'CUST-1005', plan_tier: 'Starter', monthly_spend: 18.5, prediction_score: 0.921, risk: 'High' },
+            ]
+          })
+          return 100
+        }
+        return p + Math.random() * 20
+      })
+    }, 120)
+  }
+
+  const handleDownloadResults = () => {
+    if (!batchResults) return
+    const header = 'customer_id,plan_tier,monthly_spend,prediction_score,risk_label\n'
+    const rows = batchResults.preview.map(r =>
+      `${r.customer_id},${r.plan_tier},${r.monthly_spend},${r.prediction_score},${r.risk}`
+    ).join('\n')
+    const blob = new Blob([header + rows], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `scored_${batchResults.filename}`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const codeSnippets = {
@@ -160,9 +217,9 @@ console.log(data);`
         </button>
       </header>
 
-      {/* Main Container */}
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+      {/* Main Tab Switcher: Live API vs Batch Predict */}
+      <div className="max-w-5xl mx-auto px-6 mb-6 pt-8">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
             <p className="text-ah-primary font-mono text-xs uppercase tracking-widest mb-1">Step 04 — One-Click Deploy</p>
             <h1 className="font-headline text-3xl font-bold">Production API Live</h1>
@@ -171,9 +228,30 @@ console.log(data);`
 
           <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 px-4 py-2 rounded-xl text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span>Status: Live & Autoscaling</span>
+            <span>Status: Live &amp; Autoscaling</span>
           </div>
         </div>
+
+        <div className="flex bg-ah-surface2 p-1 rounded-2xl border border-ah w-fit gap-1 mb-8">
+          {[{ id: 'live', label: '⚡ Live API Playground' }, { id: 'batch', label: '📦 Batch Predict' }].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveMainTab(tab.id)}
+              className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                activeMainTab === tab.id
+                  ? 'bg-ah-primary text-white shadow-ah-glow'
+                  : 'text-ah-muted hover:text-ah-text'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* LIVE API TAB */}
+      {activeMainTab === 'live' && (
+      <div className="max-w-5xl mx-auto px-6 space-y-8 pb-12">
 
         {/* Credentials & Endpoint Card */}
         <div className="bg-ah-surface border border-ah rounded-2xl p-6 mb-8 shadow-ah-card space-y-5">
@@ -434,6 +512,149 @@ console.log(data);`
           </button>
         </div>
       </div>
+      )}
+
+      {/* BATCH PREDICT TAB */}
+      {activeMainTab === 'batch' && (
+        <div className="max-w-5xl mx-auto px-6 space-y-6 pb-12">
+
+          {/* Explainer */}
+          <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-ah-primary/30 rounded-2xl p-5">
+            <h3 className="font-headline font-bold text-base mb-1">No-Code Batch Scoring</h3>
+            <p className="text-xs text-ah-muted leading-relaxed">
+              Upload a CSV of new records — RefineIQ scores every row through your deployed model and returns an enriched file with a <code className="text-ah-primary bg-ah-surface2 px-1 rounded">prediction_score</code> column appended. No API setup needed.
+            </p>
+          </div>
+
+          {/* Upload Zone */}
+          <div
+            onDrop={(e) => { e.preventDefault(); setBatchDragActive(false); handleBatchFile(e.dataTransfer.files[0]) }}
+            onDragOver={(e) => { e.preventDefault(); setBatchDragActive(true) }}
+            onDragLeave={() => setBatchDragActive(false)}
+            onClick={() => batchFileRef.current?.click()}
+            className={`relative border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${
+              batchDragActive
+                ? 'border-ah-primary bg-ah-primary/10'
+                : 'border-ah hover:border-ah-primary/60 bg-ah-surface'
+            }`}
+          >
+            <input ref={batchFileRef} type="file" accept=".csv,.xlsx" className="hidden" onChange={(e) => handleBatchFile(e.target.files[0])} />
+            <UploadCloud size={36} className={`mx-auto mb-3 ${batchDragActive ? 'text-ah-primary' : 'text-ah-muted'}`} />
+            <p className="font-semibold text-sm text-ah-text">Drop your CSV here or click to browse</p>
+            <p className="text-xs text-ah-subtle mt-1">Accepts .csv and .xlsx — up to 100k rows</p>
+            {batchFile && !batchProcessing && (
+              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-ah-surface2 border border-ah rounded-xl text-xs font-mono text-ah-text">
+                <FileText size={13} className="text-ah-primary" /> {batchFile.name}
+              </div>
+            )}
+          </div>
+
+          {/* Progress bar while processing */}
+          {batchProcessing && (
+            <div className="bg-ah-surface border border-ah rounded-2xl p-5 space-y-3">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-ah-muted flex items-center gap-2"><Loader2 size={13} className="animate-spin text-ah-primary" /> Scoring {batchFile?.name}...</span>
+                <span className="text-ah-primary font-bold">{Math.min(100, Math.round(batchProgress))}%</span>
+              </div>
+              <div className="w-full bg-ah-surface3 rounded-full h-2 overflow-hidden">
+                <div className="h-full bg-ah-primary transition-all duration-200 rounded-full" style={{ width: `${Math.min(100, batchProgress)}%` }} />
+              </div>
+              <p className="text-[11px] text-ah-subtle font-mono">Running XGBoost inference on 1,000 rows via edge worker...</p>
+            </div>
+          )}
+
+          {/* Results */}
+          {batchResults && (
+            <div className="space-y-4">
+              {/* Stats bar */}
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { label: 'Total Rows', value: batchResults.rowCount.toLocaleString(), color: 'text-ah-primary' },
+                  { label: 'Scored', value: batchResults.scoredCount.toLocaleString(), color: 'text-green-400' },
+                  { label: 'High Risk', value: batchResults.preview.filter(r => r.risk === 'High').length, color: 'text-red-400' },
+                ].map(stat => (
+                  <div key={stat.label} className="bg-ah-surface border border-ah rounded-2xl p-4 text-center">
+                    <p className={`font-headline text-2xl font-extrabold ${stat.color}`}>{stat.value}</p>
+                    <p className="text-[11px] text-ah-subtle font-mono uppercase mt-0.5">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Preview table */}
+              <div className="bg-ah-surface border border-ah rounded-2xl overflow-hidden">
+                <div className="p-4 border-b border-ah flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Table2 size={15} className="text-ah-primary" />
+                    <h3 className="font-headline font-bold text-sm">Preview — First 5 Scored Rows</h3>
+                  </div>
+                  <button
+                    onClick={handleDownloadResults}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white text-xs font-semibold transition-all shadow-ah-glow"
+                  >
+                    <FileDown size={13} /> Download Scored CSV
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs font-mono">
+                    <thead className="bg-ah-surface2 text-ah-muted border-b border-ah">
+                      <tr>
+                        {['customer_id', 'plan_tier', 'monthly_spend', 'prediction_score', 'risk_label'].map(h => (
+                          <th key={h} className="px-4 py-3 text-left font-semibold uppercase tracking-wider text-[10px]">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-ah">
+                      {batchResults.preview.map((row, i) => (
+                        <tr key={i} className="hover:bg-ah-surface2/40 transition-colors">
+                          <td className="px-4 py-3 text-ah-text font-semibold">{row.customer_id}</td>
+                          <td className="px-4 py-3 text-ah-muted">{row.plan_tier}</td>
+                          <td className="px-4 py-3 text-ah-text">${row.monthly_spend.toFixed(2)}</td>
+                          <td className="px-4 py-3">
+                            <span className={`font-bold ${row.prediction_score > 0.5 ? 'text-red-400' : 'text-green-400'}`}>
+                              {(row.prediction_score * 100).toFixed(1)}%
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                              row.risk === 'High'
+                                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                            }`}>{row.risk} Risk</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="p-3 bg-ah-surface2/50 border-t border-ah">
+                  <p className="text-[11px] text-ah-subtle font-mono">Full scored dataset — {batchResults.rowCount.toLocaleString()} rows — available in download</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Instruction steps when no file yet */}
+          {!batchFile && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { step: '01', icon: '📤', title: 'Upload CSV', desc: 'Drag & drop your leads, customers, or transactions file above.' },
+                { step: '02', icon: '⚙️', title: 'Auto-Score', desc: 'RefineIQ runs all rows through your live XGBoost model instantly.' },
+                { step: '03', icon: '📥', title: 'Download', desc: 'Get back your original CSV with prediction_score column appended.' },
+              ].map(s => (
+                <div key={s.step} className="bg-ah-surface border border-ah rounded-2xl p-4 flex items-start gap-3">
+                  <span className="text-2xl">{s.icon}</span>
+                  <div>
+                    <p className="text-[10px] font-mono text-ah-subtle mb-0.5">Step {s.step}</p>
+                    <p className="font-semibold text-sm text-ah-text">{s.title}</p>
+                    <p className="text-xs text-ah-muted mt-0.5">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
+
   )
 }
