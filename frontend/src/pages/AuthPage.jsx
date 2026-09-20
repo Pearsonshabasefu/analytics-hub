@@ -212,12 +212,15 @@ export default function AuthPage() {
         }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) throw error
+        if (error) {
+          setError(`${error.message}. Tip: Click "Auto-Fill & Sign In" below or "Launch Demo ⚡" for immediate access.`)
+          return
+        }
         setUser(data.user)
         navigate('/dashboard')
       }
     } catch (err) {
-      setError(err.message)
+      setError(`${err.message}. Tip: Click "Auto-Fill & Sign In" below or "Launch Demo ⚡" for immediate access.`)
     } finally {
       setLoading(false)
     }
@@ -246,10 +249,25 @@ export default function AuthPage() {
     }
   }
 
-  // Demo Mode — instant authentication with full pre-loaded sample data
-  const handleDemoLogin = () => {
+  // Demo Mode — instant real Supabase authentication with client fallback
+  const handleDemoLogin = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: 'demo.analyst@refineiq.ai',
+        password: 'DemoPassword2026!',
+      })
+      if (!error && data?.user) {
+        setUser(data.user)
+        navigate('/dashboard')
+        return
+      }
+    } catch (_) {}
+
+    // Immediate client fallback session
     setUser({
-      id: 'demo-user-2026',
+      id: '4da6fa13-d1d3-47f6-92fa-c94114317579',
       email: 'demo.analyst@refineiq.ai',
       user_metadata: { full_name: 'Demo Analyst' },
       isDemo: true,
@@ -260,6 +278,8 @@ export default function AuthPage() {
   const handlePrefillDemo = () => {
     setEmail('demo.analyst@refineiq.ai')
     setPassword('DemoPassword2026!')
+    setIsSignUp(false)
+    setError('')
   }
 
   return (

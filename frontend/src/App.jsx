@@ -48,7 +48,9 @@ function AppInner() {
         const saved = localStorage.getItem('refineiq_auth_user')
         try {
           const parsed = saved ? JSON.parse(saved) : null
-          if (!parsed?.isDemo) {
+          if (parsed?.isDemo) {
+            setUser(parsed)
+          } else {
             setUser(null)
           }
         } catch (_) {
@@ -65,7 +67,9 @@ function AppInner() {
         const saved = localStorage.getItem('refineiq_auth_user')
         try {
           const parsed = saved ? JSON.parse(saved) : null
-          if (!parsed?.isDemo) {
+          if (parsed?.isDemo) {
+            setUser(parsed)
+          } else {
             setUser(null)
           }
         } catch (_) {
