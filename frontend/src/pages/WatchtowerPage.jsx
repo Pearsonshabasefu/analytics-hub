@@ -48,26 +48,26 @@ export default function WatchtowerPage() {
   return (
     <div className="min-h-screen bg-ah-bg text-ah-text">
       {/* Top Navbar */}
-      <header className="glass border-b border-ah px-6 h-14 flex items-center justify-between sticky top-0 z-30">
+      <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 h-16 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/dashboard')}
-            className="text-ah-muted hover:text-ah-text flex items-center gap-1.5 text-sm transition-colors"
+            className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 text-sm transition-colors"
           >
             <ChevronLeft size={16} /> Dashboard
           </button>
-          <div className="h-4 w-px bg-ah-border" />
-          <div className="flex items-center gap-2 text-sm text-ah-muted">
-            <button onClick={() => navigate(`/project/${projectId}/ingest`)} className="hover:text-ah-text transition-colors">01 Connect</button>
+          <div className="h-4 w-px bg-slate-200 dark:bg-slate-700" />
+          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <button onClick={() => navigate(`/project/${projectId}/ingest`)} className="hover:text-slate-900 dark:hover:text-white transition-colors">01 Connect</button>
             <ArrowRight size={12} />
-            <button onClick={() => navigate(`/project/${projectId}/refinery`)} className="hover:text-ah-text transition-colors">02 Clean</button>
+            <button onClick={() => navigate(`/project/${projectId}/refinery`)} className="hover:text-slate-900 dark:hover:text-white transition-colors">02 Clean</button>
             <ArrowRight size={12} />
-            <button onClick={() => navigate(`/project/${projectId}/studio`)} className="hover:text-ah-text transition-colors">03 Model</button>
+            <button onClick={() => navigate(`/project/${projectId}/studio`)} className="hover:text-slate-900 dark:hover:text-white transition-colors">03 Model</button>
             <ArrowRight size={12} />
-            <button onClick={() => navigate(`/project/${projectId}/deploy`)} className="hover:text-ah-text transition-colors">04 Deploy</button>
+            <button onClick={() => navigate(`/project/${projectId}/deploy`)} className="hover:text-slate-900 dark:hover:text-white transition-colors">04 Deploy</button>
             <ArrowRight size={12} />
             <span className="text-ah-primary font-semibold flex items-center gap-1.5">
-              <Radio size={14} className="text-green-400 animate-pulse" />
+              <Radio size={14} className="text-green-500 dark:text-green-400 animate-pulse" />
               05 Watchtower
             </span>
           </div>
@@ -76,17 +76,17 @@ export default function WatchtowerPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={handleSimulatePing}
-            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white shadow-ah-glow transition-all"
+            className="flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white shadow-ah-glow transition-all"
           >
             <Zap size={13} />
             Simulate Traffic Ping
           </button>
           <button
             onClick={() => setAlertsEnabled(!alertsEnabled)}
-            className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all ${
+            className={`flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl border transition-all ${
               alertsEnabled
                 ? 'bg-ah-primary/15 border-ah-primary/40 text-ah-primary'
-                : 'bg-ah-surface2 border-ah text-ah-subtle'
+                : 'bg-white border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'
             }`}
           >
             <Bell size={13} />
@@ -94,7 +94,7 @@ export default function WatchtowerPage() {
           </button>
           <button
             onClick={() => navigate(`/project/${projectId}/deploy`)}
-            className="text-xs text-ah-muted hover:text-ah-text px-3 py-1.5 rounded-xl bg-ah-surface2 border border-ah"
+            className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white px-3.5 py-2 rounded-xl bg-white border border-slate-200 dark:bg-slate-800 dark:border-slate-700 transition-colors"
           >
             API Docs
           </button>
@@ -102,24 +102,24 @@ export default function WatchtowerPage() {
       </header>
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 pt-12 md:pt-16 pb-32">
         {/* Header Title */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div>
             <p className="text-ah-primary font-mono text-xs uppercase tracking-widest mb-1">Step 05 — Production Telemetry</p>
-            <h1 className="font-headline text-3xl font-bold flex items-center gap-3">
+            <h1 className="font-headline text-3xl font-bold flex items-center gap-3 text-slate-900 dark:text-white">
               Watchtower Pulse Monitor
-              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/30 text-green-400 font-semibold flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
+              <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/30 text-green-600 dark:text-green-400 font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400 animate-ping" />
                 ● Live Production
               </span>
             </h1>
-            <p className="text-ah-muted text-sm mt-1">Real-time latency metrics, automated data drift surveillance, and inference telemetry streams.</p>
+            <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">Real-time latency metrics, automated data drift surveillance, and inference telemetry streams.</p>
           </div>
 
           <button
             onClick={handleSimulatePing}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-ah-surface border border-ah hover:border-ah-primary text-ah-text font-mono text-xs transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-800 hover:border-ah-primary dark:bg-slate-800 dark:border-slate-700 dark:text-white font-mono text-xs transition-all shadow-sm"
           >
             <RefreshCw size={14} className="text-ah-primary" />
             Inject Live Request Event
@@ -129,62 +129,62 @@ export default function WatchtowerPage() {
         {/* 4 Metric Pulse Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           {/* Uptime */}
-          <div className="bg-ah-surface border border-ah rounded-2xl p-5 shadow-ah-card">
-            <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Service SLA Uptime</p>
+          <div className="bg-white border border-slate-200 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white rounded-2xl p-5 shadow-ah-card">
+            <p className="text-xs font-mono uppercase text-slate-500 dark:text-slate-400 mb-1">Service SLA Uptime</p>
             <div className="flex items-baseline justify-between">
-              <span className="font-headline text-3xl font-extrabold text-green-400">99.98%</span>
-              <span className="text-[11px] font-mono text-green-400/80 bg-green-500/10 px-1.5 py-0.5 rounded">
+              <span className="font-headline text-3xl font-extrabold text-green-500 dark:text-green-400">99.98%</span>
+              <span className="text-[11px] font-mono text-green-600 dark:text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded font-semibold">
                 SLA Met
               </span>
             </div>
-            <p className="text-[11px] text-ah-subtle mt-3">Zero downtime in last 30 days</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-3">Zero downtime in last 30 days</p>
           </div>
 
           {/* Average Latency */}
-          <div className="bg-ah-surface border border-ah rounded-2xl p-5 shadow-ah-card">
-            <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Inference Latency</p>
+          <div className="bg-white border border-slate-200 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white rounded-2xl p-5 shadow-ah-card">
+            <p className="text-xs font-mono uppercase text-slate-500 dark:text-slate-400 mb-1">Inference Latency</p>
             <div className="flex items-baseline justify-between">
               <span className="font-headline text-3xl font-extrabold text-ah-primary">8.4 ms</span>
-              <span className="text-[11px] font-mono text-ah-subtle">p95: 12.1ms</span>
+              <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">p95: 12.1ms</span>
             </div>
-            <p className="text-[11px] text-ah-subtle mt-3">Global edge serverless warm cache</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-3">Global edge serverless warm cache</p>
           </div>
 
           {/* Inferences */}
-          <div className="bg-ah-surface border border-ah rounded-2xl p-5 shadow-ah-card">
-            <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Total Inferences</p>
+          <div className="bg-white border border-slate-200 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white rounded-2xl p-5 shadow-ah-card">
+            <p className="text-xs font-mono uppercase text-slate-500 dark:text-slate-400 mb-1">Total Inferences</p>
             <div className="flex items-baseline justify-between">
-              <span className="font-headline text-3xl font-extrabold text-ah-text">{totalInferences.toLocaleString()}</span>
-              <span className="text-[11px] font-mono text-green-400 flex items-center">
+              <span className="font-headline text-3xl font-extrabold text-slate-900 dark:text-white">{totalInferences.toLocaleString()}</span>
+              <span className="text-[11px] font-mono text-green-600 dark:text-green-400 flex items-center font-semibold">
                 +14% <ArrowUpRight size={12} />
               </span>
             </div>
-            <p className="text-[11px] text-ah-subtle mt-3">Peak: 42 req/sec across 8 regions</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-3">Peak: 42 req/sec across 8 regions</p>
           </div>
 
           {/* Drift Score */}
-          <div className="bg-ah-surface border border-ah rounded-2xl p-5 shadow-ah-card">
-            <p className="text-xs font-mono uppercase text-ah-subtle mb-1">Population Drift Index (PSI)</p>
+          <div className="bg-white border border-slate-200 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white rounded-2xl p-5 shadow-ah-card">
+            <p className="text-xs font-mono uppercase text-slate-500 dark:text-slate-400 mb-1">Population Drift Index (PSI)</p>
             <div className="flex items-baseline justify-between">
-              <span className="font-headline text-3xl font-extrabold text-green-400">0.038</span>
-              <span className="text-[11px] font-mono text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded">
+              <span className="font-headline text-3xl font-extrabold text-green-500 dark:text-green-400">0.038</span>
+              <span className="text-[11px] font-mono text-green-600 dark:text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded font-semibold">
                 Stable
               </span>
             </div>
-            <p className="text-[11px] text-ah-subtle mt-3">Automated threshold: 0.15 PSI</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-3">Automated threshold: 0.15 PSI</p>
           </div>
         </div>
 
         {/* Live Stream Table */}
-        <div className="bg-ah-surface border border-ah rounded-2xl overflow-hidden shadow-ah-card">
-          <div className="p-4 border-b border-ah flex items-center justify-between bg-ah-surface2/40">
+        <div className="bg-white border border-slate-200 text-slate-900 dark:bg-slate-800 dark:border-slate-700 dark:text-white rounded-2xl overflow-hidden shadow-ah-card">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800/60">
             <div className="flex items-center gap-2">
               <Activity size={16} className="text-ah-primary" />
-              <h3 className="font-headline font-bold text-sm">Live Inference Activity Stream</h3>
+              <h3 className="font-headline font-bold text-sm text-slate-900 dark:text-white">Live Inference Activity Stream</h3>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs font-mono text-ah-subtle flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-ping" />
+              <span className="text-xs font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400 animate-ping" />
                 Live socket connected
               </span>
               <button
@@ -198,7 +198,7 @@ export default function WatchtowerPage() {
 
           <div className="overflow-x-auto">
             <table className="w-full text-xs font-mono text-left">
-              <thead className="bg-ah-surface2 text-ah-muted border-b border-ah">
+              <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Event ID</th>
                   <th className="px-4 py-3 font-semibold">Timestamp</th>
@@ -208,30 +208,30 @@ export default function WatchtowerPage() {
                   <th className="px-4 py-3 font-semibold">Latency</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-ah">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
                 {logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-ah-surface2/50 transition-colors">
-                    <td className="px-4 py-3 text-ah-subtle">{log.id}</td>
-                    <td className="px-4 py-3 text-ah-muted">{log.time}</td>
-                    <td className="px-4 py-3 text-ah-text font-mono truncate max-w-xs">{log.inputs}</td>
+                  <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{log.id}</td>
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{log.time}</td>
+                    <td className="px-4 py-3 text-slate-800 dark:text-slate-200 font-mono truncate max-w-xs">{log.inputs}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
                         log.prediction === 'Churned'
-                          ? 'bg-red-500/15 text-red-400 border border-red-500/30'
-                          : 'bg-green-500/15 text-green-400 border border-green-500/30'
+                          ? 'bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30'
+                          : 'bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/30'
                       }`}>
                         {log.prediction}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-ah-text font-semibold">{log.confidence}</td>
-                    <td className="px-4 py-3 text-ah-muted">{log.latency}</td>
+                    <td className="px-4 py-3 text-slate-900 dark:text-white font-semibold">{log.confidence}</td>
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 font-bold">{log.latency}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
