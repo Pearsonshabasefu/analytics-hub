@@ -1,10 +1,10 @@
-# Analytics Hub (MVP)
+# Refine IQ (MVP)
 
 > The AI-native workspace for secure, high-speed data analytics.
 
 ## Overview
 
-Analytics Hub is an AI-native data platform designed for solo experts and small teams. It replaces hours of manual data preparation and model configuration with an automated, agentic workflow. We prioritize **Privacy (PII Masking)** and **Financial Predictability (OCU Cost Forecasts)** so you can focus on insights, not infrastructure.
+Refine IQ is an AI-native data platform designed for solo experts and small teams. It replaces hours of manual data preparation and model configuration with an automated, agentic workflow. We prioritize **Privacy (PII Masking)** and **Financial Predictability (OCU Cost Forecasts)** so you can focus on insights, not infrastructure.
 
 **Tagline:** _"The Intelligence in Your Data, Unleashed"_
 
@@ -77,7 +77,7 @@ analytics-hub/
 
 ## Privacy & Security
 
-Analytics Hub includes a built-in **Privacy Shield**. Before data reaches the Model Studio, it is scanned and masked for PII (Emails, Phone Numbers, Credit Cards) using Microsoft Presidio to ensure your workflows remain compliant with 2026 data standards.
+Refine IQ includes a built-in **Privacy Shield**. Before data reaches the Model Studio, it is scanned and masked for PII (Emails, Phone Numbers, Credit Cards) using Microsoft Presidio to ensure your workflows remain compliant with 2026 data standards.
 
 All API keys are stored in Supabase Vault (encrypted). Row Level Security (RLS) ensures users can never access each other's data.
 
