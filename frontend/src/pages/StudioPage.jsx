@@ -149,7 +149,7 @@ export default function StudioPage() {
   // Optionally load live global explainability data from backend
   useEffect(() => {
     if (projectId) {
-      apiClient.get(`/studio/${projectId}/models/mod_xgb_1/explainability`)
+      apiClient.get(`/api/studio/${projectId}/models/mod_xgb_1/explainability`)
         .then((res) => {
           if (res.data && res.data.mean_abs_shap) {
             setShapData(res.data)
