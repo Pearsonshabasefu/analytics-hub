@@ -52,3 +52,7 @@ htmlcov/
 # Large Archives
 *.zip
 *.tar.gz
+
+# Playwright Test Artifacts
+playwright-report/
+test-results/

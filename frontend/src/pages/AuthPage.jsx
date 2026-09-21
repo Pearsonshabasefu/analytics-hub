@@ -176,7 +176,10 @@ export default function AuthPage() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${redirectBase}/dashboard` },
+        options: {
+          redirectTo: `${redirectBase}/dashboard`,
+          scopes: provider === 'azure' ? 'email openid profile' : undefined,
+        },
       })
       if (error) {
         if (

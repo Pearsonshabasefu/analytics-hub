@@ -30,9 +30,10 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str = ""
     RESEND_FROM_EMAIL: str = "alerts@analyticshub.ai"
 
-    # Flutterwave (Billing / OCU top-ups)
-    FLUTTERWAVE_SECRET_KEY: str = ""
-    FLUTTERWAVE_PUBLIC_KEY: str = ""
+    # Payment Processing (Stripe / Multi-gateway)
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_PUBLISHABLE_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
 
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:5173"]

@@ -7,27 +7,41 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { useThemeStore } from '../store/themeStore'
-import { useFlutterwaveCheckout } from '../hooks/useFlutterwaveCheckout'
+import { useSecureCheckout } from '../hooks/useSecureCheckout'
 import PaymentReceiptModal from '../components/common/PaymentReceiptModal'
+import RefineIQCheckoutModal from '../components/common/RefineIQCheckoutModal'
 
-// ── Per-package top-up button (hook must be called at component level) ────────
+// ── Per-package top-up button ──────────────────────────────────────────
 function TopUpButton({ pkg, onSuccess }) {
-  const [loading, setLoading] = useState(false)
-
-  const openCheckout = useFlutterwaveCheckout(
-    { id: pkg.id, label: pkg.label, ocus: pkg.ocus, amount: parseFloat(pkg.price.replace('$', '')) },
-    (data) => { setLoading(false); onSuccess?.(pkg, data) },
-    () => setLoading(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const { openCheckout, loading } = useSecureCheckout(
+    { id: pkg.id, label: pkg.label, ocus: pkg.ocus, price: pkg.price },
+    (data) => {
+      setModalOpen(false)
+      onSuccess?.(pkg, data)
+    },
+    () => setModalOpen(false)
   )
 
   return (
-    <button
-      onClick={() => { setLoading(true); openCheckout() }}
-      disabled={loading}
-      className="w-full py-2 rounded-xl bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah hover:border-ah-primary text-xs font-semibold transition-all mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
-    >
-      {loading ? 'Opening checkout…' : 'Top-Up Now'}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={() => setModalOpen(true)}
+        disabled={loading}
+        className="w-full py-2 rounded-xl bg-ah-surface2 hover:bg-ah-primary hover:text-white border border-ah hover:border-ah-primary text-xs font-semibold transition-all mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        Top-Up Now
+      </button>
+
+      <RefineIQCheckoutModal
+        pkg={pkg}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={(opts) => openCheckout(opts)}
+        loading={loading}
+      />
+    </>
   )
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -88,7 +102,7 @@ export default function SettingsPage() {
 
     const receiptObj = {
       tx_ref: data?.tx_ref || `RIQ-TX-${Date.now()}`,
-      transaction_id: data?.transaction_id || `FLW-${Math.floor(100000000 + Math.random() * 900000000)}`,
+      transaction_id: data?.transaction_id || `TXN-${Math.floor(100000000 + Math.random() * 900000000)}`,
       amount: parseFloat(pkg.price.replace('$', '')),
       currency: data?.currency || 'USD',
       ocus: pkg.ocus,

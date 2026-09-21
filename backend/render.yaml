@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: refineiq-api
+    runtime: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: SUPABASE_URL
+        value: https://ianfedrnvinptcnjnxgq.supabase.co
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        value: sb_publishable_2-awLWVz6r3EFvuH3p2a8A__ZiGWkwk
+      - key: CORS_ORIGINS
+        value: '["https://refineiq.vercel.app", "http://localhost:5173"]'
