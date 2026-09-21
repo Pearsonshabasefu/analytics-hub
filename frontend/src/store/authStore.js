@@ -8,9 +8,11 @@ const getSavedUser = () => {
   return null
 }
 
+const initialUser = getSavedUser()
+
 export const useAuthStore = create((set) => ({
-  user: getSavedUser(),
-  loading: false,
+  user: initialUser,
+  loading: !initialUser,
   setUser: (user) => {
     try {
       if (user) {
@@ -19,8 +21,9 @@ export const useAuthStore = create((set) => ({
         localStorage.removeItem('refineiq_auth_user')
       }
     } catch (_) {}
-    set({ user })
+    set({ user, loading: false })
   },
   setLoading: (loading) => set({ loading }),
 }))
+
 

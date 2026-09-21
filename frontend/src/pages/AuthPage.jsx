@@ -76,8 +76,14 @@ function SocialBtn({ icon, label, onClick, disabled, badge }) {
 // ── Main Component ───────────────────────────────────────────────────
 export default function AuthPage() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const { setUser } = useAuthStore()
+  const { user, setUser } = useAuthStore()
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [user, navigate])
 
   const searchParams = new URLSearchParams(location.search)
   const initialMode = searchParams.get('mode') // 'signin' | 'signup'
