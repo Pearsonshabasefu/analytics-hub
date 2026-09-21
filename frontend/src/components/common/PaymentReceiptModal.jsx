@@ -4,7 +4,7 @@ import Logo from './Logo'
 
 /**
  * PaymentReceiptModal
- * Shows a professional, printable invoice/receipt upon Flutterwave payment confirmation.
+ * Shows a professional, printable invoice/receipt upon payment confirmation.
  */
 export default function PaymentReceiptModal({ receipt, onClose }) {
   const printRef = useRef(null)
@@ -25,7 +25,7 @@ export default function PaymentReceiptModal({ receipt, onClose }) {
     date = new Date().toLocaleString(),
     customerEmail = 'customer@refineiq.ai',
     customerName = 'Valued Customer',
-    paymentMethod = 'Flutterwave Checkout (Card / Mobile Money)',
+    paymentMethod = 'Credit / Debit Card or Mobile Money',
   } = receipt
 
   return (
@@ -152,7 +152,7 @@ export default function PaymentReceiptModal({ receipt, onClose }) {
           <div className="border-t border-zinc-800 pt-4 flex items-center justify-between text-[11px] text-zinc-500">
             <div className="flex items-center gap-1.5">
               <ShieldCheck size={14} className="text-emerald-400" />
-              <span>Secured by Flutterwave Enterprise</span>
+              <span>Secured with 256-Bit SSL Encryption</span>
             </div>
             <span className="font-mono text-[10px]">ID: {transaction_id}</span>
           </div>

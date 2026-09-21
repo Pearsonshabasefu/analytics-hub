@@ -312,7 +312,7 @@ function FinnovaProductUI() {
               {activeNavPill === 'pipelines' && 'End-to-end visual workflow from raw CSV ingest to live serverless deployment.'}
               {activeNavPill === 'endpoints' && 'Autoscaling serverless REST endpoints ready for curl, Python, and JavaScript.'}
               {activeNavPill === 'watchtower' && 'Surveillance for distribution drift, accuracy degradation, and data anomalies.'}
-              {activeNavPill === 'billing' && 'Usage-based Operations Compute Units (OCUs) powered by Flutterwave.'}
+              {activeNavPill === 'billing' && 'Usage-based Operations Compute Units (OCUs) with instant top-ups.'}
             </p>
           </div>
         </div>
@@ -496,7 +496,7 @@ function FinnovaProductUI() {
               <span>~18 hours of training left</span>
             </div>
             <div className="text-[11px] text-gray-500 mt-1">
-              Gateway: <span className="font-semibold text-indigo-600">Flutterwave (Active)</span>
+              Gateway: <span className="font-semibold text-indigo-600">Secure Checkout (Active)</span>
             </div>
           </div>
           <div className="mt-3 flex items-center justify-between gap-2">
@@ -1054,7 +1054,7 @@ function FinnovaProductUI() {
             <div>
               <h4 className="font-extrabold text-sm tracking-tight text-white flex items-center gap-2">
                 <Zap size={16} className="text-[#00F2FE]" />
-                Operations Compute Units (OCUs) & Flutterwave
+                Operations Compute Units (OCUs) & Billing
               </h4>
               <p className="text-[11px] text-gray-400 mt-0.5">Pay only for the compute consumed during training and inference.</p>
             </div>
@@ -1077,11 +1077,11 @@ function FinnovaProductUI() {
               <span className="text-[11px] font-mono text-gray-400 uppercase">Usage This Cycle</span>
               <div className="font-extrabold text-2xl text-cyan-300 font-mono">14.2 OCUs</div>
               <p className="text-xs text-gray-300">AutoML: 65% • Serving: 25% • Clean: 10%</p>
-              <p className="text-[10px] text-gray-500">Cost: $1.42 billed via Flutterwave.</p>
+              <p className="text-[10px] text-gray-500">Cost: $1.42 billed on compute usage.</p>
             </div>
             <div className="p-4 rounded-xl bg-[#181A32] border border-white/10 space-y-2">
               <span className="text-[11px] font-mono text-gray-400 uppercase">Payment Method</span>
-              <div className="font-extrabold text-base text-white">Flutterwave Gateway</div>
+              <div className="font-extrabold text-base text-white">Secure Gateway</div>
               <p className="text-xs text-gray-300 font-mono">CARD •••• 4242</p>
               <p className="text-[10px] text-emerald-400">PCI-DSS Level 1 Encrypted</p>
             </div>
@@ -1264,8 +1264,8 @@ export default function LandingPage() {
       a: "Yes. In addition to our hosted sub-20ms API endpoints, Pro and Enterprise tiers allow you to export trained weights as standard ONNX or Scikit-Learn/XGBoost artifacts to run locally in your own VPC."
     },
     {
-      q: "How do payments work with Flutterwave?",
-      a: "We partner with Flutterwave to offer secure global payments across credit/debit cards, bank transfers, and African mobile money (including Zambia, Nigeria, Kenya, Ghana, South Africa). Instant payment confirmation and tax-compliant receipts are provided immediately."
+      q: "How does billing and payment work?",
+      a: "We offer secure global payments across credit/debit cards, bank transfers, and mobile money. Instant payment confirmation and tax-compliant receipts are provided immediately."
     }
   ]
 
@@ -1624,7 +1624,7 @@ export default function LandingPage() {
             Simple pay-as-you-go compute units.
           </h2>
           <p className="text-zinc-400 text-sm mt-3">
-            No monthly lock-ins. Top up Operations Compute Units (OCUs) via Flutterwave whenever you need to train or deploy.
+            No monthly lock-ins. Top up Operations Compute Units (OCUs) whenever you need to train or deploy.
           </p>
         </div>
 
@@ -1940,7 +1940,7 @@ export default function LandingPage() {
             <p className="font-bold font-mono uppercase text-zinc-300 text-[11px]">Billing & Docs</p>
             <ul className="space-y-2">
               <li><Link to="/pricing" className="hover:text-zinc-300 transition-colors">Pricing & OCU Tiers</Link></li>
-              <li><Link to="/settings" className="hover:text-zinc-300 transition-colors">Flutterwave Top-Up</Link></li>
+              <li><Link to="/settings" className="hover:text-zinc-300 transition-colors">OCU Top-Up</Link></li>
               <li><a href="#how-it-works" className="hover:text-zinc-300 transition-colors">Architecture Guide</a></li>
               <li><a href="mailto:support@refineiq.ai" className="hover:text-zinc-300 transition-colors">Technical Support</a></li>
             </ul>

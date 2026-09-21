@@ -96,7 +96,7 @@ export default function SettingsPage() {
       date: new Date().toLocaleString(),
       customerEmail: user?.email || 'customer@refineiq.ai',
       customerName: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'RefineIQ Member',
-      paymentMethod: data?.payment_type ? `Flutterwave (${data.payment_type.toUpperCase()})` : 'Flutterwave Checkout',
+      paymentMethod: data?.payment_type ? `Card / Mobile (${data.payment_type.toUpperCase()})` : 'Card / Mobile Checkout',
       status: 'successful'
     }
 
@@ -173,7 +173,7 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 px-3 py-1.5 rounded-xl text-xs font-mono">
-                      <span>Gateway: Flutterwave</span>
+                      <span>Gateway: Active & Secured</span>
                     </div>
                   </div>
                 </div>
@@ -284,7 +284,7 @@ export default function SettingsPage() {
 
                 {/* Top-up Packages */}
                 <div>
-                  <h3 className="font-headline font-bold text-base mb-3">Top-Up OCUs via Flutterwave</h3>
+                  <h3 className="font-headline font-bold text-base mb-3">Top-Up OCUs</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {packages.map((pkg) => (
                       <div

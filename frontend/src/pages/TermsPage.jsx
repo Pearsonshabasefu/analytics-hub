@@ -59,7 +59,7 @@ export default function TermsPage() {
           <div className="bg-ah-surface border border-ah rounded-2xl p-4.5">
             <Cpu size={20} className="text-green-400 mb-2" />
             <h4 className="font-headline font-bold text-sm mb-1">OCU Metering</h4>
-            <p className="text-xs text-ah-muted">Pay-as-you-go compute units processed via secure Flutterwave gateways.</p>
+            <p className="text-xs text-ah-muted">Pay-as-you-go compute units processed via secure payment gateways.</p>
           </div>
         </div>
 
@@ -88,9 +88,9 @@ export default function TermsPage() {
               The Service operates on seat subscriptions and usage-based <strong>Operations Compute Units (OCUs)</strong>. OCUs quantify computing resources consumed during data profiling, distributed cloud training, and micro-instance hosting.
             </p>
             <ul className="list-disc list-inside space-y-1.5 pl-2 text-ah-text">
-              <li><strong>Payment Gateway:</strong> All credit top-ups and recurring subscriptions are processed via <strong>Flutterwave</strong> in your designated currency.</li>
+              <li><strong>Payment Gateway:</strong> All credit top-ups and recurring subscriptions are processed via our authorized payment gateway in your designated currency.</li>
               <li><strong>Spend Guardrails:</strong> Users may specify maximum spend caps per training run in their workspace settings.</li>
-              <li><strong>Auto Top-Up:</strong> If toggled active, the platform will automatically charge your saved Flutterwave payment method for 50 OCUs when your balance falls below 10 OCUs.</li>
+              <li><strong>Auto Top-Up:</strong> If toggled active, the platform will automatically charge your saved payment method for 50 OCUs when your balance falls below 10 OCUs.</li>
               <li><strong>No Refunds:</strong> Except where required by mandatory consumer statutes, all purchased compute units and subscription fees are non-refundable.</li>
             </ul>
           </section>

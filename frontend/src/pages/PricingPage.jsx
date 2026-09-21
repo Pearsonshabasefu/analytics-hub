@@ -92,7 +92,7 @@ export default function PricingPage() {
             Pay Only for the Compute You Use
           </h1>
           <p className="text-ah-muted text-base">
-            No monthly lock-ins. Top up Operations Compute Units (OCUs) via Flutterwave whenever you need to train or deploy.
+            No monthly lock-ins. Top up Operations Compute Units (OCUs) whenever you need to train or deploy.
           </p>
         </div>
 
@@ -147,7 +147,7 @@ export default function PricingPage() {
 
         {/* Trust banner */}
         <div className="bg-ah-surface border border-ah rounded-2xl p-6 text-center text-xs text-ah-subtle">
-          Payments processed securely via <strong className="text-ah-text">Flutterwave</strong>. Supported in 30+ currencies (USD, NGN, KES, GHS, ZAR, EUR, GBP).
+          Payments processed securely with instant confirmation. Supported in 30+ currencies (USD, EUR, GBP, NGN, KES, ZAR).
         </div>
       </div>
     </div>

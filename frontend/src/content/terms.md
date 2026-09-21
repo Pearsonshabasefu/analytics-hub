@@ -29,7 +29,7 @@ RefineIQ provides a cloud-native B2B data science automation and automated machi
 
 3.1. **Pricing Structure:** The Service operates on a hybrid model comprising seat-based subscription tiers and usage-based **Operations Compute Units (OCUs)** consumed during automated data transformations, distributed model training runs, and inference serving.
 
-3.2. **Payment Processing:** All payments, subscriptions, and one-time OCU top-ups are processed securely through our authorized payment gateway partners, including **Flutterwave**. By initiating transactions, you authorize RefineIQ and Flutterwave to charge your designated payment instrument in your selected currency.
+3.2. **Payment Processing:** All payments, subscriptions, and one-time OCU top-ups are processed securely through our authorized payment gateway partners. By initiating transactions, you authorize RefineIQ and our payment processors to charge your designated payment instrument in your selected currency.
 
 3.3. **OCU Metering & Depletion:**
 - Each AutoML training cycle, data transformation job, and model deployment draws against your available OCU balance.

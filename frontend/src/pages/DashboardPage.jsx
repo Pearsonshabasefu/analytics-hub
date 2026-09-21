@@ -530,7 +530,7 @@ export default function DashboardPage() {
               OCU Usage This Week
             </p>
             <p className="font-headline text-2xl font-extrabold text-slate-900 dark:text-white">14.2 OCUs</p>
-            <p className="text-[11px] text-ah-primary font-mono mb-3">~$1.42 billed via Flutterwave</p>
+            <p className="text-[11px] text-ah-primary font-mono mb-3">~$1.42 billed on compute usage</p>
             <svg viewBox="0 0 120 40" className="w-full h-10">
               {[8, 14, 6, 18, 10, 12, 14].map((h, i) => (
                 <rect
