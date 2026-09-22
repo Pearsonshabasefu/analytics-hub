@@ -132,7 +132,7 @@ export default function PricingPage() {
               </div>
 
               <button
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate(user ? '/settings' : '/auth')}
                 className={`w-full py-3 rounded-xl text-sm font-semibold transition-all ${
                   tier.highlighted
                     ? 'bg-ah-primary hover:bg-[var(--color-primary-dim)] text-white shadow-ah-glow'
@@ -147,7 +147,7 @@ export default function PricingPage() {
 
         {/* Trust banner */}
         <div className="bg-ah-surface border border-ah rounded-2xl p-6 text-center text-xs text-ah-subtle">
-          Payments processed securely with instant confirmation. Supported in 30+ currencies (USD, EUR, GBP, NGN, KES, ZAR).
+          Payments processed securely with instant confirmation. Supported in 30+ currencies (USD, EUR, GBP, ZMW, CAD, AUD, ZAR, KES, NGN).
         </div>
       </div>
     </div>

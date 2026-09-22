@@ -17,8 +17,10 @@ import PricingPage from './pages/PricingPage'
 import TermsPage from './pages/TermsPage'
 import PrivacyPage from './pages/PrivacyPage'
 import DpaPage from './pages/DpaPage'
+import CompliancePage from './pages/CompliancePage'
 import MagicEarWidget from './components/features/feedback/MagicEarWidget'
 import PwaInstallPrompt from './components/common/PwaInstallPrompt'
+import CookieConsentBanner from './components/common/CookieConsentBanner'
 
 // Session security
 import { useIdleTimeout } from './hooks/useIdleTimeout'
@@ -154,6 +156,7 @@ function AppInner() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/dpa" element={<DpaPage />} />
+        <Route path="/compliance" element={<CompliancePage />} />
 
         {/* Protected app routes */}
         <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
@@ -179,6 +182,9 @@ function AppInner() {
 
       {/* Global: PWA Desktop/Mobile Installation Prompt */}
       <PwaInstallPrompt />
+
+      {/* Global: Cookie Consent & Preference Banner */}
+      <CookieConsentBanner />
 
       {/* Global: Session expiry warning modal */}
       <SessionWarningModal

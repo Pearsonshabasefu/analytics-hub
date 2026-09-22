@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('RefineIQ Route Security & Middleware Interception Suite', () => {
   test.setTimeout(60000)
 
-  test('Public routes (Privacy, DPA) render cleanly without auth', async ({ page }) => {
+  test('Public routes (Privacy, DPA, Compliance) render cleanly without auth', async ({ page }) => {
     await page.goto('/privacy', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveURL(/.*privacy/)
     await expect(page.locator('h1')).toContainText('Global Privacy Policy')
@@ -11,6 +11,10 @@ test.describe('RefineIQ Route Security & Middleware Interception Suite', () => {
     await page.goto('/dpa', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveURL(/.*dpa/)
     await expect(page.locator('h1')).toContainText('Data Processing Agreement')
+
+    await page.goto('/compliance', { waitUntil: 'domcontentloaded' })
+    await expect(page).toHaveURL(/.*compliance/)
+    await expect(page.locator('h1')).toContainText('Enterprise Governance, Privacy & Security')
   })
 
   test('Standard protected route (/dashboard) intercepts unauthenticated sessions to /auth', async ({ page }) => {

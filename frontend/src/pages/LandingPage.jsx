@@ -1952,7 +1952,16 @@ export default function LandingPage() {
               <li><Link to="/terms" className="hover:text-zinc-300 transition-colors">Terms of Service</Link></li>
               <li><Link to="/privacy" className="hover:text-zinc-300 transition-colors">Privacy Policy (ZDPA / GDPR)</Link></li>
               <li><Link to="/dpa" className="hover:text-zinc-300 transition-colors">Data Processing Agreement (DPA)</Link></li>
-              <li><a href="mailto:legal@refineiq.ai" className="hover:text-zinc-300 transition-colors">Compliance & Security</a></li>
+              <li><Link to="/compliance" className="hover:text-zinc-300 transition-colors">Trust & Compliance Center</Link></li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent('refineiq-open-cookie-preferences'))}
+                  className="hover:text-zinc-300 transition-colors text-left"
+                >
+                  Cookie Preferences
+                </button>
+              </li>
             </ul>
           </div>
 

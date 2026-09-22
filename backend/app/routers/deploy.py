@@ -30,8 +30,8 @@ async def deploy_model(
         raise HTTPException(status_code=400, detail="Model training not complete yet")
 
     # Generate API endpoint + key
-    api_key = f"ah_{uuid.uuid4().hex}"
-    api_endpoint = f"https://api.analyticshub.ai/v1/predict/{model_id}"
+    api_key = f"riq_{uuid.uuid4().hex}"
+    api_endpoint = f"https://api.refineiq.ai/v1/predict/{model_id}"
 
     supabase.table("models").update({
         "is_deployed": True,

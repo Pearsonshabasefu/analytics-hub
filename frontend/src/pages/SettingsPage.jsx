@@ -69,7 +69,7 @@ export default function SettingsPage() {
     return [
       {
         tx_ref: 'RIQ-INIT-FREE-TIER',
-        transaction_id: 'FLW-ONBOARDING',
+        transaction_id: 'RIQ-ONBOARDING',
         amount: 0.00,
         currency: 'USD',
         ocus: 50,

@@ -167,10 +167,19 @@ export default function TermsPage() {
           <img src="/assets/logo.png" alt="" className="w-4 h-4 opacity-50" />
           <span>RefineIQ © 2026. All rights reserved.</span>
         </div>
-        <p>
+        <p className="flex items-center justify-center gap-3 flex-wrap">
           <Link to="/" className="hover:text-ah-text transition-colors">Home</Link> •{' '}
-          <Link to="/pricing" className="hover:text-ah-text transition-colors">Pricing</Link> •{' '}
-          <Link to="/terms" className="text-ah-primary">Terms of Service</Link>
+          <Link to="/compliance" className="hover:text-ah-text transition-colors text-ah-primary font-semibold">Trust Center</Link> •{' '}
+          <Link to="/privacy" className="hover:text-ah-text transition-colors">Privacy Policy</Link> •{' '}
+          <Link to="/dpa" className="hover:text-ah-text transition-colors">DPA</Link> •{' '}
+          <Link to="/terms" className="text-ah-primary">Terms</Link> •{' '}
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('refineiq-open-cookie-preferences'))}
+            className="hover:text-ah-text transition-colors underline"
+          >
+            Cookie Choices
+          </button>
         </p>
       </footer>
     </div>

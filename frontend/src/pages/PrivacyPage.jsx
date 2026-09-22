@@ -200,10 +200,18 @@ export default function PrivacyPage() {
         {/* Footer Nav */}
         <div className="mt-16 pt-8 border-t border-ah flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ah-muted">
           <p>© 2026 RefineIQ Inc. All rights reserved.</p>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
+            <Link to="/compliance" className="hover:text-ah-text transition-colors text-ah-primary font-semibold">Trust Center</Link>
             <Link to="/terms" className="hover:text-ah-text transition-colors">Terms of Service</Link>
             <Link to="/dpa" className="hover:text-ah-text transition-colors">Data Processing Agreement</Link>
             <Link to="/pricing" className="hover:text-ah-text transition-colors">Pricing</Link>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('refineiq-open-cookie-preferences'))}
+              className="hover:text-ah-text transition-colors underline"
+            >
+              Cookie Choices
+            </button>
           </div>
         </div>
       </main>

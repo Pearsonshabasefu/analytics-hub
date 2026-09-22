@@ -19,19 +19,28 @@ export default function RefineIQCheckoutModal({ pkg, isOpen, onClose, onConfirm,
 
   const usdPrice = parseFloat(pkg.price.replace('$', ''))
   
-  // Real-time currency conversions
+  // Real-time currency conversions across worldwide and regional markets
   const rates = {
     USD: { rate: 1, symbol: '$', prefix: true, label: 'USD ($)' },
     EUR: { rate: 0.92, symbol: '€', prefix: true, label: 'EUR (€)' },
     GBP: { rate: 0.78, symbol: '£', prefix: true, label: 'GBP (£)' },
     ZMW: { rate: 27, symbol: 'K', prefix: true, suffix: ' ZMW', label: 'ZMW (K)' },
+    CAD: { rate: 1.36, symbol: 'C$', prefix: true, label: 'CAD (C$)' },
+    AUD: { rate: 1.52, symbol: 'A$', prefix: true, label: 'AUD (A$)' },
+    ZAR: { rate: 18.2, symbol: 'R', prefix: true, label: 'ZAR (R)' },
+    KES: { rate: 130, symbol: 'KSh', prefix: true, label: 'KES (KSh)' },
+    NGN: { rate: 1600, symbol: '₦', prefix: true, label: 'NGN (₦)' },
   }
 
+  const FEATURED_CURRENCIES = ['USD', 'EUR', 'GBP', 'ZMW']
+  const OTHER_CURRENCIES = ['CAD', 'AUD', 'ZAR', 'KES', 'NGN']
+
   const currentRate = rates[currency] || rates.USD
-  const calculatedAmount = (usdPrice * currentRate.rate).toFixed(currency === 'ZMW' ? 0 : 2)
+  const isZeroDecimal = currency === 'ZMW' || currency === 'NGN' || currency === 'KES'
+  const calculatedAmount = (usdPrice * currentRate.rate).toFixed(isZeroDecimal ? 0 : 2)
   const displayAmount = currency === 'ZMW'
     ? `K${Number(calculatedAmount).toLocaleString()} ZMW`
-    : `${currentRate.symbol}${calculatedAmount} ${currency}`
+    : `${currentRate.symbol}${Number(calculatedAmount).toLocaleString()} ${currency}`
 
   const handlePay = (e) => {
     e.preventDefault()
@@ -85,27 +94,38 @@ export default function RefineIQCheckoutModal({ pkg, isOpen, onClose, onConfirm,
           </div>
 
           {/* Currency Pill Switcher */}
-          <div className="grid grid-cols-4 gap-1.5 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
-            {Object.keys(rates).map((cKey) => (
-              <button
-                key={cKey}
-                type="button"
-                onClick={() => {
-                  setCurrency(cKey)
-                  // If ZMW selected, mobile money is naturally active; if USD/EUR/GBP, card is active
-                  if (cKey === 'ZMW' && method !== 'mobile_money') {
-                    // keep choice or allow switch
-                  }
-                }}
-                className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold transition-all text-center ${
-                  currency === cKey
-                    ? 'bg-[#007AFF] text-white shadow'
-                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-                }`}
+          <div className="space-y-2">
+            <div className="grid grid-cols-4 gap-1.5 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
+              {FEATURED_CURRENCIES.map((cKey) => (
+                <button
+                  key={cKey}
+                  type="button"
+                  onClick={() => setCurrency(cKey)}
+                  className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold transition-all text-center ${
+                    currency === cKey
+                      ? 'bg-[#007AFF] text-white shadow'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                  }`}
+                >
+                  {rates[cKey].label}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 px-1">
+              <span>More Global Currencies:</span>
+              <select
+                value={OTHER_CURRENCIES.includes(currency) ? currency : ''}
+                onChange={(e) => { if (e.target.value) setCurrency(e.target.value) }}
+                className="bg-zinc-950 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-zinc-200 outline-none focus:border-[#007AFF]"
               >
-                {rates[cKey].label}
-              </button>
-            ))}
+                <option value="">Other Regions...</option>
+                {OTHER_CURRENCIES.map((cKey) => (
+                  <option key={cKey} value={cKey}>
+                    {rates[cKey].label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 

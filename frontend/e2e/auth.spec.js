@@ -35,4 +35,20 @@ test.describe('RefineIQ Authentication & Landing Page Flow', () => {
     await page.getByRole('button', { name: 'Sign out' }).click()
     await expect(page).toHaveURL('/')
   })
+
+  test('Cookie Consent Banner displays and allows accepting essential or all cookies', async ({ page }) => {
+    // Clear localStorage to ensure fresh visit
+    await page.goto('/')
+    await page.evaluate(() => localStorage.removeItem('refineiq_cookie_consent'))
+    await page.reload()
+
+    // Banner should appear
+    await expect(page.getByText('Privacy & Cookie Choices')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Accept All' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Essential Only' })).toBeVisible()
+
+    // Clicking Accept All should persist and dismiss banner
+    await page.getByRole('button', { name: 'Accept All' }).click()
+    await expect(page.getByText('Privacy & Cookie Choices')).not.toBeVisible()
+  })
 })

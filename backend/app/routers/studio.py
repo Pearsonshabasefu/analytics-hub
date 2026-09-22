@@ -47,6 +47,10 @@ async def start_training(
         algorithms = ["logistic_regression", "random_forest", "xgboost"]
         estimated_ocu = 3.5
         estimated_time = 90
+    elif payload.strategy in ("time_series", "forecasting"):
+        algorithms = ["prophet", "xgboost_timeseries", "lightgbm_forecast"]
+        estimated_ocu = 5.0
+        estimated_time = 180
     else:
         algorithms = ["random_forest", "xgboost", "lightgbm"]
         estimated_ocu = 8.0
