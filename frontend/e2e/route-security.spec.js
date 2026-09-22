@@ -33,8 +33,8 @@ test.describe('RefineIQ Route Security & Middleware Interception Suite', () => {
     await expect(page).toHaveURL(/\/auth/)
   })
 
-  test('Path variation: redundant slashes (//settings) are intercepted to /auth', async ({ page }) => {
-    await page.goto('//settings', { waitUntil: 'domcontentloaded' })
+  test('Path variation: redundant slashes (/settings//) are intercepted to /auth', async ({ page }) => {
+    await page.goto('/settings//', { waitUntil: 'domcontentloaded' })
     await expect(page).toHaveURL(/\/auth/)
   })
 
