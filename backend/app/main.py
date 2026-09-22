@@ -32,11 +32,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from app.core.security import verify_command_acl, verify_deployment_ip_binding
+from fastapi.responses import JSONResponse
+
+# Command ACL & Deployment IP Binding Middleware
+@app.middleware("http")
+async def enforce_command_acl_and_ip_binding(request, call_next):
+    # 1. Enforce Command ACL: Only allow verbs the app actually uses
+    verify_command_acl(request.method)
+
+    # 2. Enforce Deployment IP Binding for internal/cluster calls if configured
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        client_ip = forwarded_for.split(",")[0].strip()
+
+    if not verify_deployment_ip_binding(client_ip):
+        return JSONResponse(
+            status_code=403,
+            content={"detail": "Access forbidden: IP not in authorized deployment range"},
+        )
+
+    return await call_next(request)
+
 # Server-side Security Headers Middleware (OWASP recommended)
 @app.middleware("http")
 async def add_security_headers(request, call_next):
     response = await call_next(request)
     response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Content-Security-Policy"] = "frame-ancestors 'none';"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"

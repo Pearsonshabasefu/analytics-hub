@@ -10,11 +10,11 @@ Setup:
     pip install requests  (already in FastAPI deps)
     Set FLUTTERWAVE_SECRET_KEY in .env
 """
-from fastapi import APIRouter, Depends, HTTPException, Request, Header, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Header, status, Response
 from pydantic import BaseModel
 from typing import Optional
 import httpx
-from app.core.security import get_current_user
+from app.core.security import get_current_user, regenerate_session
 from app.core.supabase import get_supabase_admin
 from app.core.config import settings
 
@@ -204,6 +204,7 @@ async def payment_webhook(
 
 @router.patch("/settings")
 async def update_billing_settings(
+    response: Response,
     auto_top_up: Optional[bool] = None,
     max_model_spend: Optional[int] = None,
     current_user: dict = Depends(get_current_user),
@@ -219,7 +220,10 @@ async def update_billing_settings(
     if updates:
         supabase.table("billing_state").update(updates).eq("user_id", current_user["id"]).execute()
 
-    return {"success": True}
+    # Security: Regenerate session cookie upon privilege / quota change
+    regenerate_session(response, current_user["id"], reason="privilege_change")
+
+    return {"success": True, "session_regenerated": True}
 
 
 @router.get("/packages")

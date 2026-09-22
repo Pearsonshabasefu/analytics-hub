@@ -76,7 +76,7 @@ function SocialBtn({ icon, label, onClick, disabled, badge }) {
 // ── Main Component ───────────────────────────────────────────────────
 export default function AuthPage() {
   const navigate = useNavigate()
-  const { user, setUser } = useAuthStore()
+  const { user, setUser, regenerateSession } = useAuthStore()
 
   // Redirect to dashboard if already authenticated
   useEffect(() => {
@@ -217,6 +217,7 @@ export default function AuthPage() {
           setMagicSent(true) // email confirmation required
         } else {
           setUser(data.user)
+          regenerateSession('login')
           navigate('/dashboard')
         }
       } else {
@@ -226,6 +227,7 @@ export default function AuthPage() {
           return
         }
         setUser(data.user)
+        regenerateSession('login')
         navigate('/dashboard')
       }
     } catch (err) {
@@ -269,6 +271,7 @@ export default function AuthPage() {
       })
       if (!error && data?.user) {
         setUser(data.user)
+        regenerateSession('login')
         navigate('/dashboard')
         return
       }
@@ -281,6 +284,7 @@ export default function AuthPage() {
       user_metadata: { full_name: 'Demo Analyst' },
       isDemo: true,
     })
+    regenerateSession('login')
     navigate('/dashboard')
   }
 

@@ -48,7 +48,7 @@ function TopUpButton({ pkg, onSuccess }) {
 
 export default function SettingsPage() {
   const navigate = useNavigate()
-  const { user } = useAuthStore()
+  const { user, regenerateSession } = useAuthStore()
   const { theme, toggleTheme } = useThemeStore()
 
   const [activeTab, setActiveTab]         = useState('billing')
@@ -99,6 +99,9 @@ export default function SettingsPage() {
     setOcuBalance(prev => prev + pkg.ocus)
     setSuccessMsg(`Payment successful! ${pkg.ocus} OCUs added to your balance.`)
     setTimeout(() => setSuccessMsg(null), 6000)
+
+    // Security: Regenerate session upon compute quota / privilege change
+    regenerateSession('privilege_change')
 
     const receiptObj = {
       tx_ref: data?.tx_ref || `RIQ-TX-${Date.now()}`,
