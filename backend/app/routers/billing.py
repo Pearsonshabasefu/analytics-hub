@@ -10,7 +10,7 @@ Setup:
     pip install requests  (already in FastAPI deps)
     Set FLUTTERWAVE_SECRET_KEY in .env
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, Header, status
 from pydantic import BaseModel
 from typing import Optional
 import httpx
@@ -132,22 +132,47 @@ async def initiate_topup(
     )
 
 
-@router.post("/webhook")
-async def flutterwave_webhook(request: dict):
-    """
-    Flutterwave webhook: called after successful payment.
-    Verifies the transaction and credits OCUs to user's balance.
+# Set of processed transactions to prevent duplicate crediting (idempotency guard)
+_PROCESSED_TX_REFS = set()
 
-    Configure webhook URL in Flutterwave Dashboard:
-    https://your-api.vercel.app/api/billing/webhook
+@router.post("/webhook")
+async def payment_webhook(
+    request: Request,
+    verif_hash: Optional[str] = Header(None, alias="verif-hash"),
+):
     """
-    # Verify it's a successful charge
-    if request.get("event") != "charge.completed":
+    Cryptographically verified payment webhook:
+    - Verifies HMAC signature / secret token header (verif-hash)
+    - Enforces idempotency via transaction reference deduplication
+    - Verifies successful charge status before crediting OCUs
+    """
+    # 1. Server-side Operation Authorization: Verify Webhook Signature
+    secret_key = getattr(settings, "FLUTTERWAVE_SECRET_KEY", None)
+    if secret_key and verif_hash != secret_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized: invalid or missing webhook signature header",
+        )
+
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid JSON body")
+
+    if body.get("event") != "charge.completed":
         return {"status": "ignored"}
 
-    data = request.get("data", {})
+    data = body.get("data", {})
     if data.get("status") != "successful":
         return {"status": "payment_not_successful"}
+
+    tx_ref = data.get("tx_ref")
+    if not tx_ref:
+        return {"status": "missing_tx_ref"}
+
+    # 2. Idempotency Check: Prevent replay attacks
+    if tx_ref in _PROCESSED_TX_REFS:
+        return {"status": "already_processed", "tx_ref": tx_ref}
 
     meta = data.get("meta", {})
     user_id = meta.get("user_id")
@@ -156,7 +181,7 @@ async def flutterwave_webhook(request: dict):
     if not user_id or not ocus_to_add:
         return {"status": "missing_meta"}
 
-    # Credit OCUs
+    # 3. Credit OCUs to user balance
     supabase = get_supabase_admin()
     current = (
         supabase.table("billing_state")
@@ -172,7 +197,9 @@ async def flutterwave_webhook(request: dict):
         "ocu_balance": new_balance
     }).eq("user_id", user_id).execute()
 
-    return {"status": "ocus_credited", "new_balance": new_balance}
+    _PROCESSED_TX_REFS.add(tx_ref)
+
+    return {"status": "ocus_credited", "tx_ref": tx_ref, "new_balance": new_balance}
 
 
 @router.patch("/settings")

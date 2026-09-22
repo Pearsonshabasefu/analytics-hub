@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_project_ownership, verify_model_ownership
 from app.core.supabase import get_supabase_admin
 from app.services.gemini_guide import get_model_explanation
 
@@ -115,8 +115,9 @@ async def get_model_explainability(
     - Hierarchical collinear feature clusters (Pearson |r| > 0.8)
     - Plain-English executive summary
     """
-    from app.services.explainability import shap_engine
-    import numpy as np
+    # Verify operation authorization: user must own project and model
+    await verify_project_ownership(project_id, current_user)
+    await verify_model_ownership(model_id, current_user)
 
     # Generate synthetic domain dataset for model visualization
     np.random.seed(42)

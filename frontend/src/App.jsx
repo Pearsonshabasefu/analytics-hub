@@ -1,6 +1,6 @@
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { supabase } from './lib/supabaseClient'
 
 // Pages
@@ -15,6 +15,8 @@ import WatchtowerPage from './pages/WatchtowerPage'
 import SettingsPage from './pages/SettingsPage'
 import PricingPage from './pages/PricingPage'
 import TermsPage from './pages/TermsPage'
+import PrivacyPage from './pages/PrivacyPage'
+import DpaPage from './pages/DpaPage'
 import MagicEarWidget from './components/features/feedback/MagicEarWidget'
 import PwaInstallPrompt from './components/common/PwaInstallPrompt'
 
@@ -22,22 +24,67 @@ import PwaInstallPrompt from './components/common/PwaInstallPrompt'
 import { useIdleTimeout } from './hooks/useIdleTimeout'
 import SessionWarningModal from './components/common/SessionWarningModal'
 
+// Path normalization and route security guard
+export function normalizePath(rawPath = '') {
+  try {
+    const decoded = decodeURIComponent(rawPath)
+    const collapsed = decoded.replace(/\/+/g, '/').toLowerCase()
+    return (collapsed.length > 1 && collapsed.endsWith('/')) 
+      ? collapsed.slice(0, -1) 
+      : collapsed
+  } catch (_) {
+    return rawPath.toLowerCase()
+  }
+}
+
+export function isProtectedPath(path = '') {
+  const norm = normalizePath(path)
+  const protectedPrefixes = [
+    '/dashboard',
+    '/project',
+    '/settings',
+    '/studio',
+    '/deploy',
+    '/refinery',
+    '/watchtower',
+    '/ingest',
+  ]
+  return protectedPrefixes.some(prefix => norm === prefix || norm.startsWith(`${prefix}/`))
+}
+
 // Protected route wrapper
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuthStore()
+  const location = useLocation()
+
   if (loading) return (
     <div className="min-h-screen bg-ah-bg flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-ah-primary border-t-transparent rounded-full animate-spin" />
     </div>
   )
-  if (!user) return <Navigate to="/auth" replace />
+  if (!user) {
+    const redirectUrl = `/auth?redirect=${encodeURIComponent(location.pathname + location.search)}`
+    return <Navigate to={redirectUrl} replace />
+  }
   return children
 }
 
 // Inner component — must be inside <Router> to use useNavigate / useIdleTimeout
 function AppInner() {
-  const { setUser, setLoading } = useAuthStore()
+  const { user, setUser, loading, setLoading } = useAuthStore()
   const [warnSeconds, setWarnSeconds] = useState(null)
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // Proactive Route Interceptor: Catches all protected path variations before rendering
+  useEffect(() => {
+    if (loading) return
+    const norm = normalizePath(location.pathname)
+    if (isProtectedPath(norm) && !user) {
+      const redirectUrl = `/auth?redirect=${encodeURIComponent(location.pathname + location.search)}`
+      navigate(redirectUrl, { replace: true })
+    }
+  }, [location.pathname, location.search, user, loading, navigate])
 
   // Supabase auth state listener
   useEffect(() => {
@@ -105,6 +152,8 @@ function AppInner() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/dpa" element={<DpaPage />} />
 
         {/* Protected app routes */}
         <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
@@ -115,8 +164,14 @@ function AppInner() {
         <Route path="/project/:projectId/watchtower" element={<ProtectedRoute><WatchtowerPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Fallback with protected path intercept */}
+        <Route path="*" element={
+          isProtectedPath(location.pathname) ? (
+            <Navigate to={`/auth?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        } />
       </Routes>
 
       {/* Global: Magic Ear feedback widget */}

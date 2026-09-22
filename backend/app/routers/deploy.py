@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.core.security import get_current_user
+from app.core.security import get_current_user, verify_model_ownership
 from app.core.supabase import get_supabase_admin
 import uuid
 
@@ -60,8 +60,9 @@ async def predict(
 ):
     """
     Run inference. Returns 402 Payment Required when OCU balance is zero.
-    Prevents confusing 500 errors for developers integrating with CRM webhooks.
-    """
+    # Verify server-side operation authorization: user must own the target model
+    await verify_model_ownership(model_id, current_user)
+
     supabase = get_supabase_admin()
 
     # Check OCU balance

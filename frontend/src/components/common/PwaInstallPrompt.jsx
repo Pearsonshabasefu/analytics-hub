@@ -171,11 +171,11 @@ export default function PwaInstallPrompt() {
                 </div>
               ) : (
                 <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-200 space-y-2">
-                  <p className="font-semibold text-white">Or install via your browser menu (Chrome / Edge):</p>
+                  <p className="font-semibold text-white">Install via your browser menu (Edge, Chrome, Brave, Safari):</p>
                   <div className="space-y-1.5 text-zinc-300">
-                    <p>• Click the <strong>⋮ (three dots)</strong> at the top right of your browser window.</p>
-                    <p>• Select <strong>"Install RefineIQ..."</strong> (or <em>"Cast, save, and share" $\rightarrow$ "Install page as app"</em>).</p>
-                    <p>• Click <strong>Install</strong> — RefineIQ is added to your desktop and taskbar!</p>
+                    <p>• Look at your address bar and click the <strong>Install App (💻 / ⊕)</strong> icon.</p>
+                    <p>• Or click the browser menu (<strong>⋮</strong> or <strong>⋯</strong>) &rarr; <strong>Apps</strong> &rarr; <strong>Install RefineIQ</strong>.</p>
+                    <p>• Click <strong>Install</strong> &mdash; RefineIQ launches instantly in its own dedicated desktop window!</p>
                   </div>
                 </div>
               )}
