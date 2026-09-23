@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     # Resend (Email)
     RESEND_API_KEY: str = ""
-    RESEND_FROM_EMAIL: str = "alerts@analyticshub.ai"
+    RESEND_FROM_EMAIL: str = "alerts@refineiq.ai"
 
     # Payment Processing (Stripe / Multi-gateway)
     STRIPE_SECRET_KEY: str = ""
@@ -36,7 +36,11 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str = ""
 
     # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:5173"]
+    CORS_ORIGINS: List[str] = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://refineiq.vercel.app",
+    ]
 
     @property
     def is_production(self) -> bool:

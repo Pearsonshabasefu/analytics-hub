@@ -1,5 +1,5 @@
 -- =============================================================================
--- ANALYTICS HUB — COMPLETE DATABASE SCHEMA
+-- REFINEIQ — COMPLETE DATABASE SCHEMA
 -- Paste and Run this in: Supabase Dashboard > SQL Editor > New Query
 -- =============================================================================
 

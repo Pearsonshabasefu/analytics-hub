@@ -1,7 +1,7 @@
 [project]
-name = "analytics-hub-backend"
+name = "refineiq-backend"
 version = "0.1.0"
-description = "Analytics Hub - FastAPI Backend"
+description = "RefineIQ - FastAPI Backend"
 requires-python = ">=3.12"
 
 dependencies = [

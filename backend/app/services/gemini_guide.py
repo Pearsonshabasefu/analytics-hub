@@ -46,7 +46,7 @@ async def get_model_explanation(
     if model:
         try:
             prompt = f"""
-            You are the Analytics Hub AI Guide. Provide a concise, clear explanation (2-3 sentences)
+            You are the RefineIQ AI Guide. Provide a concise, clear explanation (2-3 sentences)
             of this trained machine learning model for a business user or data analyst.
             
             Algorithm: {algorithm}
@@ -95,7 +95,7 @@ async def get_data_cleaning_recommendation(
     if model:
         try:
             prompt = f"""
-            You are Analytics Hub AI Refinery Guide. Provide 2 concise, actionable bullet points
+            You are RefineIQ AI Refinery Guide. Provide 2 concise, actionable bullet points
             recommending the best data cleaning steps for this dataset summary:
             {json.dumps(dataset_summary, default=str)}
             Focus on imputation, duplicate handling, and privacy preservation.

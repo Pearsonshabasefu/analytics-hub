@@ -9,13 +9,13 @@ from app.routers import projects, ingest, refinery, studio, deploy, monitor, fee
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application startup and shutdown events."""
-    print(f"🚀 Analytics Hub API starting in {settings.APP_ENV} mode")
+    print(f"🚀 RefineIQ API starting in {settings.APP_ENV} mode")
     yield
-    print("🛑 Analytics Hub API shutting down")
+    print("🛑 RefineIQ API shutting down")
 
 
 app = FastAPI(
-    title="Analytics Hub API",
+    title="RefineIQ API",
     description="AI-native data science platform backend",
     version="0.1.0",
     lifespan=lifespan,
@@ -80,7 +80,7 @@ app.include_router(billing.router, prefix="/api/billing", tags=["billing"])
 
 @app.get("/")
 async def root():
-    return {"message": "Analytics Hub API", "version": "0.1.0", "status": "healthy"}
+    return {"message": "RefineIQ API", "version": "0.1.0", "status": "healthy"}
 
 
 @app.get("/health")

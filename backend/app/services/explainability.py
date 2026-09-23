@@ -1,5 +1,5 @@
 """
-RefineIQ / Analytics Hub - Mathematical Explainability Engine
+RefineIQ - Mathematical Explainability Engine
 Exact TreeSHAP / KernelSHAP with Multicollinearity Hierarchical Clustering
 Enforces exact additivity: phi_0 + sum(phi_j) = f(x)
 """
