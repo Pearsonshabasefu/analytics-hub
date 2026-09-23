@@ -19,7 +19,7 @@ RefineIQ provides a cloud-native B2B data science automation and automated machi
 
 2.1. **Eligibility:** You must be at least 18 years of age and legally competent to enter into binding contracts in your jurisdiction.
 
-2.2. **Account Security:** You access the Service through single sign-on (SSO) or passwordless Magic Link email authentication. You are exclusively responsible for maintaining the confidentiality of your credentials and API tokens (`ah_live_*`). You assume full liability for all activities conducted under your account credentials.
+2.2. **Account Security:** You access the Service through single sign-on (SSO) or passwordless Magic Link email authentication. You are exclusively responsible for maintaining the confidentiality of your credentials and API tokens (`riq_live_*`). You assume full liability for all activities conducted under your account credentials.
 
 2.3. **Unauthorized Access:** You agree to notify RefineIQ immediately upon discovering any unauthorized use of your credentials or breach of security.
 

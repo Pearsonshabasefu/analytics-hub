@@ -501,7 +501,7 @@ export default function SettingsPage() {
                 <h3 className="font-headline font-bold text-base">Developer API Access</h3>
                 <p className="text-xs text-ah-muted">Use API keys to trigger AutoML pipelines and inference calls programmatically.</p>
                 <div className="flex items-center gap-2 font-mono text-xs bg-ah-surface2 border border-ah rounded-xl px-4 py-3">
-                  <span className="flex-1 text-ah-muted">ah_live_9b4e82f1c0d57a3e8</span>
+                  <span className="flex-1 text-ah-muted">riq_live_9b4e82f1c0d57a3e8</span>
                   <span className="text-[10px] bg-green-500/15 text-green-400 px-2 py-0.5 rounded">Active</span>
                 </div>
               </div>

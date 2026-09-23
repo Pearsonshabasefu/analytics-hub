@@ -75,7 +75,7 @@ export default function TermsPage() {
           <section>
             <h2 className="font-headline text-xl font-bold text-ah-text mb-3">2. Accounts, Authentication & Access</h2>
             <p className="mb-2">
-              Access is provisioned through secure passwordless magic link email or single sign-on (SSO). You are strictly responsible for maintaining control of your authentication tokens and API secret keys (<code className="text-xs text-ah-primary bg-ah-surface2 px-1.5 py-0.5 rounded font-mono">ah_live_*</code>).
+              Access is provisioned through secure passwordless magic link email or single sign-on (SSO). You are strictly responsible for maintaining control of your authentication tokens and API secret keys (<code className="text-xs text-ah-primary bg-ah-surface2 px-1.5 py-0.5 rounded font-mono">riq_live_*</code>).
             </p>
             <p>
               You agree to notify RefineIQ immediately if you suspect any unauthorized access or compromise of your credentials.
