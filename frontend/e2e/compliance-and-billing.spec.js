@@ -10,29 +10,29 @@ test.describe('RefineIQ Compliance Governance & Multi-Currency Billing Suite', (
 
     // Tab 1: Regulatory Matrix (default)
     await expect(page.getByText('Global Jurisdiction Matrix & Review Dates')).toBeVisible()
-    await expect(page.getByText('Zambia')).toBeVisible()
+    await expect(page.getByRole('cell', { name: /Zambia/ })).toBeVisible()
     await expect(page.getByText('Data Protection Act No. 3 of 2021')).toBeVisible()
-    await expect(page.getByText('European Union')).toBeVisible()
+    await expect(page.getByRole('cell', { name: /European Union/ })).toBeVisible()
 
     // Tab 2: 90-Day Calendar
     await page.getByRole('button', { name: '📅 90-Day Calendar' }).click()
-    await expect(page.getByText('90-Day Phased Compliance & Audit Schedule')).toBeVisible()
-    await expect(page.getByText('Phase 1: Legal Baselines & Consent (Days 1–30)')).toBeVisible()
-    await expect(page.getByText('Phase 2: Technical Privacy & Data Retention (Days 31–60)')).toBeVisible()
-    await expect(page.getByText('Phase 3: Continuous Audit & Third-Party Assurance (Days 61–90)')).toBeVisible()
+    await expect(page.getByText('90-Day Compliance Roadmap')).toBeVisible()
+    await expect(page.getByText('Phase 1: Foundation & Transparency')).toBeVisible()
+    await expect(page.getByText('Phase 2: Subprocessor & Cross-Border Auditing')).toBeVisible()
+    await expect(page.getByText('Phase 3: SOC 2 Readiness & Continuous Telemetry')).toBeVisible()
 
     // Tab 3: Subprocessors & Residency
     await page.getByRole('button', { name: '🏢 Subprocessors & Residency' }).click()
-    await expect(page.getByText('Authorized Subprocessors & Storage Residency')).toBeVisible()
+    await expect(page.getByText('Authorized Subprocessor Transparency')).toBeVisible()
     await expect(page.getByText('Supabase Inc.')).toBeVisible()
     await expect(page.getByText('Modal Labs Inc.')).toBeVisible()
 
     // Tab 4: Compliance Automation (Vanta)
     await page.getByRole('button', { name: '🛡️ Compliance Automation (Vanta)' }).click()
-    await expect(page.getByText('Automated Compliance Platform Evaluation')).toBeVisible()
-    await expect(page.getByText('Vanta')).toBeVisible()
-    await expect(page.getByText('Drata')).toBeVisible()
-    await expect(page.getByText('Secureframe')).toBeVisible()
+    await expect(page.getByText('Compliance Automation Assessment')).toBeVisible()
+    await expect(page.getByText('Vanta', { exact: true })).toBeVisible()
+    await expect(page.getByText('Drata', { exact: true })).toBeVisible()
+    await expect(page.getByText('Secureframe', { exact: true })).toBeVisible()
   })
 
   test('Settings (/settings) displays billing, launches multi-currency modal with ZMW and Mobile Money', async ({ page }) => {
@@ -60,7 +60,7 @@ test.describe('RefineIQ Compliance Governance & Multi-Currency Billing Suite', (
     const zmwButton = page.getByRole('button', { name: 'ZMW (K)' })
     await expect(zmwButton).toBeVisible()
     await zmwButton.click()
-    await expect(page.getByText(/K.*ZMW/)).toBeVisible()
+    await expect(page.getByText(/K.*ZMW/).first()).toBeVisible()
 
     // Switch payment method to Mobile Money
     const mobileMoneyBtn = page.getByRole('button', { name: /Mobile Money/i })
@@ -68,7 +68,7 @@ test.describe('RefineIQ Compliance Governance & Multi-Currency Billing Suite', (
     await mobileMoneyBtn.click()
 
     // Verify Zambian carriers (MTN and Airtel)
-    await expect(page.getByText(/MTN Mobile Money/i)).toBeVisible()
+    await expect(page.getByText(/MTN MoMo/i)).toBeVisible()
     await expect(page.getByText(/Airtel Money/i)).toBeVisible()
 
     // Close checkout modal
